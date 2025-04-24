@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { KoffaLogo } from '@/components/KoffaLogo';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useCategories } from '@/hooks/useCategories';
 import { useLists } from '@/hooks/useLists';
-import { useUser } from '@supabase/auth-helpers-react';
+import { useApp } from '@/context/AppContext';
 
 export const Dashboard: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -20,12 +21,17 @@ export const Dashboard: React.FC = () => {
   
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { lists, createList, isLoading: listsLoading } = useLists();
-  const user = useUser();
+  const { user } = useApp();
   
   // Filter categories by search term
   const filteredCategories = categories?.filter(category => 
     category.name.toLowerCase().includes(search.toLowerCase())
   ) ?? [];
+
+  // Add the missing handleOpenNewListDialog function
+  const handleOpenNewListDialog = () => {
+    setShowNewListDialog(true);
+  };
 
   const handleCreateList = () => {
     if (newListName.trim()) {
