@@ -1,7 +1,5 @@
-
 import React, { useState } from 'react';
 import { KoffaLogo } from '@/components/KoffaLogo';
-import { useApp } from '@/context/AppContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Plus } from 'lucide-react';
@@ -11,28 +9,30 @@ import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { BottomNav } from '@/components/BottomNav';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useCategories } from '@/hooks/useCategories';
+import { useLists } from '@/hooks/useLists';
+import { useUser } from '@supabase/auth-helpers-react';
 
 export const Dashboard: React.FC = () => {
-  const { categories, lists, createList, user } = useApp();
   const [search, setSearch] = useState('');
   const [showNewListDialog, setShowNewListDialog] = useState(false);
   const [newListName, setNewListName] = useState('');
   
+  const { categories, isLoading: categoriesLoading } = useCategories();
+  const { lists, createList, isLoading: listsLoading } = useLists();
+  const user = useUser();
+  
   // Filter categories by search term
-  const filteredCategories = categories.filter(category => 
+  const filteredCategories = categories?.filter(category => 
     category.name.toLowerCase().includes(search.toLowerCase())
-  );
+  ) ?? [];
 
   const handleCreateList = () => {
     if (newListName.trim()) {
-      createList(newListName.trim());
+      createList({ name: newListName.trim() });
       setNewListName('');
       setShowNewListDialog(false);
     }
-  };
-
-  const handleOpenNewListDialog = () => {
-    setShowNewListDialog(true);
   };
 
   return (
@@ -61,7 +61,7 @@ export const Dashboard: React.FC = () => {
       </div>
       
       <div className="p-4">
-        {lists.length > 0 && (
+        {!listsLoading && lists && lists.length > 0 && (
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">My Lists</h2>
@@ -83,11 +83,19 @@ export const Dashboard: React.FC = () => {
         )}
         
         <h2 className="text-xl font-bold mb-4">Categories</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {filteredCategories.map((category) => (
-            <CategoryCard key={category.id} category={category} />
-          ))}
-        </div>
+        {!categoriesLoading ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            {filteredCategories.map((category) => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            {[1,2,3,4].map((i) => (
+              <div key={i} className="aspect-square animate-pulse bg-gray-200 rounded-lg" />
+            ))}
+          </div>
+        )}
       </div>
       
       <FloatingActionButton 
