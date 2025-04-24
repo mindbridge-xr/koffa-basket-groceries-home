@@ -17,12 +17,14 @@ export interface GroceryList {
   ownerId: string;
   shared: boolean;
   sharedWith?: string[];
+  lastUsed?: Date; // Adding lastUsed field for tracking recent lists
 }
 
 export interface Category {
   id: string;
   name: string;
   slug: string;
+  icon?: string; // Adding icon field for category display
 }
 
 export interface User {
@@ -30,4 +32,13 @@ export interface User {
   name: string;
   email: string;
   avatar?: string;
+}
+
+export interface Recipe {
+  id: string;
+  title: string;
+  ingredients: GroceryItem[];
+  imageUrl?: string;
+  createdBy: string;
+  tags?: string[];
 }

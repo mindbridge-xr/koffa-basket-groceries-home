@@ -4,15 +4,16 @@ import { KoffaLogo } from '@/components/KoffaLogo';
 import { useApp } from '@/context/AppContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { CategoryCard } from '@/components/CategoryCard';
 import { ListCard } from '@/components/ListCard';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { BottomNav } from '@/components/BottomNav';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export const Dashboard: React.FC = () => {
-  const { categories, lists, createList } = useApp();
+  const { categories, lists, createList, user } = useApp();
   const [search, setSearch] = useState('');
   const [showNewListDialog, setShowNewListDialog] = useState(false);
   const [newListName, setNewListName] = useState('');
@@ -39,7 +40,14 @@ export const Dashboard: React.FC = () => {
       <div className="bg-koffa-aqua-forest text-white p-6">
         <div className="flex justify-between items-center mb-4">
           <KoffaLogo className="text-white" size="sm" />
+          {user && (
+            <Avatar className="h-10 w-10 border-2 border-white">
+              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarFallback>{user.name?.[0]}</AvatarFallback>
+            </Avatar>
+          )}
         </div>
+        <h1 className="text-2xl font-bold mb-4">Welcome{user ? `, ${user.name.split(' ')[0]}` : ''}!</h1>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
@@ -55,8 +63,18 @@ export const Dashboard: React.FC = () => {
       <div className="p-4">
         {lists.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4">My Lists</h2>
-            <div className="grid gap-3">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">My Lists</h2>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="text-koffa-aqua-forest hover:text-koffa-aqua-forest/80"
+                onClick={handleOpenNewListDialog}
+              >
+                <Plus className="h-4 w-4 mr-1" /> New List
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {lists.map(list => (
                 <ListCard key={list.id} list={list} />
               ))}
@@ -65,14 +83,18 @@ export const Dashboard: React.FC = () => {
         )}
         
         <h2 className="text-xl font-bold mb-4">Categories</h2>
-        <div className="rounded-lg overflow-hidden border border-muted">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
           {filteredCategories.map((category) => (
             <CategoryCard key={category.id} category={category} />
           ))}
         </div>
       </div>
       
-      <FloatingActionButton onClick={handleOpenNewListDialog} />
+      <FloatingActionButton 
+        onClick={handleOpenNewListDialog} 
+        label="New List"
+        icon={<Plus className="h-5 w-5" />}
+      />
       <BottomNav />
       
       <Dialog open={showNewListDialog} onOpenChange={setShowNewListDialog}>
