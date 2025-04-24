@@ -1,34 +1,12 @@
 
 import React from 'react';
-import { Category } from '@/types';
+import { Tables } from '@/lib/supabase/types';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 interface CategoryCardProps {
-  category: Category;
+  category: Tables['categories'];
 }
-
-// Function to map category slugs to emoji icons
-const getCategoryIcon = (slug: string): string => {
-  const iconMap: Record<string, string> = {
-    'fruits-vegetables': '🥦',
-    'bread-pastries': '🍞',
-    'milk-cheese': '🥛',
-    'meat-fish': '🍗',
-    'ingredients-spices': '🌿',
-    'frozen-convenience': '❄️',
-    'grain-products': '🧺',
-    'snacks-sweets': '🍿',
-    'beverages': '🥤',
-    'household': '🧼',
-    'care-health': '🧴',
-    'pet-supplies': '🐾',
-    'home-garden': '🏡',
-    'own-items': '📝'
-  };
-
-  return iconMap[slug] || '📋';
-};
 
 export const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
   return (
@@ -41,7 +19,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
       )}
     >
       <div className="text-4xl mb-3">
-        {getCategoryIcon(category.slug)}
+        {category.icon}
       </div>
       <span className="font-medium text-sm">
         {category.name}

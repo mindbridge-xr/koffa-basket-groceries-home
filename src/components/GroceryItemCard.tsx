@@ -1,12 +1,16 @@
 
 import React from 'react';
-import { GroceryItem } from '@/types';
+import { Tables } from '@/lib/supabase/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 
 interface GroceryItemCardProps {
-  item: GroceryItem;
+  item: Tables['items'] & {
+    checked?: boolean;
+    quantity?: number;
+    note?: string;
+  };
   listId: string;
   showCheckbox?: boolean;
   showDelete?: boolean;

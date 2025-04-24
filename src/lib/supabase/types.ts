@@ -5,6 +5,7 @@ export type Tables = {
     name: string
     slug: string
     icon: string
+    order: number
   }
   items: {
     id: string
