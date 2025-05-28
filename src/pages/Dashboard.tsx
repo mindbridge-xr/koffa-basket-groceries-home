@@ -12,7 +12,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useCategories } from '@/hooks/useCategories';
 import { useLists } from '@/hooks/useLists';
-import { useApp } from '@/context/AppContext';
 
 export const Dashboard: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -21,14 +20,12 @@ export const Dashboard: React.FC = () => {
   
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { lists, createList, isLoading: listsLoading } = useLists();
-  const { user } = useApp();
   
   // Filter categories by search term
   const filteredCategories = categories?.filter(category => 
     category.name.toLowerCase().includes(search.toLowerCase())
   ) ?? [];
 
-  // Add the missing handleOpenNewListDialog function
   const handleOpenNewListDialog = () => {
     setShowNewListDialog(true);
   };
@@ -46,14 +43,11 @@ export const Dashboard: React.FC = () => {
       <div className="bg-koffa-aqua-forest text-white p-6">
         <div className="flex justify-between items-center mb-4">
           <KoffaLogo className="text-white" size="sm" />
-          {user && (
-            <Avatar className="h-10 w-10 border-2 border-white">
-              <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback>{user.name?.[0]}</AvatarFallback>
-            </Avatar>
-          )}
+          <Avatar className="h-10 w-10 border-2 border-white">
+            <AvatarFallback>U</AvatarFallback>
+          </Avatar>
         </div>
-        <h1 className="text-2xl font-bold mb-4">Welcome{user ? `, ${user.name.split(' ')[0]}` : ''}!</h1>
+        <h1 className="text-2xl font-bold mb-4">Welcome to Koffa!</h1>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
@@ -82,24 +76,37 @@ export const Dashboard: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {lists.map(list => (
-                <ListCard key={list.id} list={list} />
+                <ListCard key={list.id} list={{
+                  id: list.id,
+                  name: list.name,
+                  items: [],
+                  shared: list.shared || false,
+                  sharedWith: []
+                }} />
               ))}
             </div>
           </div>
         )}
         
         <h2 className="text-xl font-bold mb-4">Categories</h2>
-        {!categoriesLoading ? (
+        {!categoriesLoading && filteredCategories.length > 0 ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {filteredCategories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             ))}
           </div>
-        ) : (
+        ) : categoriesLoading ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {[1,2,3,4].map((i) => (
               <div key={i} className="aspect-square animate-pulse bg-gray-200 rounded-lg" />
             ))}
+          </div>
+        ) : (
+          <div className="text-center p-8">
+            <h3 className="text-lg font-medium text-gray-600">No categories found</h3>
+            <p className="text-gray-500 mt-2">
+              Categories will appear here once they're added to your database
+            </p>
           </div>
         )}
       </div>

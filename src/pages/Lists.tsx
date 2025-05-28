@@ -1,22 +1,21 @@
 
 import React, { useState } from 'react';
-import { useApp } from '@/context/AppContext';
-import { ChevronLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ListCard } from '@/components/ListCard';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { BottomNav } from '@/components/BottomNav';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useLists } from '@/hooks/useLists';
 
 export const Lists: React.FC = () => {
-  const { lists, createList } = useApp();
+  const { lists, createList, isLoading } = useLists();
   const [showNewListDialog, setShowNewListDialog] = useState(false);
   const [newListName, setNewListName] = useState('');
 
   const handleCreateList = () => {
     if (newListName.trim()) {
-      createList(newListName.trim());
+      createList({ name: newListName.trim() });
       setNewListName('');
       setShowNewListDialog(false);
     }
@@ -30,13 +29,25 @@ export const Lists: React.FC = () => {
       </div>
       
       <div className="p-4">
-        <div className="grid gap-3">
-          {lists.map(list => (
-            <ListCard key={list.id} list={list} />
-          ))}
-        </div>
-        
-        {lists.length === 0 && (
+        {isLoading ? (
+          <div className="grid gap-3">
+            {[1,2,3].map((i) => (
+              <div key={i} className="h-24 animate-pulse bg-gray-200 rounded-lg" />
+            ))}
+          </div>
+        ) : lists && lists.length > 0 ? (
+          <div className="grid gap-3">
+            {lists.map(list => (
+              <ListCard key={list.id} list={{
+                id: list.id,
+                name: list.name,
+                items: [],
+                shared: list.shared || false,
+                sharedWith: []
+              }} />
+            ))}
+          </div>
+        ) : (
           <div className="text-center p-8">
             <h3 className="text-lg font-medium text-gray-600">No lists yet</h3>
             <p className="text-gray-500 mt-2">

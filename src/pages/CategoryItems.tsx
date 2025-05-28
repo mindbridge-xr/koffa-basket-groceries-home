@@ -1,26 +1,29 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useApp } from '@/context/AppContext';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Plus } from 'lucide-react';
 import { BottomNav } from '@/components/BottomNav';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useCategories } from '@/hooks/useCategories';
+import { useItemsByCategory } from '@/hooks/useItems';
+import { useLists } from '@/hooks/useLists';
 
 export const CategoryItems: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { getItemsByCategory, categories, lists, addItemToList } = useApp();
+  const { categories, isLoading: categoriesLoading } = useCategories();
+  const { lists } = useLists();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [selectedList, setSelectedList] = useState<string>('');
   const [quantity, setQuantity] = useState('1');
   const [note, setNote] = useState('');
 
-  const category = categories.find(c => c.slug === slug);
-  const items = slug ? getItemsByCategory(slug) : [];
+  // Find category by slug
+  const category = categories?.find(c => c.slug === slug);
+  const { items, isLoading: itemsLoading } = useItemsByCategory(category?.id || '');
   
   const handleAddItem = (item: any) => {
     setSelectedItem(item);
@@ -29,11 +32,8 @@ export const CategoryItems: React.FC = () => {
   
   const handleConfirmAdd = () => {
     if (selectedItem && selectedList) {
-      addItemToList(selectedList, {
-        ...selectedItem,
-        quantity: parseInt(quantity) || 1,
-        note: note
-      });
+      // TODO: Implement adding item to list
+      console.log('Adding item to list:', { selectedItem, selectedList, quantity, note });
       setSelectedItem(null);
       setSelectedList('');
       setQuantity('1');
@@ -41,6 +41,14 @@ export const CategoryItems: React.FC = () => {
       setShowAddDialog(false);
     }
   };
+
+  if (categoriesLoading) {
+    return (
+      <div className="min-h-screen bg-koffa-snow-drift flex items-center justify-center">
+        <div className="animate-pulse text-gray-600">Loading...</div>
+      </div>
+    );
+  }
 
   if (!category) {
     return (
@@ -62,27 +70,37 @@ export const CategoryItems: React.FC = () => {
             <span>Back</span>
           </Link>
         </div>
-        <h1 className="text-2xl font-bold">{category.name}</h1>
-        <p className="text-white/80">{items.length} items</p>
+        <div className="flex items-center mb-2">
+          <span className="text-4xl mr-3">{category.icon}</span>
+          <h1 className="text-2xl font-bold">{category.name}</h1>
+        </div>
+        <p className="text-white/80">{items?.length || 0} items</p>
       </div>
       
       <div className="p-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {items.map(item => (
-            <div 
-              key={item.id}
-              className="bg-white p-3 rounded-lg shadow-sm border border-muted hover:shadow-md transition-shadow flex flex-col items-center cursor-pointer"
-              onClick={() => handleAddItem(item)}
-            >
-              <div className="text-4xl mb-2">{item.icon}</div>
-              <div className="text-center font-medium">{item.name}</div>
-            </div>
-          ))}
-        </div>
-        
-        {items.length === 0 && (
+        {itemsLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {[1,2,3,4,5,6].map(i => (
+              <div key={i} className="aspect-square animate-pulse bg-gray-200 rounded-lg" />
+            ))}
+          </div>
+        ) : items && items.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {items.map(item => (
+              <div 
+                key={item.id}
+                className="bg-white p-3 rounded-lg shadow-sm border border-muted hover:shadow-md transition-shadow flex flex-col items-center cursor-pointer"
+                onClick={() => handleAddItem(item)}
+              >
+                <div className="text-4xl mb-2">{item.icon}</div>
+                <div className="text-center font-medium text-sm">{item.name}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
           <div className="text-center p-8">
             <h3 className="text-lg font-medium text-gray-600">No items in this category</h3>
+            <p className="text-gray-500 mt-2">Items will appear here once they're added to the database</p>
           </div>
         )}
       </div>
@@ -112,7 +130,7 @@ export const CategoryItems: React.FC = () => {
                 required
               >
                 <option value="">Choose a list</option>
-                {lists.map(list => (
+                {lists?.map(list => (
                   <option key={list.id} value={list.id}>{list.name}</option>
                 ))}
               </select>
