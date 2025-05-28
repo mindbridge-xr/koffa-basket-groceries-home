@@ -10,6 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CategoryCard } from '@/components/CategoryCard';
+import { Tables } from '@/lib/supabase/types';
+
+type ListItem = Tables['items'] & {
+  checked?: boolean;
+  quantity?: number;
+  note?: string;
+};
 
 export const ListDetail: React.FC = () => {
   const { listId } = useParams<{ listId: string }>();
@@ -37,16 +44,29 @@ export const ListDetail: React.FC = () => {
     );
   }
   
-  const completedItems = currentList.items.filter(item => item.checked);
-  const pendingItems = currentList.items.filter(item => !item.checked);
+  // Convert the items to the expected format
+  const listItems: ListItem[] = currentList.items.map(item => ({
+    id: item.id,
+    name: item.name,
+    category_id: item.category_id || '',
+    icon: item.icon || '📋',
+    created_at: item.created_at || new Date().toISOString(),
+    checked: item.checked,
+    quantity: item.quantity,
+    note: item.note
+  }));
   
-  const groupedByCategory = currentList.items.reduce((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = [];
+  const completedItems = listItems.filter(item => item.checked);
+  const pendingItems = listItems.filter(item => !item.checked);
+  
+  const groupedByCategory = listItems.reduce((acc, item) => {
+    const categoryId = item.category_id || 'uncategorized';
+    if (!acc[categoryId]) {
+      acc[categoryId] = [];
     }
-    acc[item.category].push(item);
+    acc[categoryId].push(item);
     return acc;
-  }, {} as Record<string, typeof currentList.items>);
+  }, {} as Record<string, ListItem[]>);
   
   const handleShareToggle = (userId: string) => {
     if (currentList.sharedWith?.includes(userId)) {
@@ -126,7 +146,7 @@ export const ListDetail: React.FC = () => {
         
         <h1 className="text-2xl font-bold">{currentList.name}</h1>
         <div className="flex items-center mt-2">
-          <div className="text-sm">{currentList.items.length} items</div>
+          <div className="text-sm">{listItems.length} items</div>
           <div className="mx-2">•</div>
           <div className="text-sm">{completedItems.length} completed</div>
         </div>
@@ -165,7 +185,7 @@ export const ListDetail: React.FC = () => {
           </div>
         )}
         
-        {currentList.items.length === 0 && (
+        {listItems.length === 0 && (
           <div className="text-center p-8">
             <h3 className="text-lg font-medium text-gray-600">Empty list</h3>
             <p className="text-gray-500 mt-2">
