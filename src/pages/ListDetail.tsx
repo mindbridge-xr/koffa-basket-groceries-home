@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
@@ -48,9 +47,9 @@ export const ListDetail: React.FC = () => {
   const listItems: ListItem[] = currentList.items.map(item => ({
     id: item.id,
     name: item.name,
-    category_id: item.category_id || '',
+    category_id: item.category_slug || '',
     icon: item.icon || '📋',
-    created_at: item.created_at || new Date().toISOString(),
+    created_at: new Date().toISOString(),
     checked: item.checked,
     quantity: item.quantity,
     note: item.note
