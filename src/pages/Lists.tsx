@@ -7,12 +7,16 @@ import { ListCard } from '@/components/ListCard';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { BottomNav } from '@/components/BottomNav';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Search, Plus, Filter, Archive, Users, Clock } from 'lucide-react';
+import { QuickShopDialog } from '@/components/QuickShopDialog';
+import { TemplatesDialog } from '@/components/TemplatesDialog';
+import { Search, Plus, Filter, Archive, Users, Clock, ShoppingCart } from 'lucide-react';
 import { useLists } from '@/hooks/useLists';
 
 export const Lists: React.FC = () => {
   const { lists, createList, isLoading } = useLists();
   const [showNewListDialog, setShowNewListDialog] = useState(false);
+  const [showQuickShopDialog, setShowQuickShopDialog] = useState(false);
+  const [showTemplatesDialog, setShowTemplatesDialog] = useState(false);
   const [newListName, setNewListName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'my' | 'shared'>('all');
@@ -128,9 +132,22 @@ export const Lists: React.FC = () => {
           <Button 
             variant="outline" 
             className="h-16 flex flex-col border-koffa-aqua-forest text-koffa-aqua-forest hover:bg-koffa-aqua-forest/10"
+            onClick={() => setShowQuickShopDialog(true)}
           >
-            <Archive className="h-5 w-5 mb-1" />
-            <span className="text-sm">Templates</span>
+            <ShoppingCart className="h-5 w-5 mb-1" />
+            <span className="text-sm">Quick Shop</span>
+          </Button>
+        </div>
+
+        {/* Templates Button */}
+        <div className="mb-6">
+          <Button 
+            variant="outline" 
+            className="w-full h-12 border-koffa-aqua-forest text-koffa-aqua-forest hover:bg-koffa-aqua-forest/10"
+            onClick={() => setShowTemplatesDialog(true)}
+          >
+            <Archive className="h-5 w-5 mr-2" />
+            <span>Browse Templates</span>
           </Button>
         </div>
 
@@ -196,6 +213,7 @@ export const Lists: React.FC = () => {
       <FloatingActionButton onClick={() => setShowNewListDialog(true)} />
       <BottomNav />
       
+      {/* New List Dialog */}
       <Dialog open={showNewListDialog} onOpenChange={setShowNewListDialog}>
         <DialogContent>
           <DialogHeader>
@@ -231,6 +249,18 @@ export const Lists: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Quick Shop Dialog */}
+      <QuickShopDialog 
+        open={showQuickShopDialog} 
+        onOpenChange={setShowQuickShopDialog} 
+      />
+
+      {/* Templates Dialog */}
+      <TemplatesDialog 
+        open={showTemplatesDialog} 
+        onOpenChange={setShowTemplatesDialog} 
+      />
     </div>
   );
 };
