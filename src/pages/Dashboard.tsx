@@ -1,14 +1,16 @@
+
 import React, { useState } from 'react';
 import { KoffaLogo } from '@/components/KoffaLogo';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, ShoppingCart, Clock, Users } from 'lucide-react';
 import { CategoryCard } from '@/components/CategoryCard';
 import { ListCard } from '@/components/ListCard';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { BottomNav } from '@/components/BottomNav';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCategories } from '@/hooks/useCategories';
 import { useLists } from '@/hooks/useLists';
 
@@ -37,6 +39,13 @@ export const Dashboard: React.FC = () => {
     }
   };
 
+  // Recent activity data
+  const recentActivity = [
+    { action: 'Added Milk to Weekly Shopping', time: '2 hours ago' },
+    { action: 'Completed Dinner Prep list', time: '1 day ago' },
+    { action: 'Shared Party List with family', time: '2 days ago' }
+  ];
+
   return (
     <div className="min-h-screen bg-koffa-snow-drift pb-20">
       <div className="bg-koffa-aqua-forest text-white p-6">
@@ -47,6 +56,7 @@ export const Dashboard: React.FC = () => {
           </Avatar>
         </div>
         <h1 className="text-2xl font-bold mb-4">Welcome to Koffa!</h1>
+        <p className="text-white/80 mb-4">Organize your grocery shopping with ease</p>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
@@ -59,22 +69,62 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
       
-      <div className="p-4">
+      <div className="p-4 space-y-6">
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-3">
+          <Button 
+            className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90 h-16 flex flex-col"
+            onClick={handleOpenNewListDialog}
+          >
+            <Plus className="h-5 w-5 mb-1" />
+            <span className="text-sm">New List</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            className="h-16 flex flex-col border-koffa-aqua-forest text-koffa-aqua-forest hover:bg-koffa-aqua-forest/10"
+          >
+            <ShoppingCart className="h-5 w-5 mb-1" />
+            <span className="text-sm">Quick Shop</span>
+          </Button>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-3 gap-3">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-koffa-aqua-forest">{lists?.length || 0}</div>
+              <div className="text-xs text-muted-foreground">Active Lists</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-koffa-aqua-forest">{categories?.length || 0}</div>
+              <div className="text-xs text-muted-foreground">Categories</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-koffa-aqua-forest">3</div>
+              <div className="text-xs text-muted-foreground">Shared</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Lists */}
         {!listsLoading && lists && lists.length > 0 && (
-          <div className="mb-8">
+          <div>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">My Lists</h2>
+              <h2 className="text-xl font-bold">Recent Lists</h2>
               <Button 
                 variant="ghost" 
                 size="sm"
                 className="text-koffa-aqua-forest hover:text-koffa-aqua-forest/80"
-                onClick={handleOpenNewListDialog}
               >
-                <Plus className="h-4 w-4 mr-1" /> New List
+                View All
               </Button>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {lists.map(list => (
+              {lists.slice(0, 4).map(list => (
                 <ListCard key={list.id} list={{
                   id: list.id,
                   name: list.name,
@@ -87,28 +137,52 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Recent Activity */}
+        <div>
+          <h2 className="text-xl font-bold mb-4 flex items-center">
+            <Clock className="h-5 w-5 mr-2" />
+            Recent Activity
+          </h2>
+          <Card>
+            <CardContent className="p-0">
+              {recentActivity.map((activity, index) => (
+                <div key={index} className="p-4 border-b last:border-b-0">
+                  <div className="font-medium text-sm">{activity.action}</div>
+                  <div className="text-xs text-muted-foreground">{activity.time}</div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
         
-        <h2 className="text-xl font-bold mb-4">Categories</h2>
-        {!categoriesLoading && filteredCategories.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {filteredCategories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
-          </div>
-        ) : categoriesLoading ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {[1,2,3,4].map((i) => (
-              <div key={i} className="aspect-square animate-pulse bg-gray-200 rounded-lg" />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center p-8">
-            <h3 className="text-lg font-medium text-gray-600">No categories found</h3>
-            <p className="text-gray-500 mt-2">
-              Categories will appear here once they're added to your database
-            </p>
-          </div>
-        )}
+        {/* Categories Section */}
+        <div>
+          <h2 className="text-xl font-bold mb-4">Shop by Category</h2>
+          {!categoriesLoading && filteredCategories.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              {filteredCategories.map((category) => (
+                <CategoryCard key={category.id} category={category} />
+              ))}
+            </div>
+          ) : categoriesLoading ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              {[1,2,3,4,5,6,7,8].map((i) => (
+                <div key={i} className="aspect-square animate-pulse bg-gray-200 rounded-lg" />
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <ShoppingCart className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                <h3 className="text-lg font-medium text-gray-600 mb-2">No categories found</h3>
+                <p className="text-gray-500">
+                  Categories will appear here once they're added to your database
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
       
       <FloatingActionButton 
