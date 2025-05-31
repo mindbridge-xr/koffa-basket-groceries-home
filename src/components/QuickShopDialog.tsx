@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -17,7 +18,7 @@ export const QuickShopDialog: React.FC<QuickShopDialogProps> = ({ open, onOpenCh
   const [items, setItems] = useState<string[]>([]);
   const [currentItem, setCurrentItem] = useState('');
   const [listName, setListName] = useState('Quick Shopping List');
-  const { createList, isConfigured } = useLists();
+  const { createListWithItems, isConfigured } = useLists();
 
   const addItem = () => {
     if (currentItem.trim() && !items.includes(currentItem.trim())) {
@@ -30,21 +31,28 @@ export const QuickShopDialog: React.FC<QuickShopDialogProps> = ({ open, onOpenCh
     setItems(items.filter(i => i !== item));
   };
 
-  const handleCreateQuickList = () => {
+  const handleCreateQuickList = async () => {
     if (items.length > 0) {
-      createList({ name: listName });
-      console.log('Creating quick list with items:', items);
-      
-      if (!isConfigured) {
+      try {
+        await createListWithItems({ name: listName, items });
+        
         toast({
-          title: "Demo Mode",
-          description: `Quick list "${listName}" with ${items.length} items created (demo only)`,
+          title: "Quick List Created",
+          description: `"${listName}" with ${items.length} items has been created successfully!`,
+        });
+        
+        // Reset form
+        setItems([]);
+        setCurrentItem('');
+        setListName('Quick Shopping List');
+        onOpenChange(false);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to create quick list. Please try again.",
+          variant: "destructive"
         });
       }
-      
-      setItems([]);
-      setListName('Quick Shopping List');
-      onOpenChange(false);
     }
   };
 

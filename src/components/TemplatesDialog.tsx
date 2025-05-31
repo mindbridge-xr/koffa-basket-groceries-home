@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -66,20 +67,25 @@ const TEMPLATES: Template[] = [
 
 export const TemplatesDialog: React.FC<TemplatesDialogProps> = ({ open, onOpenChange }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-  const { createList, isConfigured } = useLists();
+  const { createListWithItems, isConfigured } = useLists();
 
-  const handleCreateFromTemplate = (template: Template) => {
-    createList({ name: template.name });
-    console.log('Creating list from template:', template.name, 'with items:', template.items);
-    
-    if (!isConfigured) {
+  const handleCreateFromTemplate = async (template: Template) => {
+    try {
+      await createListWithItems({ name: template.name, items: template.items });
+      
       toast({
-        title: "Demo Mode",
-        description: `Template "${template.name}" list created (demo only)`,
+        title: "Template List Created",
+        description: `"${template.name}" with ${template.items.length} items has been created successfully!`,
+      });
+      
+      onOpenChange(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create list from template. Please try again.",
+        variant: "destructive"
       });
     }
-    
-    onOpenChange(false);
   };
 
   return (
