@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Archive, ShoppingCart, Utensils, Heart, Home, Coffee } from 'lucide-react';
 import { useLists } from '@/hooks/useLists';
+import { toast } from '@/hooks/use-toast';
 
 interface TemplatesDialogProps {
   open: boolean;

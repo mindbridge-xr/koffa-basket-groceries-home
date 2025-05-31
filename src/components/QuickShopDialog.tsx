@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Plus, X } from 'lucide-react';
 import { useLists } from '@/hooks/useLists';
+import { toast } from '@/hooks/use-toast';
 
 interface QuickShopDialogProps {
   open: boolean;
