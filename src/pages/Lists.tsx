@@ -42,6 +42,7 @@ export const Lists: React.FC = () => {
                 id: list.id,
                 name: list.name,
                 items: [],
+                ownerId: list.owner_id,
                 shared: list.shared || false,
                 sharedWith: []
               }} />

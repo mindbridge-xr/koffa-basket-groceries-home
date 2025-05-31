@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { KoffaLogo } from '@/components/KoffaLogo';
 import { Input } from '@/components/ui/input';
@@ -80,6 +79,7 @@ export const Dashboard: React.FC = () => {
                   id: list.id,
                   name: list.name,
                   items: [],
+                  ownerId: list.owner_id,
                   shared: list.shared || false,
                   sharedWith: []
                 }} />
