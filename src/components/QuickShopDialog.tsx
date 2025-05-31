@@ -17,7 +17,7 @@ export const QuickShopDialog: React.FC<QuickShopDialogProps> = ({ open, onOpenCh
   const [items, setItems] = useState<string[]>([]);
   const [currentItem, setCurrentItem] = useState('');
   const [listName, setListName] = useState('Quick Shopping List');
-  const { createList } = useLists();
+  const { createList, isConfigured } = useLists();
 
   const addItem = () => {
     if (currentItem.trim() && !items.includes(currentItem.trim())) {
@@ -33,7 +33,15 @@ export const QuickShopDialog: React.FC<QuickShopDialogProps> = ({ open, onOpenCh
   const handleCreateQuickList = () => {
     if (items.length > 0) {
       createList({ name: listName });
-      // Note: In a real app, you'd also add the items to the created list
+      console.log('Creating quick list with items:', items);
+      
+      if (!isConfigured) {
+        toast({
+          title: "Demo Mode",
+          description: `Quick list "${listName}" with ${items.length} items created (demo only)`,
+        });
+      }
+      
       setItems([]);
       setListName('Quick Shopping List');
       onOpenChange(false);

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,7 @@ import { Search, Plus, Filter, Archive, Users, Clock, ShoppingCart } from 'lucid
 import { useLists } from '@/hooks/useLists';
 
 export const Lists: React.FC = () => {
-  const { lists, createList, isLoading } = useLists();
+  const { lists, createList, isLoading, isConfigured } = useLists();
   const [showNewListDialog, setShowNewListDialog] = useState(false);
   const [showQuickShopDialog, setShowQuickShopDialog] = useState(false);
   const [showTemplatesDialog, setShowTemplatesDialog] = useState(false);
@@ -39,6 +38,17 @@ export const Lists: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-koffa-snow-drift pb-20">
+      {!isConfigured && (
+        <div className="bg-amber-50 border-b border-amber-200 p-3">
+          <div className="text-center text-sm text-amber-800">
+            <strong>Demo Mode:</strong> Connect to Supabase to enable full functionality.
+            <button className="ml-2 text-amber-900 underline hover:no-underline">
+              Learn more
+            </button>
+          </div>
+        </div>
+      )}
+      
       <div className="bg-koffa-aqua-forest text-white p-6">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">My Lists</h1>

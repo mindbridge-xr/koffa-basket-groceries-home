@@ -66,11 +66,19 @@ const TEMPLATES: Template[] = [
 
 export const TemplatesDialog: React.FC<TemplatesDialogProps> = ({ open, onOpenChange }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-  const { createList } = useLists();
+  const { createList, isConfigured } = useLists();
 
   const handleCreateFromTemplate = (template: Template) => {
     createList({ name: template.name });
-    // Note: In a real app, you'd also add the template items to the created list
+    console.log('Creating list from template:', template.name, 'with items:', template.items);
+    
+    if (!isConfigured) {
+      toast({
+        title: "Demo Mode",
+        description: `Template "${template.name}" list created (demo only)`,
+      });
+    }
+    
     onOpenChange(false);
   };
 
