@@ -2,12 +2,11 @@
 export interface GroceryItem {
   id: string;
   name: string;
-  category: string;
-  category_slug: string;
-  icon?: string;
-  checked?: boolean;
+  checked: boolean;
   quantity?: number;
   note?: string;
+  category_slug?: string;
+  icon?: string;
 }
 
 export interface GroceryList {
@@ -17,14 +16,16 @@ export interface GroceryList {
   ownerId: string;
   shared: boolean;
   sharedWith?: string[];
-  lastUsed?: Date; // Adding lastUsed field for tracking recent lists
+  createdAt?: string;
+  lastUsed?: string;
 }
 
 export interface Category {
   id: string;
   name: string;
   slug: string;
-  icon?: string; // Adding icon field for category display
+  icon?: string;
+  order: number;
 }
 
 export interface User {

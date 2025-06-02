@@ -32,7 +32,14 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ listId }) => {
   }, [searchTerm, getFilteredItems]);
 
   const handleSelectItem = (item: GroceryItem) => {
-    addItemToList(listId, item);
+    addItemToList(listId, {
+      name: item.name,
+      checked: false,
+      quantity: item.quantity || 1,
+      category_slug: item.category_slug,
+      icon: item.icon,
+      note: item.note
+    });
     setSearchTerm('');
     setShowResults(false);
   };
@@ -47,13 +54,14 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ listId }) => {
       return;
     }
     
-    const categoryObj = categories.find(c => c.name === category) || categories[13]; // Default to Own Items
+    const categoryObj = categories.find(c => c.name === category) || categories[0];
     
     addItemToList(listId, {
       name: itemName,
-      category: categoryObj.name,
-      category_slug: categoryObj.slug,
+      checked: false,
       quantity: parseInt(quantity) || 1,
+      category_slug: categoryObj?.slug,
+      icon: categoryObj?.icon
     });
     
     setItemName('');
@@ -132,7 +140,9 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ listId }) => {
                   <span className="mr-2">{item.icon}</span>
                   <span>{item.name}</span>
                 </div>
-                <div className="text-xs text-muted-foreground mt-1">{item.category}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {categories.find(c => c.slug === item.category_slug)?.name || 'Other'}
+                </div>
               </div>
             ))}
           </div>
