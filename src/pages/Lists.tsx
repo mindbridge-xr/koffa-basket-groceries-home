@@ -1,328 +1,121 @@
 
 import React, { useState } from 'react';
-import { Input } from '@/components/ui/input';
+import { useApp } from '@/context/AppContext';
+import { useNavigate } from 'react-router-dom';
+import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ListCard } from '@/components/ListCard';
-import { FloatingActionButton } from '@/components/FloatingActionButton';
-import { BottomNav } from '@/components/BottomNav';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { QuickShopDialog } from '@/components/QuickShopDialog';
-import { TemplatesDialog } from '@/components/TemplatesDialog';
-import { Search, Plus, Filter, Archive, Users, Clock, ShoppingCart, SortAsc, Grid, List as ListIcon } from 'lucide-react';
-import { useLists } from '@/hooks/useLists';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Plus, 
+  Search, 
+  MoreVertical, 
+  Trash2, 
+  Edit, 
+  Share2, 
+  Users,
+  Calendar,
+  ShoppingCart
+} from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-export const Lists: React.FC = () => {
-  const { lists, createList, isLoading, isConfigured } = useLists();
+const Lists: React.FC = () => {
+  const { lists, createList, deleteList, updateList } = useApp();
+  const navigate = useNavigate();
+  const [search, setSearch] = useState('');
   const [showNewListDialog, setShowNewListDialog] = useState(false);
-  const [showQuickShopDialog, setShowQuickShopDialog] = useState(false);
-  const [showTemplatesDialog, setShowTemplatesDialog] = useState(false);
   const [newListName, setNewListName] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'my' | 'shared' | 'recent'>('all');
-  const [sortBy, setSortBy] = useState<'name' | 'date' | 'items'>('date');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [editingList, setEditingList] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+
+  const filteredLists = lists.filter(list =>
+    list.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   const handleCreateList = () => {
     if (newListName.trim()) {
-      createList({ name: newListName.trim() });
+      createList(newListName.trim());
       setNewListName('');
       setShowNewListDialog(false);
       toast({
         title: "List created",
-        description: `"${newListName}" has been created successfully!`,
+        description: `"${newListName.trim()}" has been created successfully.`,
       });
     }
   };
 
-  // Enhanced filtering and sorting
-  const filteredAndSortedLists = lists?.filter(list => {
-    const matchesSearch = list.name.toLowerCase().includes(searchTerm.toLowerCase());
-    if (filterType === 'shared') return matchesSearch && list.shared;
-    if (filterType === 'my') return matchesSearch && !list.shared;
-    if (filterType === 'recent') {
-      const recent = new Date();
-      recent.setDate(recent.getDate() - 7);
-      return matchesSearch && new Date(list.last_used || list.created_at) > recent;
-    }
-    return matchesSearch;
-  })?.sort((a, b) => {
-    switch (sortBy) {
-      case 'name':
-        return a.name.localeCompare(b.name);
-      case 'items':
-        return (b.list_items?.length || 0) - (a.list_items?.length || 0);
-      case 'date':
-      default:
-        return new Date(b.last_used || b.created_at).getTime() - new Date(a.last_used || a.created_at).getTime();
-    }
-  }) || [];
+  const handleDeleteList = (listId: string, listName: string) => {
+    deleteList(listId);
+    toast({
+      title: "List deleted",
+      description: `"${listName}" has been deleted.`,
+    });
+  };
 
-  const recentLists = lists?.slice(0, 3) || [];
-  const totalItems = lists?.reduce((acc, list) => acc + (list.list_items?.length || 0), 0) || 0;
+  const handleEditList = (listId: string, newName: string) => {
+    updateList(listId, { name: newName });
+    setEditingList(null);
+    setEditName('');
+    toast({
+      title: "List updated",
+      description: `List name has been updated to "${newName}".`,
+    });
+  };
+
+  const getListStats = (list: any) => {
+    const total = list.items.length;
+    const completed = list.items.filter((item: any) => item.checked).length;
+    return { total, completed };
+  };
 
   return (
     <div className="min-h-screen bg-koffa-snow-drift pb-20">
-      {!isConfigured && (
-        <div className="bg-amber-50 border-b border-amber-200 p-3">
-          <div className="text-center text-sm text-amber-800">
-            <strong>Demo Mode:</strong> All data is simulated for demonstration purposes.
-          </div>
-        </div>
-      )}
-      
+      {/* Header */}
       <div className="bg-koffa-aqua-forest text-white p-6">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">My Lists</h1>
-          <div className="flex space-x-2">
-            <Button
-              variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('grid')}
-              className="text-white hover:bg-white/20"
-            >
-              <Grid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-              className="text-white hover:bg-white/20"
-            >
-              <ListIcon className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-white hover:bg-white/20"
-              onClick={() => setShowNewListDialog(true)}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              New
-            </Button>
-          </div>
-        </div>
-        <p className="text-white/80 mb-4">Manage your grocery lists</p>
-        
-        {/* Enhanced Search Bar */}
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Search lists..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/60"
-          />
-        </div>
-
-        {/* Enhanced Filter and Sort Controls */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          <div className="flex space-x-2">
-            <Button
-              variant={filterType === 'all' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setFilterType('all')}
-              className="text-white hover:bg-white/20"
-            >
-              All
-            </Button>
-            <Button
-              variant={filterType === 'my' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setFilterType('my')}
-              className="text-white hover:bg-white/20"
-            >
-              My Lists
-            </Button>
-            <Button
-              variant={filterType === 'shared' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setFilterType('shared')}
-              className="text-white hover:bg-white/20"
-            >
-              <Users className="h-3 w-3 mr-1" />
-              Shared
-            </Button>
-            <Button
-              variant={filterType === 'recent' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setFilterType('recent')}
-              className="text-white hover:bg-white/20"
-            >
-              <Clock className="h-3 w-3 mr-1" />
-              Recent
-            </Button>
-          </div>
-        </div>
-
-        {/* Sort Options */}
-        <div className="flex items-center space-x-2">
-          <SortAsc className="h-4 w-4 text-white/80" />
-          <span className="text-sm text-white/80">Sort by:</span>
           <Button
-            variant={sortBy === 'date' ? 'secondary' : 'ghost'}
             size="sm"
-            onClick={() => setSortBy('date')}
-            className="text-white hover:bg-white/20 text-xs"
-          >
-            Date
-          </Button>
-          <Button
-            variant={sortBy === 'name' ? 'secondary' : 'ghost'}
-            size="sm"
-            onClick={() => setSortBy('name')}
-            className="text-white hover:bg-white/20 text-xs"
-          >
-            Name
-          </Button>
-          <Button
-            variant={sortBy === 'items' ? 'secondary' : 'ghost'}
-            size="sm"
-            onClick={() => setSortBy('items')}
-            className="text-white hover:bg-white/20 text-xs"
-          >
-            Items
-          </Button>
-        </div>
-      </div>
-      
-      <div className="p-4">
-        {/* Enhanced Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-koffa-aqua-forest">{lists?.length || 0}</div>
-              <div className="text-xs text-muted-foreground">Total Lists</div>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-koffa-aqua-forest">
-                {lists?.filter(l => l.shared).length || 0}
-              </div>
-              <div className="text-xs text-muted-foreground">Shared</div>
-            </CardContent>
-          </Card>
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-koffa-aqua-forest">{totalItems}</div>
-              <div className="text-xs text-muted-foreground">Total Items</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <Button 
-            className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90 h-16 flex flex-col"
+            className="bg-white/20 hover:bg-white/30 text-white"
             onClick={() => setShowNewListDialog(true)}
           >
-            <Plus className="h-5 w-5 mb-1" />
-            <span className="text-sm">Create List</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            className="h-16 flex flex-col border-koffa-aqua-forest text-koffa-aqua-forest hover:bg-koffa-aqua-forest/10"
-            onClick={() => setShowQuickShopDialog(true)}
-          >
-            <ShoppingCart className="h-5 w-5 mb-1" />
-            <span className="text-sm">Quick Shop</span>
+            <Plus className="h-4 w-4" />
           </Button>
         </div>
-
-        {/* Templates Button */}
-        <div className="mb-6">
-          <Button 
-            variant="outline" 
-            className="w-full h-12 border-koffa-aqua-forest text-koffa-aqua-forest hover:bg-koffa-aqua-forest/10"
-            onClick={() => setShowTemplatesDialog(true)}
-          >
-            <Archive className="h-5 w-5 mr-2" />
-            <span>Browse Templates</span>
-          </Button>
+        
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            type="text"
+            placeholder="Search lists..."
+            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/60"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
+      </div>
 
-        {/* Recent Lists Quick Access */}
-        {recentLists.length > 0 && filterType === 'all' && !searchTerm && (
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold">Recent Lists</h3>
-              <Badge variant="secondary">{recentLists.length}</Badge>
-            </div>
-            <div className="grid gap-2">
-              {recentLists.map(list => (
-                <div key={`recent-${list.id}`} className="p-3 bg-koffa-aqua-forest/5 rounded-lg border border-koffa-aqua-forest/20">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{list.name}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {list.list_items?.length || 0} items
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Lists */}
-        {isLoading ? (
-          <div className="grid gap-3">
-            {[1,2,3,4].map((i) => (
-              <div key={i} className="h-24 animate-pulse bg-gray-200 rounded-lg" />
-            ))}
-          </div>
-        ) : filteredAndSortedLists.length > 0 ? (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">
-                {filterType === 'all' && 'All Lists'}
-                {filterType === 'my' && 'My Lists'}
-                {filterType === 'shared' && 'Shared Lists'}
-                {filterType === 'recent' && 'Recent Lists'}
-              </h2>
-              <div className="flex items-center space-x-2">
-                <Badge variant="outline">
-                  {filteredAndSortedLists.length} {filteredAndSortedLists.length === 1 ? 'list' : 'lists'}
-                </Badge>
-                {searchTerm && (
-                  <Badge variant="secondary">
-                    Search: "{searchTerm}"
-                  </Badge>
-                )}
-              </div>
-            </div>
-            <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 gap-3" : "grid gap-3"}>
-              {filteredAndSortedLists.map(list => (
-                <ListCard key={list.id} list={{
-                  id: list.id,
-                  name: list.name,
-                  items: [],
-                  ownerId: list.owner_id,
-                  shared: list.shared || false,
-                  sharedWith: []
-                }} />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <div className="text-6xl mb-4">📝</div>
-              <h3 className="text-lg font-medium text-gray-600 mb-2">
-                {searchTerm ? 'No lists found' : 'No lists yet'}
+      {/* Lists Content */}
+      <div className="p-4">
+        {filteredLists.length === 0 ? (
+          <Card className="text-center py-12">
+            <CardContent>
+              <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+              <h3 className="text-xl font-semibold mb-2">
+                {lists.length === 0 ? "No lists yet" : "No matching lists"}
               </h3>
-              <p className="text-gray-500 mb-4">
-                {searchTerm 
-                  ? `No lists match "${searchTerm}"`
-                  : 'Create your first grocery list to get started'
+              <p className="text-muted-foreground mb-4">
+                {lists.length === 0 
+                  ? "Create your first shopping list to get started!" 
+                  : `No lists match "${search}"`
                 }
               </p>
-              {!searchTerm && (
-                <Button 
-                  className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
+              {lists.length === 0 && (
+                <Button
                   onClick={() => setShowNewListDialog(true)}
+                  className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Create Your First List
@@ -330,13 +123,74 @@ export const Lists: React.FC = () => {
               )}
             </CardContent>
           </Card>
+        ) : (
+          <div className="space-y-3">
+            {filteredLists.map((list) => {
+              const stats = getListStats(list);
+              return (
+                <Card key={list.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div 
+                        className="flex-1 cursor-pointer"
+                        onClick={() => navigate(`/list/${list.id}`)}
+                      >
+                        <div className="flex items-center mb-2">
+                          <h3 className="font-semibold text-lg mr-2">{list.name}</h3>
+                          {list.shared && (
+                            <Badge variant="secondary" className="text-xs">
+                              <Users className="h-3 w-3 mr-1" />
+                              Shared
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        <div className="flex items-center text-sm text-muted-foreground mb-2">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          {list.lastUsed ? new Date(list.lastUsed).toLocaleDateString() : 'Never used'}
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">
+                            {stats.completed} of {stats.total} items completed
+                          </span>
+                          {stats.total > 0 && (
+                            <div className="w-20 bg-gray-200 rounded-full h-2">
+                              <div 
+                                className="bg-koffa-aqua-forest h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${(stats.completed / stats.total) * 100}%` }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="ml-4">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingList(list.id);
+                            setEditName(list.name);
+                          }}
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         )}
       </div>
-      
-      <FloatingActionButton onClick={() => setShowNewListDialog(true)} />
+
       <BottomNav />
-      
-      {/* Enhanced New List Dialog */}
+
+      {/* New List Dialog */}
       <Dialog open={showNewListDialog} onOpenChange={setShowNewListDialog}>
         <DialogContent>
           <DialogHeader>
@@ -344,19 +198,15 @@ export const Lists: React.FC = () => {
           </DialogHeader>
           <div className="py-4">
             <Input
-              placeholder="List name (e.g., Weekly Groceries, Party Shopping)"
+              placeholder="List name (e.g., Weekly Groceries)"
               value={newListName}
               onChange={(e) => setNewListName(e.target.value)}
-              className="mb-4"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   handleCreateList();
                 }
               }}
             />
-            <div className="text-sm text-muted-foreground">
-              Tip: Use descriptive names like "Weekly Groceries" or "Birthday Party Shopping"
-            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowNewListDialog(false)}>
@@ -373,15 +223,53 @@ export const Lists: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      <QuickShopDialog 
-        open={showQuickShopDialog} 
-        onOpenChange={setShowQuickShopDialog} 
-      />
-
-      <TemplatesDialog 
-        open={showTemplatesDialog} 
-        onOpenChange={setShowTemplatesDialog} 
-      />
+      {/* Edit List Dialog */}
+      <Dialog open={!!editingList} onOpenChange={() => setEditingList(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit List</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              placeholder="List name"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && editingList) {
+                  handleEditList(editingList, editName);
+                }
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingList(null)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive"
+              onClick={() => {
+                if (editingList) {
+                  const list = lists.find(l => l.id === editingList);
+                  if (list) {
+                    handleDeleteList(editingList, list.name);
+                    setEditingList(null);
+                  }
+                }
+              }}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
+            <Button 
+              className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
+              onClick={() => editingList && handleEditList(editingList, editName)}
+              disabled={!editName.trim()}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

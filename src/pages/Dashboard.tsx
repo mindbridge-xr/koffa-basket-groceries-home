@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { KoffaLogo } from '@/components/KoffaLogo';
 import { Input } from '@/components/ui/input';
@@ -15,6 +14,7 @@ import { SmartListsDialog } from '@/components/SmartListsDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useApp } from '@/context/AppContext';
+import { useNavigate } from 'react-router-dom';
 
 export const Dashboard: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -49,6 +49,12 @@ export const Dashboard: React.FC = () => {
 
   const totalItems = lists.reduce((acc, list) => acc + list.items.length, 0);
   const sharedLists = lists.filter(list => list.shared).length;
+
+  // Add navigation handler for "View All" button
+  const navigate = useNavigate();
+  const handleViewAllLists = () => {
+    navigate('/lists');
+  };
 
   return (
     <div className="min-h-screen bg-koffa-snow-drift pb-20">
@@ -144,6 +150,7 @@ export const Dashboard: React.FC = () => {
                 variant="ghost" 
                 size="sm"
                 className="text-koffa-aqua-forest hover:text-koffa-aqua-forest/80"
+                onClick={handleViewAllLists}
               >
                 View All
               </Button>
