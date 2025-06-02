@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import { KoffaLogo } from '@/components/KoffaLogo';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Plus, ShoppingCart, Clock, Users } from 'lucide-react';
+import { Search, Plus, ShoppingCart, Clock, Users, Zap, Archive } from 'lucide-react';
 import { CategoryCard } from '@/components/CategoryCard';
 import { ListCard } from '@/components/ListCard';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { BottomNav } from '@/components/BottomNav';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { QuickShopDialog } from '@/components/QuickShopDialog';
+import { TemplatesDialog } from '@/components/TemplatesDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCategories } from '@/hooks/useCategories';
@@ -17,6 +19,8 @@ import { useLists } from '@/hooks/useLists';
 export const Dashboard: React.FC = () => {
   const [search, setSearch] = useState('');
   const [showNewListDialog, setShowNewListDialog] = useState(false);
+  const [showQuickShopDialog, setShowQuickShopDialog] = useState(false);
+  const [showTemplatesDialog, setShowTemplatesDialog] = useState(false);
   const [newListName, setNewListName] = useState('');
   
   const { categories, isLoading: categoriesLoading } = useCategories();
@@ -27,10 +31,6 @@ export const Dashboard: React.FC = () => {
     category.name.toLowerCase().includes(search.toLowerCase())
   ) ?? [];
 
-  const handleOpenNewListDialog = () => {
-    setShowNewListDialog(true);
-  };
-
   const handleCreateList = () => {
     if (newListName.trim()) {
       createList({ name: newListName.trim() });
@@ -39,12 +39,16 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  // Recent activity data
+  // Enhanced activity data
   const recentActivity = [
-    { action: 'Added Milk to Weekly Shopping', time: '2 hours ago' },
-    { action: 'Completed Dinner Prep list', time: '1 day ago' },
-    { action: 'Shared Party List with family', time: '2 days ago' }
+    { action: 'Added Milk to Weekly Shopping', time: '2 hours ago', icon: '🥛' },
+    { action: 'Completed Party Shopping list', time: '1 day ago', icon: '🎉' },
+    { action: 'Shared Healthy Meal Prep with family', time: '2 days ago', icon: '👨‍👩‍👧‍👦' },
+    { action: 'Created Quick Shopping List', time: '3 days ago', icon: '⚡' }
   ];
+
+  const totalItems = lists?.reduce((acc, list) => acc + list.list_items?.length || 0, 0) || 0;
+  const sharedLists = lists?.filter(list => list.shared).length || 0;
 
   return (
     <div className="min-h-screen bg-koffa-snow-drift pb-20">
@@ -52,10 +56,10 @@ export const Dashboard: React.FC = () => {
         <div className="flex justify-between items-center mb-4">
           <KoffaLogo className="text-white" size="sm" />
           <Avatar className="h-10 w-10 border-2 border-white">
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarFallback className="bg-white/20 text-white">U</AvatarFallback>
           </Avatar>
         </div>
-        <h1 className="text-2xl font-bold mb-4">Welcome to Koffa!</h1>
+        <h1 className="text-2xl font-bold mb-2">Welcome to Koffa!</h1>
         <p className="text-white/80 mb-4">Organize your grocery shopping with ease</p>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -82,29 +86,49 @@ export const Dashboard: React.FC = () => {
           <Button 
             variant="outline" 
             className="h-16 flex flex-col border-koffa-aqua-forest text-koffa-aqua-forest hover:bg-koffa-aqua-forest/10"
+            onClick={() => setShowQuickShopDialog(true)}
           >
             <ShoppingCart className="h-5 w-5 mb-1" />
             <span className="text-sm">Quick Shop</span>
           </Button>
         </div>
 
-        {/* Stats Cards */}
+        {/* Enhanced Quick Actions Row */}
+        <div className="grid grid-cols-2 gap-3">
+          <Button 
+            variant="outline" 
+            className="h-12 flex items-center justify-center border-koffa-aqua-forest text-koffa-aqua-forest hover:bg-koffa-aqua-forest/10"
+            onClick={() => setShowTemplatesDialog(true)}
+          >
+            <Archive className="h-4 w-4 mr-2" />
+            <span className="text-sm">Templates</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            className="h-12 flex items-center justify-center border-koffa-aqua-forest text-koffa-aqua-forest hover:bg-koffa-aqua-forest/10"
+          >
+            <Zap className="h-4 w-4 mr-2" />
+            <span className="text-sm">Smart Lists</span>
+          </Button>
+        </div>
+
+        {/* Enhanced Stats Cards */}
         <div className="grid grid-cols-3 gap-3">
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-koffa-aqua-forest">{lists?.length || 0}</div>
               <div className="text-xs text-muted-foreground">Active Lists</div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-koffa-aqua-forest">{categories?.length || 0}</div>
-              <div className="text-xs text-muted-foreground">Categories</div>
+              <div className="text-2xl font-bold text-koffa-aqua-forest">{totalItems}</div>
+              <div className="text-xs text-muted-foreground">Total Items</div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-koffa-aqua-forest">3</div>
+              <div className="text-2xl font-bold text-koffa-aqua-forest">{sharedLists}</div>
               <div className="text-xs text-muted-foreground">Shared</div>
             </CardContent>
           </Card>
@@ -138,7 +162,7 @@ export const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Recent Activity */}
+        {/* Enhanced Recent Activity */}
         <div>
           <h2 className="text-xl font-bold mb-4 flex items-center">
             <Clock className="h-5 w-5 mr-2" />
@@ -147,9 +171,12 @@ export const Dashboard: React.FC = () => {
           <Card>
             <CardContent className="p-0">
               {recentActivity.map((activity, index) => (
-                <div key={index} className="p-4 border-b last:border-b-0">
-                  <div className="font-medium text-sm">{activity.action}</div>
-                  <div className="text-xs text-muted-foreground">{activity.time}</div>
+                <div key={index} className="p-4 border-b last:border-b-0 flex items-center hover:bg-muted/50 transition-colors">
+                  <div className="text-2xl mr-3">{activity.icon}</div>
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">{activity.action}</div>
+                    <div className="text-xs text-muted-foreground">{activity.time}</div>
+                  </div>
                 </div>
               ))}
             </CardContent>
@@ -177,7 +204,7 @@ export const Dashboard: React.FC = () => {
                 <ShoppingCart className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                 <h3 className="text-lg font-medium text-gray-600 mb-2">No categories found</h3>
                 <p className="text-gray-500">
-                  Categories will appear here once they're added to your database
+                  {search ? `No categories match "${search}"` : "Categories will appear here once they're loaded"}
                 </p>
               </CardContent>
             </Card>
@@ -186,12 +213,13 @@ export const Dashboard: React.FC = () => {
       </div>
       
       <FloatingActionButton 
-        onClick={handleOpenNewListDialog} 
+        onClick={() => setShowNewListDialog(true)} 
         label="New List"
         icon={<Plus className="h-5 w-5" />}
       />
       <BottomNav />
       
+      {/* Dialogs */}
       <Dialog open={showNewListDialog} onOpenChange={setShowNewListDialog}>
         <DialogContent>
           <DialogHeader>
@@ -199,11 +227,19 @@ export const Dashboard: React.FC = () => {
           </DialogHeader>
           <div className="py-4">
             <Input
-              placeholder="List name"
+              placeholder="List name (e.g., Weekly Groceries)"
               value={newListName}
               onChange={(e) => setNewListName(e.target.value)}
               className="mb-4"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleCreateList();
+                }
+              }}
             />
+            <div className="text-sm text-muted-foreground">
+              Tip: Use descriptive names like "Weekly Groceries" or "Birthday Party Shopping"
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowNewListDialog(false)}>
@@ -212,12 +248,23 @@ export const Dashboard: React.FC = () => {
             <Button 
               className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
               onClick={handleCreateList}
+              disabled={!newListName.trim()}
             >
-              Create
+              Create List
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <QuickShopDialog 
+        open={showQuickShopDialog} 
+        onOpenChange={setShowQuickShopDialog} 
+      />
+
+      <TemplatesDialog 
+        open={showTemplatesDialog} 
+        onOpenChange={setShowTemplatesDialog} 
+      />
     </div>
   );
 };

@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft, Plus, Search, Grid, List } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ChevronLeft, Plus, Search, Grid, List, ShoppingCart } from 'lucide-react';
 import { BottomNav } from '@/components/BottomNav';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useCategories } from '@/hooks/useCategories';
 import { useItemsByCategory } from '@/hooks/useItems';
 import { useLists } from '@/hooks/useLists';
@@ -15,6 +16,7 @@ import { toast } from '@/hooks/use-toast';
 
 export const CategoryItems: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { lists } = useLists();
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -36,23 +38,33 @@ export const CategoryItems: React.FC = () => {
   
   const handleAddItem = (item: any) => {
     setSelectedItem(item);
+    if (lists && lists.length > 0) {
+      setSelectedList(lists[0].id); // Pre-select first list
+    }
     setShowAddDialog(true);
   };
   
   const handleConfirmAdd = () => {
     if (selectedItem && selectedList) {
-      // TODO: Implement adding item to list
+      // Simulate adding item to list
       console.log('Adding item to list:', { selectedItem, selectedList, quantity, note });
       toast({
         title: "Item added",
-        description: `${selectedItem.name} added to your list`
+        description: `${selectedItem.name} added to your list successfully!`,
       });
+      
+      // Reset form
       setSelectedItem(null);
       setSelectedList('');
       setQuantity('1');
       setNote('');
       setShowAddDialog(false);
     }
+  };
+
+  const handleCreateNewList = () => {
+    setShowAddDialog(false);
+    navigate('/lists');
   };
 
   if (categoriesLoading) {
@@ -128,6 +140,33 @@ export const CategoryItems: React.FC = () => {
       </div>
       
       <div className="p-4">
+        {/* Quick Add to Lists */}
+        {lists && lists.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-sm font-medium mb-3 flex items-center">
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Quick add to recent lists
+            </h3>
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {lists.slice(0, 3).map(list => (
+                <Badge 
+                  key={list.id}
+                  variant="outline" 
+                  className="whitespace-nowrap cursor-pointer hover:bg-koffa-aqua-forest hover:text-white transition-colors"
+                  onClick={() => {
+                    setSelectedList(list.id);
+                    if (selectedItem) {
+                      handleConfirmAdd();
+                    }
+                  }}
+                >
+                  {list.name}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
         {itemsLoading ? (
           <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-3 gap-3" : "space-y-3"}>
             {[1,2,3,4,5,6].map(i => (
@@ -140,12 +179,13 @@ export const CategoryItems: React.FC = () => {
               viewMode === 'grid' ? (
                 <Card
                   key={item.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  className="cursor-pointer hover:shadow-md transition-all hover:scale-105"
                   onClick={() => handleAddItem(item)}
                 >
                   <CardContent className="p-4 flex flex-col items-center text-center">
                     <div className="text-4xl mb-2">{item.icon}</div>
                     <div className="font-medium text-sm">{item.name}</div>
+                    <div className="text-xs text-muted-foreground mt-1">Tap to add</div>
                   </CardContent>
                 </Card>
               ) : (
@@ -158,6 +198,7 @@ export const CategoryItems: React.FC = () => {
                     <div className="text-3xl mr-4">{item.icon}</div>
                     <div className="flex-1">
                       <div className="font-medium">{item.name}</div>
+                      <div className="text-sm text-muted-foreground">Tap to add to list</div>
                     </div>
                     <Plus className="h-5 w-5 text-koffa-aqua-forest" />
                   </CardContent>
@@ -191,6 +232,11 @@ export const CategoryItems: React.FC = () => {
         )}
       </div>
       
+      <FloatingActionButton 
+        onClick={() => handleAddItem({ name: 'Custom Item', icon: '📦' })} 
+        label="Add Custom"
+        icon={<Plus className="h-5 w-5" />}
+      />
       <BottomNav />
       
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
@@ -210,7 +256,7 @@ export const CategoryItems: React.FC = () => {
               </label>
               <select
                 id="list"
-                className="w-full p-2 border rounded-md"
+                className="w-full p-2 border rounded-md bg-background"
                 value={selectedList}
                 onChange={(e) => setSelectedList(e.target.value)}
                 required
@@ -221,24 +267,52 @@ export const CategoryItems: React.FC = () => {
                 ))}
               </select>
               {lists?.length === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  No lists available. Create a list first.
-                </p>
+                <div className="text-sm text-muted-foreground space-y-2">
+                  <p>No lists available. Create a list first.</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={handleCreateNewList}
+                    className="w-full"
+                  >
+                    Create New List
+                  </Button>
+                </div>
               )}
             </div>
             
-            <div className="space-y-2">
-              <label htmlFor="quantity" className="block text-sm font-medium">
-                Quantity
-              </label>
-              <Input
-                id="quantity"
-                type="number"
-                min="1"
-                max="99"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="quantity" className="block text-sm font-medium">
+                  Quantity
+                </label>
+                <Input
+                  id="quantity"
+                  type="number"
+                  min="1"
+                  max="99"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">
+                  Quick Amount
+                </label>
+                <div className="flex gap-1">
+                  {['1', '2', '5'].map(qty => (
+                    <Button
+                      key={qty}
+                      variant={quantity === qty ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setQuantity(qty)}
+                      className="flex-1"
+                    >
+                      {qty}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             </div>
             
             <div className="space-y-2">
