@@ -13,8 +13,7 @@ import { QuickShopDialog } from '@/components/QuickShopDialog';
 import { TemplatesDialog } from '@/components/TemplatesDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useCategories } from '@/hooks/useCategories';
-import { useLists } from '@/hooks/useLists';
+import { useApp } from '@/context/AppContext';
 
 export const Dashboard: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -23,17 +22,16 @@ export const Dashboard: React.FC = () => {
   const [showTemplatesDialog, setShowTemplatesDialog] = useState(false);
   const [newListName, setNewListName] = useState('');
   
-  const { categories, isLoading: categoriesLoading } = useCategories();
-  const { lists, createList, isLoading: listsLoading } = useLists();
+  const { categories, lists, createList } = useApp();
   
   // Filter categories by search term
-  const filteredCategories = categories?.filter(category => 
+  const filteredCategories = categories.filter(category => 
     category.name.toLowerCase().includes(search.toLowerCase())
-  ) ?? [];
+  );
 
   const handleCreateList = () => {
     if (newListName.trim()) {
-      createList({ name: newListName.trim() });
+      createList(newListName.trim());
       setNewListName('');
       setShowNewListDialog(false);
     }
@@ -47,8 +45,8 @@ export const Dashboard: React.FC = () => {
     { action: 'Created Quick Shopping List', time: '3 days ago', icon: '⚡' }
   ];
 
-  const totalItems = lists?.reduce((acc, list) => acc + list.list_items?.length || 0, 0) || 0;
-  const sharedLists = lists?.filter(list => list.shared).length || 0;
+  const totalItems = lists.reduce((acc, list) => acc + list.items.length, 0);
+  const sharedLists = lists.filter(list => list.shared).length;
 
   return (
     <div className="min-h-screen bg-koffa-snow-drift pb-20">
@@ -78,7 +76,7 @@ export const Dashboard: React.FC = () => {
         <div className="grid grid-cols-2 gap-3">
           <Button 
             className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90 h-16 flex flex-col"
-            onClick={handleOpenNewListDialog}
+            onClick={() => setShowNewListDialog(true)}
           >
             <Plus className="h-5 w-5 mb-1" />
             <span className="text-sm">New List</span>
@@ -116,7 +114,7 @@ export const Dashboard: React.FC = () => {
         <div className="grid grid-cols-3 gap-3">
           <Card className="hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-koffa-aqua-forest">{lists?.length || 0}</div>
+              <div className="text-2xl font-bold text-koffa-aqua-forest">{lists.length}</div>
               <div className="text-xs text-muted-foreground">Active Lists</div>
             </CardContent>
           </Card>
@@ -135,7 +133,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Recent Lists */}
-        {!listsLoading && lists && lists.length > 0 && (
+        {lists.length > 0 && (
           <div>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Recent Lists</h2>
@@ -149,14 +147,7 @@ export const Dashboard: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {lists.slice(0, 4).map(list => (
-                <ListCard key={list.id} list={{
-                  id: list.id,
-                  name: list.name,
-                  items: [],
-                  ownerId: list.owner_id,
-                  shared: list.shared || false,
-                  sharedWith: []
-                }} />
+                <ListCard key={list.id} list={list} />
               ))}
             </div>
           </div>
@@ -186,16 +177,10 @@ export const Dashboard: React.FC = () => {
         {/* Categories Section */}
         <div>
           <h2 className="text-xl font-bold mb-4">Shop by Category</h2>
-          {!categoriesLoading && filteredCategories.length > 0 ? (
+          {filteredCategories.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
               {filteredCategories.map((category) => (
                 <CategoryCard key={category.id} category={category} />
-              ))}
-            </div>
-          ) : categoriesLoading ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-              {[1,2,3,4,5,6,7,8].map((i) => (
-                <div key={i} className="aspect-square animate-pulse bg-gray-200 rounded-lg" />
               ))}
             </div>
           ) : (

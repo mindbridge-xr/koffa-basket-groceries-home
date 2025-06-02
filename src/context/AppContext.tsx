@@ -11,6 +11,18 @@ interface AppContextType {
   shareList: (listId: string, userId: string) => void;
   unshareList: (listId: string, userId: string) => void;
   categories: Category[];
+  createList: (name: string) => void;
+  deleteList: (listId: string) => void;
+  updateList: (listId: string, updates: Partial<GroceryList>) => void;
+  addItemToList: (listId: string, item: Omit<GroceryItem, 'id'>) => void;
+  removeItemFromList: (listId: string, itemId: string) => void;
+  toggleItemChecked: (listId: string, itemId: string) => void;
+  updateItem: (listId: string, itemId: string, updates: Partial<GroceryItem>) => void;
+  getFilteredItems: (query: string) => GroceryItem[];
+  user: User | null;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<void>;
+  logout: () => void;
 }
 
 interface GroceryList {
@@ -20,6 +32,8 @@ interface GroceryList {
   ownerId: string;
   shared: boolean;
   sharedWith?: string[];
+  createdAt?: string;
+  lastUsed?: string;
 }
 
 interface GroceryItem {
@@ -36,6 +50,7 @@ interface FamilyMember {
   id: string;
   name: string;
   avatar?: string;
+  email?: string;
 }
 
 interface Category {
@@ -46,6 +61,13 @@ interface Category {
   order: number;
 }
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
 // Enhanced mock data for demo
 const mockLists: GroceryList[] = [
   {
@@ -53,6 +75,8 @@ const mockLists: GroceryList[] = [
     name: 'Weekly Groceries',
     ownerId: 'user1',
     shared: false,
+    createdAt: new Date().toISOString(),
+    lastUsed: new Date().toISOString(),
     items: [
       { id: '1', name: 'Milk', checked: false, quantity: 2, category_slug: 'dairy-eggs', icon: '🥛' },
       { id: '2', name: 'Bread', checked: true, quantity: 1, category_slug: 'bakery', icon: '🍞' },
@@ -66,6 +90,8 @@ const mockLists: GroceryList[] = [
     ownerId: 'user1',
     shared: true,
     sharedWith: ['user2', 'user3'],
+    createdAt: new Date().toISOString(),
+    lastUsed: new Date().toISOString(),
     items: [
       { id: '5', name: 'Wine', checked: false, quantity: 2, category_slug: 'beverages', icon: '🍷' },
       { id: '6', name: 'Cheese', checked: false, quantity: 3, note: 'Variety pack', category_slug: 'dairy-eggs', icon: '🧀' },
@@ -77,6 +103,8 @@ const mockLists: GroceryList[] = [
     name: 'Healthy Meal Prep',
     ownerId: 'user1',
     shared: false,
+    createdAt: new Date().toISOString(),
+    lastUsed: new Date().toISOString(),
     items: [
       { id: '8', name: 'Quinoa', checked: false, quantity: 1, category_slug: 'pantry', icon: '🌾' },
       { id: '9', name: 'Salmon', checked: false, quantity: 2, category_slug: 'meat-seafood', icon: '🐟' },
@@ -86,9 +114,9 @@ const mockLists: GroceryList[] = [
 ];
 
 const mockFamilyMembers: FamilyMember[] = [
-  { id: 'user2', name: 'Sarah', avatar: undefined },
-  { id: 'user3', name: 'Mike', avatar: undefined },
-  { id: 'user4', name: 'Emma', avatar: undefined },
+  { id: 'user2', name: 'Sarah', avatar: undefined, email: 'sarah@example.com' },
+  { id: 'user3', name: 'Mike', avatar: undefined, email: 'mike@example.com' },
+  { id: 'user4', name: 'Emma', avatar: undefined, email: 'emma@example.com' },
 ];
 
 const mockCategories: Category[] = [
@@ -102,6 +130,13 @@ const mockCategories: Category[] = [
   { id: '8', name: 'Snacks', slug: 'snacks', icon: '🍿', order: 8 }
 ];
 
+const mockUser: User = {
+  id: 'user1',
+  name: 'Demo User',
+  email: 'demo@koffa.app',
+  avatar: undefined
+};
+
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -110,6 +145,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [currentList, setCurrentListState] = useState<GroceryList | null>(null);
   const [familyMembers] = useState<FamilyMember[]>(mockFamilyMembers);
   const [categories] = useState<Category[]>(mockCategories);
+  const [user] = useState<User | null>(mockUser);
 
   const setCurrentList = (listId: string | null) => {
     if (listId) {
@@ -118,6 +154,85 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } else {
       setCurrentListState(null);
     }
+  };
+
+  const createList = (name: string) => {
+    const newList: GroceryList = {
+      id: Date.now().toString(),
+      name,
+      ownerId: 'user1',
+      shared: false,
+      items: [],
+      createdAt: new Date().toISOString(),
+      lastUsed: new Date().toISOString()
+    };
+    setLists(prev => [newList, ...prev]);
+  };
+
+  const deleteList = (listId: string) => {
+    setLists(prev => prev.filter(list => list.id !== listId));
+    if (currentList?.id === listId) {
+      setCurrentListState(null);
+    }
+  };
+
+  const updateList = (listId: string, updates: Partial<GroceryList>) => {
+    setLists(prev => prev.map(list => 
+      list.id === listId ? { ...list, ...updates } : list
+    ));
+  };
+
+  const addItemToList = (listId: string, item: Omit<GroceryItem, 'id'>) => {
+    const newItem: GroceryItem = {
+      ...item,
+      id: Date.now().toString()
+    };
+    setLists(prev => prev.map(list => 
+      list.id === listId 
+        ? { ...list, items: [...list.items, newItem] }
+        : list
+    ));
+  };
+
+  const removeItemFromList = (listId: string, itemId: string) => {
+    setLists(prev => prev.map(list => 
+      list.id === listId 
+        ? { ...list, items: list.items.filter(item => item.id !== itemId) }
+        : list
+    ));
+  };
+
+  const toggleItemChecked = (listId: string, itemId: string) => {
+    setLists(prev => prev.map(list => 
+      list.id === listId 
+        ? { 
+            ...list, 
+            items: list.items.map(item => 
+              item.id === itemId ? { ...item, checked: !item.checked } : item
+            ) 
+          }
+        : list
+    ));
+  };
+
+  const updateItem = (listId: string, itemId: string, updates: Partial<GroceryItem>) => {
+    setLists(prev => prev.map(list => 
+      list.id === listId 
+        ? { 
+            ...list, 
+            items: list.items.map(item => 
+              item.id === itemId ? { ...item, ...updates } : item
+            ) 
+          }
+        : list
+    ));
+  };
+
+  const getFilteredItems = (query: string): GroceryItem[] => {
+    const allItems = lists.flatMap(list => list.items);
+    return allItems.filter(item => 
+      item.name.toLowerCase().includes(query.toLowerCase())
+    );
   };
 
   const shareList = (listId: string, userId: string) => {
@@ -143,6 +258,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     ));
   };
 
+  const login = async (email: string, password: string) => {
+    // Mock login for demo
+    setIsAuthenticated(true);
+  };
+
+  const register = async (email: string, password: string, name: string) => {
+    // Mock register for demo
+    setIsAuthenticated(true);
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+  };
+
   return (
     <AppContext.Provider value={{
       isAuthenticated,
@@ -153,7 +282,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       familyMembers,
       shareList,
       unshareList,
-      categories
+      categories,
+      createList,
+      deleteList,
+      updateList,
+      addItemToList,
+      removeItemFromList,
+      toggleItemChecked,
+      updateItem,
+      getFilteredItems,
+      user,
+      login,
+      register,
+      logout
     }}>
       {children}
     </AppContext.Provider>
