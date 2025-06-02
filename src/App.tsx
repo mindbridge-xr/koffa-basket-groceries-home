@@ -10,6 +10,7 @@ import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Lists from "./pages/Lists";
+import Shopping from "./pages/Shopping";
 import Profile from "./pages/Profile";
 import ListDetail from "./pages/ListDetail";
 import CategoryItems from "./pages/CategoryItems";
@@ -31,6 +32,7 @@ const AppRoutes = () => {
       
       <Route path="/" element={<ProtectedRoute element={<Dashboard />} />} />
       <Route path="/lists" element={<ProtectedRoute element={<Lists />} />} />
+      <Route path="/shopping" element={<ProtectedRoute element={<Shopping />} />} />
       <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
       <Route path="/list/:listId" element={<ProtectedRoute element={<ListDetail />} />} />
       <Route path="/category/:slug" element={<ProtectedRoute element={<CategoryItems />} />} />

@@ -11,6 +11,7 @@ import { BottomNav } from '@/components/BottomNav';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { QuickShopDialog } from '@/components/QuickShopDialog';
 import { TemplatesDialog } from '@/components/TemplatesDialog';
+import { SmartListsDialog } from '@/components/SmartListsDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useApp } from '@/context/AppContext';
@@ -20,6 +21,7 @@ export const Dashboard: React.FC = () => {
   const [showNewListDialog, setShowNewListDialog] = useState(false);
   const [showQuickShopDialog, setShowQuickShopDialog] = useState(false);
   const [showTemplatesDialog, setShowTemplatesDialog] = useState(false);
+  const [showSmartListsDialog, setShowSmartListsDialog] = useState(false);
   const [newListName, setNewListName] = useState('');
   
   const { categories, lists, createList } = useApp();
@@ -104,6 +106,7 @@ export const Dashboard: React.FC = () => {
           <Button 
             variant="outline" 
             className="h-12 flex items-center justify-center border-koffa-aqua-forest text-koffa-aqua-forest hover:bg-koffa-aqua-forest/10"
+            onClick={() => setShowSmartListsDialog(true)}
           >
             <Zap className="h-4 w-4 mr-2" />
             <span className="text-sm">Smart Lists</span>
@@ -249,6 +252,11 @@ export const Dashboard: React.FC = () => {
       <TemplatesDialog 
         open={showTemplatesDialog} 
         onOpenChange={setShowTemplatesDialog} 
+      />
+
+      <SmartListsDialog 
+        open={showSmartListsDialog} 
+        onOpenChange={setShowSmartListsDialog} 
       />
     </div>
   );
