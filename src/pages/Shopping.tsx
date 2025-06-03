@@ -6,14 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle2, Circle, ShoppingCart, Clock, MapPin, Filter } from 'lucide-react';
+import { CheckCircle2, Circle, ShoppingCart, Clock, MapPin, Filter, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { GroceryItemCard } from '@/components/GroceryItemCard';
 
 export const Shopping: React.FC = () => {
   const { lists, toggleItemChecked } = useApp();
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
-  const [sortBy, setSortBy] = useState<'category' | 'alphabetical' | 'store'>('category');
 
   // Get active shopping lists (lists with uncompleted items)
   const activeShoppingLists = lists.filter(list => 
@@ -21,10 +21,6 @@ export const Shopping: React.FC = () => {
   );
 
   const selectedList = selectedListId ? lists.find(l => l.id === selectedListId) : null;
-
-  const handleItemToggle = (listId: string, itemId: string) => {
-    toggleItemChecked(listId, itemId);
-  };
 
   const getProgress = (list: any) => {
     if (list.items.length === 0) return 0;
@@ -49,106 +45,102 @@ export const Shopping: React.FC = () => {
     const groupedItems = groupItemsByCategory(showCompleted ? selectedList.items : pendingItems);
 
     return (
-      <div className="min-h-screen bg-koffa-snow-drift pb-20">
-        <div className="bg-koffa-aqua-forest text-white p-6">
-          <div className="flex items-center justify-between mb-4">
-            <Button 
-              variant="ghost" 
-              className="text-white"
+      <div className="min-h-screen bg-uber-white pb-20">
+        <div className="bg-uber-black text-uber-white section-padding">
+          <div className="flex items-center justify-between mb-6">
+            <button 
               onClick={() => setSelectedListId(null)}
+              className="p-2 hover:bg-uber-gray-800 rounded-xl transition-colors animate-press"
             >
-              ← Back to Lists
-            </Button>
+              <ArrowLeft className="h-6 w-6" />
+            </button>
             <div className="flex items-center space-x-2">
               <MapPin className="h-4 w-4" />
-              <span className="text-sm">Store Mode</span>
+              <span className="text-uber-sm font-medium">Shopping Mode</span>
             </div>
           </div>
           
-          <h1 className="text-2xl font-bold mb-2">{selectedList.name}</h1>
+          <h1 className="text-uber-2xl font-bold mb-2">{selectedList.name}</h1>
           <div className="flex items-center space-x-4 mb-4">
-            <span className="text-sm">{pendingItems.length} items left</span>
-            <span className="text-sm">•</span>
-            <span className="text-sm">{completedItems.length} completed</span>
+            <span className="text-uber-sm text-uber-white/80">{pendingItems.length} items left</span>
+            <span className="text-uber-white/40">•</span>
+            <span className="text-uber-sm text-uber-white/80">{completedItems.length} completed</span>
           </div>
           
-          <Progress value={progress} className="mb-4 bg-white/20" />
+          <div className="mb-6">
+            <Progress 
+              value={progress} 
+              className="h-2 bg-uber-white/20 [&>div]:bg-uber-green" 
+            />
+            <div className="flex justify-between items-center mt-2">
+              <span className="text-uber-xs text-uber-white/60">{Math.round(progress)}% complete</span>
+              <span className="text-uber-xs text-uber-white/60">
+                ~{Math.ceil(pendingItems.length * 1.5)} min left
+              </span>
+            </div>
+          </div>
           
-          <div className="flex space-x-2">
+          <div className="flex space-x-3">
             <Button
               variant={showCompleted ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setShowCompleted(!showCompleted)}
-              className="text-white"
+              className={showCompleted ? "btn-uber-secondary" : "text-uber-white hover:bg-uber-white/10"}
             >
               {showCompleted ? "Hide" : "Show"} Completed
             </Button>
-            <Button variant="ghost" size="sm" className="text-white">
+            <Button variant="ghost" size="sm" className="text-uber-white hover:bg-uber-white/10">
               <Filter className="h-4 w-4 mr-1" />
               Sort
             </Button>
           </div>
         </div>
 
-        <div className="p-4 space-y-4">
+        <div className="content-padding space-y-4 py-6">
           {Object.entries(groupedItems).map(([categorySlug, items]: [string, any]) => (
-            <Card key={categorySlug}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg capitalize">
-                  {categorySlug.replace('-', ' ')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-3">
-                  {items.map((item: any) => (
-                    <div
-                      key={item.id}
-                      className={`flex items-center p-3 rounded-lg border transition-colors ${
-                        item.checked 
-                          ? 'bg-green-50 border-green-200' 
-                          : 'bg-white border-gray-200 hover:border-koffa-aqua-forest'
-                      }`}
-                      onClick={() => handleItemToggle(selectedList.id, item.id)}
-                    >
-                      <div className="mr-3">
-                        {item.checked ? (
-                          <CheckCircle2 className="h-6 w-6 text-green-600" />
-                        ) : (
-                          <Circle className="h-6 w-6 text-gray-400" />
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className={`font-medium ${item.checked ? 'line-through text-gray-500' : ''}`}>
-                          {item.icon} {item.name}
-                        </div>
-                        {item.quantity && item.quantity > 1 && (
-                          <div className="text-sm text-gray-500">Qty: {item.quantity}</div>
-                        )}
-                        {item.note && (
-                          <div className="text-sm text-gray-500">{item.note}</div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+            <div key={categorySlug} className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-uber-gray-100 rounded-lg flex items-center justify-center">
+                  <span className="text-sm">📦</span>
                 </div>
-              </CardContent>
-            </Card>
+                <h3 className="text-uber-lg font-semibold text-uber-black capitalize">
+                  {categorySlug.replace('-', ' ')}
+                </h3>
+                <Badge variant="outline" className="text-uber-xs">
+                  {items.length}
+                </Badge>
+              </div>
+              
+              <div className="space-y-2">
+                {items.map((item: any) => (
+                  <GroceryItemCard
+                    key={item.id}
+                    item={item}
+                    listId={selectedList.id}
+                    showCheckbox={true}
+                    showDelete={false}
+                  />
+                ))}
+              </div>
+            </div>
           ))}
 
           {pendingItems.length === 0 && (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <CheckCircle2 className="h-16 w-16 text-green-600 mx-auto mb-4" />
-                <h3 className="text-xl font-bold text-green-600 mb-2">Shopping Complete!</h3>
-                <p className="text-gray-600">All items have been checked off your list.</p>
-                <Button 
-                  className="mt-4 bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
-                  onClick={() => setSelectedListId(null)}
-                >
-                  Back to Lists
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="card-uber p-8 text-center">
+              <div className="w-16 h-16 bg-uber-green/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="h-8 w-8 text-uber-green" />
+              </div>
+              <h3 className="text-uber-xl font-bold text-uber-green mb-2">Shopping Complete!</h3>
+              <p className="text-uber-sm text-uber-gray-600 mb-6">
+                All items have been checked off your list.
+              </p>
+              <Button 
+                className="btn-uber-primary"
+                onClick={() => setSelectedListId(null)}
+              >
+                Back to Lists
+              </Button>
+            </div>
           )}
         </div>
 
@@ -158,66 +150,69 @@ export const Shopping: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-koffa-snow-drift pb-20">
-      <div className="bg-koffa-aqua-forest text-white p-6">
+    <div className="min-h-screen bg-uber-white pb-20">
+      <div className="bg-uber-black text-uber-white section-padding">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold">Shopping Mode</h1>
-          <ShoppingCart className="h-6 w-6" />
+          <h1 className="text-uber-2xl font-bold">Shopping Mode</h1>
+          <div className="w-12 h-12 bg-uber-white/10 rounded-xl flex items-center justify-center">
+            <ShoppingCart className="h-6 w-6" />
+          </div>
         </div>
-        <p className="text-white/80">Select a list to start shopping</p>
+        <p className="text-uber-sm text-uber-white/80">Select a list to start shopping</p>
       </div>
 
-      <div className="p-4">
+      <div className="content-padding py-6">
         {activeShoppingLists.length > 0 ? (
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Ready to Shop</h2>
-            <div className="grid gap-3">
+          <div className="space-y-6">
+            <h2 className="text-uber-lg font-semibold text-uber-black">Ready to Shop</h2>
+            <div className="space-y-3">
               {activeShoppingLists.map(list => {
                 const pendingCount = list.items.filter(item => !item.checked).length;
                 const progress = getProgress(list);
                 
                 return (
-                  <Card 
+                  <button
                     key={list.id} 
-                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    className="card-uber-hover p-4 animate-press w-full text-left"
                     onClick={() => setSelectedListId(list.id)}
                   >
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold">{list.name}</h3>
-                        <Badge variant="outline">{pendingCount} items</Badge>
-                      </div>
-                      
-                      <Progress value={progress} className="mb-2" />
-                      
-                      <div className="flex items-center justify-between text-sm text-gray-600">
-                        <span>{Math.round(progress)}% complete</span>
-                        <div className="flex items-center">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-uber-lg text-uber-black">{list.name}</h3>
+                      <Badge className="bg-uber-black text-uber-white">
+                        {pendingCount} items
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Progress value={progress} className="h-2" />
+                      <div className="flex items-center justify-between text-uber-sm">
+                        <span className="text-uber-gray-600">{Math.round(progress)}% complete</span>
+                        <div className="flex items-center text-uber-gray-500">
                           <Clock className="h-3 w-3 mr-1" />
-                          <span>~{Math.ceil(pendingCount * 2)} min</span>
+                          <span>~{Math.ceil(pendingCount * 1.5)} min</span>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </button>
                 );
               })}
             </div>
           </div>
         ) : (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <ShoppingCart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-600 mb-2">No Active Shopping Lists</h3>
-              <p className="text-gray-500 mb-4">
-                All your lists are complete! Create a new list or add items to get started.
-              </p>
-              <Link to="/lists">
-                <Button className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90">
-                  Go to Lists
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+          <div className="card-uber p-8 text-center">
+            <div className="w-16 h-16 bg-uber-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <ShoppingCart className="h-8 w-8 text-uber-gray-400" />
+            </div>
+            <h3 className="text-uber-xl font-semibold text-uber-black mb-2">No Active Shopping Lists</h3>
+            <p className="text-uber-sm text-uber-gray-500 mb-6">
+              All your lists are complete! Create a new list or add items to get started.
+            </p>
+            <Link to="/lists">
+              <Button className="btn-uber-primary">
+                Go to Lists
+              </Button>
+            </Link>
+          </div>
         )}
       </div>
 

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Tables } from '@/lib/supabase/types';
 import { Link } from 'react-router-dom';
-import { cn } from '@/lib/utils';
+import { ArrowRight } from 'lucide-react';
 
 interface CategoryCardProps {
   category: Tables['categories'];
@@ -12,18 +12,20 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ category }) => {
   return (
     <Link 
       to={`/category/${category.slug}`}
-      className={cn(
-        "flex flex-col items-center justify-center p-4 rounded-lg",
-        "bg-white shadow-sm hover:shadow-md transition-all duration-200",
-        "aspect-square text-center border border-muted"
-      )}
+      className="card-uber-hover p-4 animate-press block"
     >
-      <div className="text-4xl mb-3">
-        {category.icon}
+      <div className="text-center space-y-3">
+        <div className="w-16 h-16 bg-uber-gray-50 rounded-xl flex items-center justify-center mx-auto">
+          <span className="text-3xl">{category.icon}</span>
+        </div>
+        <div>
+          <h3 className="font-semibold text-uber-base text-uber-black mb-1">{category.name}</h3>
+          <div className="flex items-center justify-center text-uber-gray-400">
+            <span className="text-uber-xs">Browse items</span>
+            <ArrowRight className="h-3 w-3 ml-1" />
+          </div>
+        </div>
       </div>
-      <span className="font-medium text-sm">
-        {category.name}
-      </span>
     </Link>
   );
 };
