@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider, useApp } from "@/context/AppContext";
+import { ChefProvider } from "@/context/ChefContext";
 
 import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
@@ -14,6 +15,9 @@ import Shopping from "./pages/Shopping";
 import Profile from "./pages/Profile";
 import ListDetail from "./pages/ListDetail";
 import CategoryItems from "./pages/CategoryItems";
+import ChefMarketplace from "./pages/ChefMarketplace";
+import ChefOnboarding from "./pages/ChefOnboarding";
+import ChefDashboard from "./pages/ChefDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +41,11 @@ const AppRoutes = () => {
       <Route path="/list/:listId" element={<ProtectedRoute element={<ListDetail />} />} />
       <Route path="/category/:slug" element={<ProtectedRoute element={<CategoryItems />} />} />
       
+      {/* Chef Marketplace Routes */}
+      <Route path="/chef-marketplace" element={<ProtectedRoute element={<ChefMarketplace />} />} />
+      <Route path="/chef-onboarding" element={<ProtectedRoute element={<ChefOnboarding />} />} />
+      <Route path="/chef-dashboard" element={<ProtectedRoute element={<ChefDashboard />} />} />
+      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
@@ -45,13 +54,15 @@ const AppRoutes = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </TooltipProvider>
+      <ChefProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </TooltipProvider>
+      </ChefProvider>
     </AppProvider>
   </QueryClientProvider>
 );
