@@ -12,20 +12,26 @@ export const KoffaLogo: React.FC<KoffaLogoProps> = ({
 }) => {
   const logoSizes = {
     sm: 'h-8',
-    md: 'h-16',
-    lg: 'h-24'
+    md: 'h-12',
+    lg: 'h-16'
+  };
+
+  const textSizes = {
+    sm: 'text-uber-lg',
+    md: 'text-uber-2xl', 
+    lg: 'text-uber-3xl'
   };
 
   return (
-    <div className={`flex flex-col items-center ${className}`}>
-      <div className={`${logoSizes[size]}`}>
-        <img 
-          src="/lovable-uploads/bdb9f2ed-22a2-40aa-8476-f1681c0b1f4d.png" 
-          alt="Koffa Logo" 
-          className="h-full w-auto"
-        />
+    <div className={`flex items-center space-x-3 ${className}`}>
+      <div className={`${logoSizes[size]} aspect-square bg-uber-black rounded-xl flex items-center justify-center`}>
+        <span className={`font-bold text-uber-white ${size === 'sm' ? 'text-lg' : size === 'md' ? 'text-2xl' : 'text-3xl'}`}>
+          K
+        </span>
       </div>
-      <h1 className={`font-bold mt-2 ${size === 'sm' ? 'text-lg' : size === 'md' ? 'text-2xl' : 'text-3xl'}`}>KOFFA</h1>
+      <h1 className={`font-bold ${textSizes[size]} text-uber-black tracking-tight`}>
+        KOFFA
+      </h1>
     </div>
   );
 };

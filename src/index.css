@@ -1,39 +1,40 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 85 38% 96%;
-    --foreground: 120 18% 21%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 6%;
 
     --card: 0 0% 100%;
-    --card-foreground: 120 18% 21%;
+    --card-foreground: 0 0% 6%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 120 18% 21%;
+    --popover-foreground: 0 0% 6%;
 
-    --primary: 120 18% 21%;
-    --primary-foreground: 85 38% 96%;
+    --primary: 0 0% 6%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 38 27% 58%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 6%;
 
-    --muted: 120 20% 96%;
-    --muted-foreground: 120 18% 40%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 138 27% 53%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 142 76% 36%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 120 10% 85%;
-    --input: 120 10% 85%;
-    --ring: 142 71% 45%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 6%;
 
-    --radius: 0.5rem;
+    --radius: 12px;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -46,33 +47,33 @@
   }
 
   .dark {
-    --background: 120 18% 13%;
-    --foreground: 85 38% 96%;
+    --background: 0 0% 6%;
+    --foreground: 0 0% 98%;
 
-    --card: 120 18% 13%;
-    --card-foreground: 85 38% 96%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 120 18% 13%;
-    --popover-foreground: 85 38% 96%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 85 38% 96%;
-    --primary-foreground: 120 18% 21%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 6%;
 
-    --secondary: 38 27% 58%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 120 18% 20%;
-    --muted-foreground: 120 18% 70%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 138 27% 43%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 142 76% 36%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 120 18% 20%;
-    --input: 120 18% 20%;
-    --ring: 142 71% 35%;
+    --border: 0 0% 10%;
+    --input: 0 0% 10%;
+    --ring: 0 0% 98%;
   }
 
   * {
@@ -81,28 +82,102 @@
   
   html {
     @apply scroll-smooth;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-uber;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, h4 {
-    @apply font-medium;
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+    letter-spacing: -0.025em;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #E5E5E5;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #CCCCCC;
   }
 }
 
 @layer components {
-  .koffa-icon {
-    @apply flex items-center justify-center w-12 h-12 bg-koffa-aqua-forest text-white rounded-md;
+  /* Uber-style button variants */
+  .btn-uber-primary {
+    @apply bg-uber-black text-uber-white hover:bg-uber-gray-800 active:scale-95 transition-all duration-200 font-medium rounded-uber py-3 px-6 min-h-[48px] flex items-center justify-center;
   }
 
-  .list-item {
-    @apply flex items-center gap-3 py-3 border-b border-muted;
+  .btn-uber-secondary {
+    @apply bg-uber-white text-uber-black border border-uber-gray-200 hover:bg-uber-gray-50 active:scale-95 transition-all duration-200 font-medium rounded-uber py-3 px-6 min-h-[48px] flex items-center justify-center;
   }
-  
-  .category-item {
-    @apply flex items-center justify-between w-full py-4 px-6 bg-muted/30 hover:bg-muted transition-colors;
+
+  .btn-uber-success {
+    @apply bg-uber-green text-uber-white hover:bg-uber-green-dark active:scale-95 transition-all duration-200 font-medium rounded-uber py-3 px-6 min-h-[48px] flex items-center justify-center;
   }
+
+  /* Uber-style cards */
+  .card-uber {
+    @apply bg-uber-white rounded-uber-lg shadow-uber border-0 overflow-hidden;
+  }
+
+  .card-uber-hover {
+    @apply card-uber hover:shadow-uber-md transition-all duration-300 cursor-pointer active:scale-[0.98];
+  }
+
+  /* Uber-style input */
+  .input-uber {
+    @apply bg-uber-gray-50 border-0 rounded-uber px-4 py-3 text-uber-base placeholder:text-uber-gray-500 focus:bg-uber-white focus:ring-2 focus:ring-uber-black focus:ring-opacity-20 transition-all duration-200;
+  }
+
+  /* Uber-style spacing */
+  .section-padding {
+    @apply px-4 py-6;
+  }
+
+  .content-padding {
+    @apply px-4;
+  }
+
+  /* Animation classes */
+  .animate-press {
+    @apply active:scale-95 transition-transform duration-150;
+  }
+
+  .animate-hover-lift {
+    @apply hover:-translate-y-1 hover:shadow-uber-md transition-all duration-300;
+  }
+}
+
+/* Remove tap highlights on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+input, textarea {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }

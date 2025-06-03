@@ -31,25 +31,38 @@ export const BottomNav: React.FC = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 flex items-center justify-around bg-background shadow-lg border-t py-3 z-10">
-      {navItems.map((item) => (
-        <Link
-          key={item.path}
-          to={item.path}
-          className={cn(
-            "flex flex-col items-center justify-center px-4 py-2 rounded-md transition-colors relative",
-            location.pathname === item.path
-              ? "text-koffa-aqua-forest bg-koffa-aqua-forest/10"
-              : "text-muted-foreground hover:text-koffa-aqua-forest hover:bg-koffa-aqua-forest/5"
-          )}
-        >
-          <item.icon size={24} />
-          <span className="text-xs mt-1">{item.name}</span>
-          {location.pathname === item.path && (
-            <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-koffa-aqua-forest rounded-full" />
-          )}
-        </Link>
-      ))}
+    <nav className="fixed bottom-0 left-0 right-0 bg-uber-white border-t border-uber-gray-100 z-50">
+      <div className="flex items-center justify-around py-2">
+        {navItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={cn(
+                "flex flex-col items-center justify-center px-4 py-3 rounded-xl transition-all duration-200 min-w-[60px] animate-press",
+                isActive
+                  ? "bg-uber-black text-uber-white"
+                  : "text-uber-gray-500 hover:text-uber-black hover:bg-uber-gray-50"
+              )}
+            >
+              <item.icon 
+                size={22} 
+                className={cn(
+                  "transition-all duration-200",
+                  isActive ? "fill-current" : ""
+                )} 
+              />
+              <span className={cn(
+                "text-xs mt-1 font-medium transition-all duration-200",
+                isActive ? "text-uber-white" : "text-uber-gray-500"
+              )}>
+                {item.name}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 };

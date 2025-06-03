@@ -19,29 +19,28 @@ export const FloatingActionButton: React.FC<FABProps> = ({
 }) => {
   if (label) {
     return (
-      <Button 
+      <button 
         className={cn(
-          "fixed bottom-24 right-5 rounded-full bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90 shadow-lg px-6",
+          "fixed bottom-24 right-4 bg-uber-black text-uber-white rounded-full shadow-uber-lg px-6 py-3 flex items-center space-x-2 font-medium animate-press hover:shadow-uber-lg hover:bg-uber-gray-800 transition-all duration-300",
           className
         )} 
         onClick={onClick}
       >
         {icon}
-        <span className="ml-2">{label}</span>
-      </Button>
+        <span className="text-uber-sm">{label}</span>
+      </button>
     );
   }
   
   return (
-    <Button 
+    <button 
       className={cn(
-        "fixed bottom-24 right-5 rounded-full bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90 w-14 h-14 p-0 shadow-lg",
-        "hover:scale-105 transition-transform duration-200",
+        "fixed bottom-24 right-4 w-14 h-14 bg-uber-black text-uber-white rounded-full shadow-uber-lg flex items-center justify-center animate-press hover:shadow-uber-lg hover:bg-uber-gray-800 transition-all duration-300",
         className
       )} 
       onClick={onClick}
     >
       {icon}
-    </Button>
+    </button>
   );
 };
