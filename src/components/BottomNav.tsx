@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, List, ShoppingCart, ChefHat, User } from 'lucide-react';
+import { Home, CheckCircle, ShoppingCart, ChefHat, User } from 'lucide-react';
 import { useChef } from '@/context/ChefContext';
 
 export const BottomNav: React.FC = () => {
@@ -16,21 +16,21 @@ export const BottomNav: React.FC = () => {
       active: location.pathname === '/'
     },
     {
-      to: '/lists',
-      icon: List,
-      label: 'Lists',
-      active: location.pathname === '/lists'
+      to: '/tasks',
+      icon: CheckCircle,
+      label: 'Tasks',
+      active: location.pathname === '/tasks'
     },
     {
       to: '/shopping',
       icon: ShoppingCart,
-      label: 'Shopping',
-      active: location.pathname === '/shopping'
+      label: 'Grocery',
+      active: location.pathname.startsWith('/shopping') || location.pathname.startsWith('/lists')
     },
     {
       to: isChef ? '/chef-dashboard' : '/chef-marketplace',
       icon: ChefHat,
-      label: isChef ? 'Chef' : 'Chefs',
+      label: 'Chef',
       active: location.pathname.startsWith('/chef')
     },
     {
@@ -42,20 +42,20 @@ export const BottomNav: React.FC = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-uber-white border-t border-uber-gray-100 z-50">
-      <div className="flex items-center justify-around py-2 px-4">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 h-16">
+      <div className="flex items-center justify-around h-full px-4">
         {navItems.map((item) => (
           <Link
             key={item.to}
             to={item.to}
-            className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 animate-press ${
+            className={`flex flex-col items-center py-1 px-3 rounded-lg transition-all duration-200 active:scale-95 min-w-0 ${
               item.active
-                ? 'text-uber-black bg-uber-gray-50'
-                : 'text-uber-gray-500 hover:text-uber-black hover:bg-uber-gray-50'
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <item.icon className={`h-6 w-6 mb-1 ${item.active ? 'text-uber-black' : 'text-uber-gray-500'}`} />
-            <span className={`text-uber-xs font-medium ${item.active ? 'text-uber-black' : 'text-uber-gray-500'}`}>
+            <item.icon className={`h-5 w-5 mb-1 ${item.active ? 'text-primary' : 'text-muted-foreground'}`} />
+            <span className={`text-xs font-medium font-inter ${item.active ? 'text-primary' : 'text-muted-foreground'}`}>
               {item.label}
             </span>
           </Link>

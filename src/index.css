@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,7 +15,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 6%;
 
-    --primary: 0 0% 6%;
+    --primary: 22 100% 59%;
     --primary-foreground: 0 0% 98%;
 
     --secondary: 0 0% 96%;
@@ -24,7 +24,7 @@
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 142 76% 36%;
+    --accent: 22 100% 59%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
@@ -32,7 +32,7 @@
 
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 0 0% 6%;
+    --ring: 22 100% 59%;
 
     --radius: 12px;
 
@@ -56,7 +56,7 @@
     --popover: 0 0% 6%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 0 0% 98%;
+    --primary: 22 100% 59%;
     --primary-foreground: 0 0% 6%;
 
     --secondary: 0 0% 10%;
@@ -65,7 +65,7 @@
     --muted: 0 0% 10%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 142 76% 36%;
+    --accent: 22 100% 59%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -73,7 +73,7 @@
 
     --border: 0 0% 10%;
     --input: 0 0% 10%;
-    --ring: 0 0% 98%;
+    --ring: 22 100% 59%;
   }
 
   * {
@@ -86,14 +86,14 @@
   }
 
   body {
-    @apply bg-background text-foreground font-uber;
+    @apply bg-background text-foreground font-inter;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold;
+    @apply font-poppins font-semibold;
     letter-spacing: -0.025em;
   }
 
@@ -117,49 +117,79 @@
 }
 
 @layer components {
-  /* Uber-style button variants */
-  .btn-uber-primary {
-    @apply bg-uber-black text-uber-white hover:bg-uber-gray-800 active:scale-95 transition-all duration-200 font-medium rounded-uber py-3 px-6 min-h-[48px] flex items-center justify-center;
+  /* FamilyHub button variants */
+  .btn-primary {
+    @apply bg-gradient-primary text-white hover:opacity-90 active:scale-95 transition-all duration-200 font-medium rounded-lg py-3 px-6 h-14 flex items-center justify-center font-poppins;
   }
 
-  .btn-uber-secondary {
-    @apply bg-uber-white text-uber-black border border-uber-gray-200 hover:bg-uber-gray-50 active:scale-95 transition-all duration-200 font-medium rounded-uber py-3 px-6 min-h-[48px] flex items-center justify-center;
+  .btn-secondary {
+    @apply bg-white text-primary border border-primary hover:bg-primary/5 active:scale-95 transition-all duration-200 font-medium rounded-lg py-3 px-6 h-14 flex items-center justify-center font-poppins;
   }
 
-  .btn-uber-success {
-    @apply bg-uber-green text-uber-white hover:bg-uber-green-dark active:scale-95 transition-all duration-200 font-medium rounded-uber py-3 px-6 min-h-[48px] flex items-center justify-center;
+  .btn-ghost {
+    @apply bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition-all duration-200 font-medium rounded-lg py-2 px-4 flex items-center justify-center font-poppins;
   }
 
-  /* Uber-style cards */
-  .card-uber {
-    @apply bg-uber-white rounded-uber-lg shadow-uber border-0 overflow-hidden;
+  /* FamilyHub cards */
+  .card-familyhub {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden;
   }
 
-  .card-uber-hover {
-    @apply card-uber hover:shadow-uber-md transition-all duration-300 cursor-pointer active:scale-[0.98];
+  .card-familyhub-hover {
+    @apply card-familyhub hover:shadow-md transition-all duration-300 cursor-pointer active:scale-[0.98];
   }
 
-  /* Uber-style input */
-  .input-uber {
-    @apply bg-uber-gray-50 border-0 rounded-uber px-4 py-3 text-uber-base placeholder:text-uber-gray-500 focus:bg-uber-white focus:ring-2 focus:ring-uber-black focus:ring-opacity-20 transition-all duration-200;
+  /* FamilyHub input */
+  .input-familyhub {
+    @apply bg-white border border-gray-200 rounded-lg px-4 py-3 text-base placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 font-inter;
   }
 
-  /* Uber-style spacing */
-  .section-padding {
-    @apply px-4 py-6;
+  /* Gradient backgrounds */
+  .bg-gradient-subtle {
+    @apply bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5;
   }
 
-  .content-padding {
-    @apply px-4;
+  .bg-gradient-welcome {
+    @apply bg-gradient-to-r from-primary/10 to-secondary/10;
   }
 
-  /* Animation classes */
-  .animate-press {
-    @apply active:scale-95 transition-transform duration-150;
+  /* Mobile spacing */
+  .mobile-padding {
+    @apply px-5 py-4;
   }
 
-  .animate-hover-lift {
-    @apply hover:-translate-y-1 hover:shadow-uber-md transition-all duration-300;
+  .mobile-spacing {
+    @apply p-4;
+  }
+
+  /* Priority indicators */
+  .priority-high {
+    @apply border-l-4 border-l-red-500;
+  }
+
+  .priority-medium {
+    @apply border-l-4 border-l-yellow-500;
+  }
+
+  .priority-low {
+    @apply border-l-4 border-l-green-500;
+  }
+
+  /* Status badges */
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+
+  .status-completed {
+    @apply status-badge bg-green-100 text-green-800;
+  }
+
+  .status-pending {
+    @apply status-badge bg-yellow-100 text-yellow-800;
+  }
+
+  .status-overdue {
+    @apply status-badge bg-red-100 text-red-800;
   }
 }
 
