@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { PageHeader } from '@/components/PageHeader';
 import { 
   DollarSign, 
   Calendar, 
@@ -13,7 +14,6 @@ import {
   TrendingUp, 
   Clock, 
   Users,
-  Settings,
   Eye,
   Plus
 } from 'lucide-react';
@@ -24,11 +24,12 @@ export const ChefDashboard: React.FC = () => {
 
   if (!chefProfile) {
     return (
-      <div className="min-h-screen bg-uber-white flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-uber-xl font-semibold text-uber-black mb-4">Chef Profile Not Found</h2>
-          <Button className="btn-uber-primary">Complete Setup</Button>
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 flex items-center justify-center pb-20">
+        <div className="text-center mobile-spacing">
+          <h2 className="text-xl font-semibold text-foreground mb-4 font-poppins">Chef Profile Not Found</h2>
+          <Button className="btn-primary">Complete Setup</Button>
         </div>
+        <BottomNav />
       </div>
     );
   }
@@ -65,64 +66,73 @@ export const ChefDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-uber-white pb-20">
-      <div className="bg-uber-black text-uber-white section-padding">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={chefProfile.avatar} alt={chefProfile.name} />
-              <AvatarFallback className="text-xl">{chefProfile.name[0]}</AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-uber-xl font-bold">{chefProfile.name}</h1>
-              <p className="text-uber-sm text-uber-white/80">{chefProfile.experienceLevel.replace('-', ' ')}</p>
-              <div className="flex items-center mt-1">
-                <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
-                <span className="text-uber-sm">{chefProfile.rating || '5.0'}</span>
-                <span className="text-uber-xs text-uber-white/60 ml-2">
-                  ({chefProfile.totalBookings} bookings)
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex space-x-2">
-            <Button variant="ghost" size="sm" className="text-uber-white hover:bg-uber-white/10">
-              <Eye className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm" className="text-uber-white hover:bg-uber-white/10">
-              <Settings className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-20">
+      <PageHeader 
+        title="Chef Dashboard"
+        subtitle={`Welcome back, ${chefProfile.name}`}
+        showSettings={true}
+      >
+        <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+          <Eye className="h-4 w-4" />
+        </Button>
+      </PageHeader>
 
-      <div className="content-padding space-y-6 py-6">
+      {/* Chef Profile Summary */}
+      <div className="mobile-spacing py-4">
+        <Card className="card-familyhub mb-6">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-4">
+              <Avatar className="h-16 w-16">
+                <AvatarImage src={chefProfile.avatar} alt={chefProfile.name} />
+                <AvatarFallback className="text-xl bg-primary/10 text-primary font-bold">
+                  {chefProfile.name[0]}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <h2 className="text-lg font-bold text-foreground font-poppins">{chefProfile.name}</h2>
+                <p className="text-sm text-muted-foreground font-inter capitalize">
+                  {chefProfile.experienceLevel.replace('-', ' ')}
+                </p>
+                <div className="flex items-center mt-1">
+                  <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
+                  <span className="text-sm font-medium">{chefProfile.rating || '5.0'}</span>
+                  <span className="text-xs text-muted-foreground ml-2">
+                    ({chefProfile.totalBookings} bookings)
+                  </span>
+                </div>
+              </div>
+              <Badge className="bg-primary text-white">
+                ${chefProfile.hourlyRate}/hr
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 mb-6">
           {quickStats.map((stat, index) => (
-            <Card key={index} className="card-uber">
+            <Card key={index} className="card-familyhub">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <stat.icon className="h-5 w-5 text-uber-gray-600" />
+                  <stat.icon className="h-5 w-5 text-muted-foreground" />
                   <Badge 
                     variant="outline" 
-                    className={`text-uber-xs ${
+                    className={`text-xs ${
                       stat.positive ? 'text-green-600 border-green-200' : 'text-red-600 border-red-200'
                     }`}
                   >
                     {stat.change}
                   </Badge>
                 </div>
-                <div className="text-uber-lg font-bold text-uber-black">{stat.value}</div>
-                <div className="text-uber-xs text-uber-gray-500">{stat.label}</div>
+                <div className="text-lg font-bold text-foreground font-poppins">{stat.value}</div>
+                <div className="text-xs text-muted-foreground font-inter">{stat.label}</div>
               </CardContent>
             </Card>
           ))}
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex space-x-2 bg-uber-gray-50 p-1 rounded-uber">
+        <div className="flex space-x-2 bg-gray-50 p-1 rounded-2xl mb-6">
           {[
             { id: 'overview', label: 'Overview' },
             { id: 'bookings', label: 'Bookings' },
@@ -132,8 +142,8 @@ export const ChefDashboard: React.FC = () => {
               key={tab.id}
               variant={activeTab === tab.id ? "default" : "ghost"}
               size="sm"
-              className={`flex-1 ${
-                activeTab === tab.id ? 'btn-uber-primary' : 'hover:bg-uber-white'
+              className={`flex-1 font-inter ${
+                activeTab === tab.id ? 'btn-primary' : 'hover:bg-white text-muted-foreground'
               }`}
               onClick={() => setActiveTab(tab.id as any)}
             >
@@ -146,11 +156,11 @@ export const ChefDashboard: React.FC = () => {
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Services */}
-            <Card className="card-uber">
+            <Card className="card-familyhub">
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+                <CardTitle className="flex items-center justify-between font-poppins">
                   <span>Your Services</span>
-                  <Button variant="outline" size="sm" className="btn-uber-secondary">
+                  <Button variant="outline" size="sm" className="btn-secondary">
                     <Plus className="h-4 w-4 mr-1" />
                     Add Service
                   </Button>
@@ -158,10 +168,10 @@ export const ChefDashboard: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 {chefProfile.services.map(service => (
-                  <div key={service.id} className="flex items-center justify-between p-3 bg-uber-gray-50 rounded-uber">
+                  <div key={service.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-2xl">
                     <div>
-                      <h4 className="font-medium text-uber-base text-uber-black">{service.name}</h4>
-                      <div className="flex items-center space-x-4 text-uber-sm text-uber-gray-600">
+                      <h4 className="font-semibold text-base text-foreground font-poppins">{service.name}</h4>
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground font-inter">
                         <span>{service.duration} min</span>
                         <span>${service.price}</span>
                       </div>
@@ -175,24 +185,24 @@ export const ChefDashboard: React.FC = () => {
             </Card>
 
             {/* Recent Activity */}
-            <Card className="card-uber">
+            <Card className="card-familyhub">
               <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
+                <CardTitle className="font-poppins">Recent Activity</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-3 p-3 border border-uber-gray-100 rounded-uber">
-                    <div className="w-2 h-2 bg-uber-green rounded-full"></div>
+                  <div className="flex items-center space-x-3 p-3 border border-gray-100 rounded-2xl">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <div className="flex-1">
-                      <p className="text-uber-sm text-uber-black">New booking request received</p>
-                      <p className="text-uber-xs text-uber-gray-500">2 hours ago</p>
+                      <p className="text-sm text-foreground font-inter">New booking request received</p>
+                      <p className="text-xs text-muted-foreground font-inter">2 hours ago</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3 p-3 border border-uber-gray-100 rounded-uber">
+                  <div className="flex items-center space-x-3 p-3 border border-gray-100 rounded-2xl">
                     <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                     <div className="flex-1">
-                      <p className="text-uber-sm text-uber-black">Payment received for cooking class</p>
-                      <p className="text-uber-xs text-uber-gray-500">1 day ago</p>
+                      <p className="text-sm text-foreground font-inter">Payment received for cooking class</p>
+                      <p className="text-xs text-muted-foreground font-inter">1 day ago</p>
                     </div>
                   </div>
                 </div>
@@ -204,30 +214,30 @@ export const ChefDashboard: React.FC = () => {
         {activeTab === 'bookings' && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-uber-lg font-semibold text-uber-black">Upcoming Bookings</h3>
+              <h3 className="text-lg font-semibold text-foreground font-poppins">Upcoming Bookings</h3>
               <Badge variant="outline">{bookings.length} total</Badge>
             </div>
             
             {bookings.length > 0 ? (
               <div className="space-y-3">
                 {bookings.map(booking => (
-                  <Card key={booking.id} className="card-uber">
+                  <Card key={booking.id} className="card-familyhub">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium text-uber-base text-uber-black">
+                        <h4 className="font-semibold text-base text-foreground font-poppins">
                           {chefProfile.services.find(s => s.id === booking.serviceId)?.name || 'Service'}
                         </h4>
                         <Badge 
                           className={
-                            booking.status === 'confirmed' ? 'bg-uber-green text-white' :
+                            booking.status === 'confirmed' ? 'bg-green-500 text-white' :
                             booking.status === 'pending' ? 'bg-yellow-500 text-white' :
-                            'bg-uber-gray-600 text-white'
+                            'bg-gray-500 text-white'
                           }
                         >
                           {booking.status}
                         </Badge>
                       </div>
-                      <div className="flex items-center space-x-4 text-uber-sm text-uber-gray-600">
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground font-inter">
                         <div className="flex items-center">
                           <Calendar className="h-3 w-3 mr-1" />
                           <span>{booking.date}</span>
@@ -246,52 +256,52 @@ export const ChefDashboard: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="card-uber p-8 text-center">
-                <Calendar className="h-12 w-12 mx-auto mb-4 text-uber-gray-400" />
-                <h3 className="text-uber-lg font-semibold text-uber-black mb-2">No bookings yet</h3>
-                <p className="text-uber-sm text-uber-gray-500">Your upcoming bookings will appear here.</p>
-              </div>
+              <Card className="card-familyhub p-8 text-center">
+                <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-semibold text-foreground mb-2 font-poppins">No bookings yet</h3>
+                <p className="text-sm text-muted-foreground font-inter">Your upcoming bookings will appear here.</p>
+              </Card>
             )}
           </div>
         )}
 
         {activeTab === 'earnings' && (
           <div className="space-y-6">
-            <Card className="card-uber">
+            <Card className="card-familyhub">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <TrendingUp className="h-5 w-5 mr-2 text-uber-green" />
+                <CardTitle className="flex items-center font-poppins">
+                  <TrendingUp className="h-5 w-5 mr-2 text-primary" />
                   Earnings Overview
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center">
-                    <div className="text-uber-2xl font-bold text-uber-green">
+                    <div className="text-2xl font-bold text-primary font-poppins">
                       ${earnings?.totalEarnings || 0}
                     </div>
-                    <div className="text-uber-sm text-uber-gray-500">Total Earnings</div>
+                    <div className="text-sm text-muted-foreground font-inter">Total Earnings</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-uber-2xl font-bold text-uber-green">
+                    <div className="text-2xl font-bold text-primary font-poppins">
                       ${earnings?.pendingPayouts || 0}
                     </div>
-                    <div className="text-uber-sm text-uber-gray-500">Pending Payout</div>
+                    <div className="text-sm text-muted-foreground font-inter">Pending Payout</div>
                   </div>
                 </div>
                 
-                <div className="pt-4 border-t border-uber-gray-100">
+                <div className="pt-4 border-t border-gray-100">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-uber-sm text-uber-gray-600">This Month</span>
-                    <span className="text-uber-base font-medium">${earnings?.thisMonth || 0}</span>
+                    <span className="text-sm text-muted-foreground font-inter">This Month</span>
+                    <span className="text-base font-semibold font-poppins">${earnings?.thisMonth || 0}</span>
                   </div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-uber-sm text-uber-gray-600">This Week</span>
-                    <span className="text-uber-base font-medium">${earnings?.thisWeek || 0}</span>
+                    <span className="text-sm text-muted-foreground font-inter">This Week</span>
+                    <span className="text-base font-semibold font-poppins">${earnings?.thisWeek || 0}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-uber-sm text-uber-gray-600">Top Service</span>
-                    <span className="text-uber-base font-medium">{earnings?.topService || 'N/A'}</span>
+                    <span className="text-sm text-muted-foreground font-inter">Top Service</span>
+                    <span className="text-base font-semibold font-poppins">{earnings?.topService || 'N/A'}</span>
                   </div>
                 </div>
               </CardContent>

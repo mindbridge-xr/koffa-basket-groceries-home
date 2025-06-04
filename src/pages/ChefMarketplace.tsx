@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ChefCard } from '@/components/chef/ChefCard';
 import { ServiceCard } from '@/components/chef/ServiceCard';
+import { PageHeader } from '@/components/PageHeader';
 import { Search, Filter, Star, TrendingUp, Award, Users, ChefHat } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -41,29 +42,25 @@ export const ChefMarketplace: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-20">
-      <div className="bg-gradient-primary text-white mobile-padding">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-3">
-            <ChefHat className="h-8 w-8" />
-            <div>
-              <h1 className="text-2xl font-bold mb-1 font-poppins">Chef Marketplace</h1>
-              <p className="text-sm text-white/80 font-inter">Discover talented chefs in your area</p>
-            </div>
-          </div>
-          <Link to="/chef-onboarding">
-            <Button className="bg-white text-primary hover:bg-white/90 font-medium">
-              Become a Chef
-            </Button>
-          </Link>
-        </div>
-        
-        {/* Stats */}
+      <PageHeader 
+        title="Chef Marketplace"
+        subtitle="Discover talented chefs in your area"
+      >
+        <Link to="/chef-onboarding">
+          <Button className="bg-white text-primary hover:bg-white/90 font-medium">
+            Become a Chef
+          </Button>
+        </Link>
+      </PageHeader>
+
+      {/* Stats */}
+      <div className="mobile-spacing pt-4">
         <div className="grid grid-cols-4 gap-4 mb-6">
           {stats.map((stat, index) => (
-            <div key={index} className="text-center">
-              <stat.icon className="h-5 w-5 mx-auto mb-1 text-white" />
-              <div className="text-sm font-bold font-poppins">{stat.value}</div>
-              <div className="text-xs text-white/60 font-inter">{stat.label}</div>
+            <div key={index} className="text-center bg-white/50 rounded-2xl p-3">
+              <stat.icon className="h-5 w-5 mx-auto mb-1 text-primary" />
+              <div className="text-sm font-bold font-poppins text-foreground">{stat.value}</div>
+              <div className="text-xs text-muted-foreground font-inter">{stat.label}</div>
             </div>
           ))}
         </div>

@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, ArrowRight, Check, Star, Award, Users } from 'lucide-react';
+import { PageHeader } from '@/components/PageHeader';
+import { ArrowRight, Check, Star, Award, Users, ChefHat } from 'lucide-react';
 
 export const ChefOnboarding: React.FC = () => {
   const { becomeChef } = useChef();
@@ -62,7 +63,7 @@ export const ChefOnboarding: React.FC = () => {
   const handleSubmit = () => {
     const chefProfile = {
       name: formData.name,
-      email: 'demo@chef.com', // In real app, get from auth
+      email: 'demo@chef.com',
       bio: formData.bio,
       specialties: formData.specialties,
       cuisineTypes: formData.cuisineTypes,
@@ -100,26 +101,36 @@ export const ChefOnboarding: React.FC = () => {
     }));
   };
 
+  const getStepIcon = (stepNumber: number) => {
+    switch (stepNumber) {
+      case 1: return Users;
+      case 2: return Award;
+      case 3: return ChefHat;
+      case 4: return Star;
+      default: return Users;
+    }
+  };
+
+  const StepIcon = getStepIcon(step);
+
   return (
-    <div className="min-h-screen bg-uber-white">
-      <div className="bg-uber-black text-uber-white section-padding">
-        <div className="flex items-center justify-between mb-4">
-          <button 
-            onClick={() => step > 1 ? setStep(step - 1) : navigate('/chef-marketplace')}
-            className="p-2 hover:bg-uber-gray-800 rounded-xl transition-colors animate-press"
-          >
-            <ArrowLeft className="h-6 w-6" />
-          </button>
-          <span className="text-uber-sm font-medium">Step {step} of 4</span>
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-20">
+      <PageHeader 
+        title="Become a Chef"
+        subtitle="Share your culinary skills with the community"
+        showBack={true}
+        onBack={() => step > 1 ? setStep(step - 1) : navigate('/chef-marketplace')}
+      >
+        <div className="flex items-center space-x-2">
+          <span className="text-sm font-medium">Step {step} of 4</span>
         </div>
-        
-        <h1 className="text-uber-2xl font-bold mb-2">Become a Chef</h1>
-        <p className="text-uber-sm text-uber-white/80">Share your culinary skills with the community</p>
-        
-        {/* Progress Bar */}
-        <div className="w-full h-2 bg-uber-white/20 rounded-full mt-6">
+      </PageHeader>
+
+      {/* Progress Bar */}
+      <div className="mobile-spacing pt-4">
+        <div className="w-full h-2 bg-gray-200 rounded-full">
           <div 
-            className="h-full bg-uber-green rounded-full transition-all duration-300"
+            className="h-full bg-gradient-primary rounded-full transition-all duration-300"
             style={{ width: `${(step / 4) * 100}%` }}
           />
         </div>
@@ -128,45 +139,45 @@ export const ChefOnboarding: React.FC = () => {
       <div className="content-padding py-6">
         {/* Step 1: Basic Info */}
         {step === 1 && (
-          <Card className="card-uber">
+          <Card className="card-familyhub">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Users className="h-5 w-5 mr-2 text-uber-green" />
+              <CardTitle className="flex items-center text-foreground font-poppins">
+                <Users className="h-5 w-5 mr-2 text-primary" />
                 Tell us about yourself
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="block text-uber-sm font-medium text-uber-black mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2 font-inter">
                   Full Name
                 </label>
                 <Input
                   placeholder="Your full name"
-                  className="input-uber"
+                  className="input-familyhub"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 />
               </div>
               
               <div>
-                <label className="block text-uber-sm font-medium text-uber-black mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2 font-inter">
                   Bio
                 </label>
                 <textarea
                   placeholder="Tell people about your cooking experience and style..."
-                  className="input-uber min-h-24 resize-none"
+                  className="input-familyhub min-h-24 resize-none w-full"
                   value={formData.bio}
                   onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
                 />
               </div>
               
               <div>
-                <label className="block text-uber-sm font-medium text-uber-black mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2 font-inter">
                   Location
                 </label>
                 <Input
                   placeholder="Your city or area"
-                  className="input-uber"
+                  className="input-familyhub"
                   value={formData.location}
                   onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
                 />
@@ -177,48 +188,51 @@ export const ChefOnboarding: React.FC = () => {
 
         {/* Step 2: Experience Level */}
         {step === 2 && (
-          <Card className="card-uber">
+          <Card className="card-familyhub">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Award className="h-5 w-5 mr-2 text-uber-green" />
+              <CardTitle className="flex items-center text-foreground font-poppins">
+                <Award className="h-5 w-5 mr-2 text-primary" />
                 Experience Level
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {[
-                { id: 'home-cook', title: 'Home Cook', desc: 'Passionate about cooking for family and friends' },
-                { id: 'professional', title: 'Professional Chef', desc: 'Work or worked in restaurants, catering, etc.' },
-                { id: 'culinary-trained', title: 'Culinary Trained', desc: 'Graduated from culinary school' }
+                { id: 'home-cook', title: 'Home Cook', desc: 'Passionate about cooking for family and friends', emoji: '👨‍🍳' },
+                { id: 'professional', title: 'Professional Chef', desc: 'Work or worked in restaurants, catering, etc.', emoji: '🔥' },
+                { id: 'culinary-trained', title: 'Culinary Trained', desc: 'Graduated from culinary school', emoji: '🎓' }
               ].map(level => (
                 <button
                   key={level.id}
                   onClick={() => setFormData(prev => ({ ...prev, experienceLevel: level.id as any }))}
-                  className={`w-full p-4 rounded-uber border-2 transition-all animate-press text-left ${
+                  className={`w-full p-4 rounded-2xl border-2 transition-all animate-press text-left ${
                     formData.experienceLevel === level.id 
-                      ? 'border-uber-green bg-uber-green/5' 
-                      : 'border-uber-gray-200 hover:border-uber-gray-300'
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-gray-200 hover:border-gray-300 bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium text-uber-base text-uber-black">{level.title}</h3>
-                      <p className="text-uber-sm text-uber-gray-600">{level.desc}</p>
+                    <div className="flex items-center space-x-3">
+                      <span className="text-2xl">{level.emoji}</span>
+                      <div>
+                        <h3 className="font-semibold text-base text-foreground font-poppins">{level.title}</h3>
+                        <p className="text-sm text-muted-foreground font-inter">{level.desc}</p>
+                      </div>
                     </div>
                     {formData.experienceLevel === level.id && (
-                      <Check className="h-5 w-5 text-uber-green" />
+                      <Check className="h-5 w-5 text-primary" />
                     )}
                   </div>
                 </button>
               ))}
               
               <div>
-                <label className="block text-uber-sm font-medium text-uber-black mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2 font-inter">
                   Hourly Rate ($)
                 </label>
                 <Input
                   type="number"
                   placeholder="50"
-                  className="input-uber"
+                  className="input-familyhub"
                   value={formData.hourlyRate}
                   onChange={(e) => setFormData(prev => ({ ...prev, hourlyRate: Number(e.target.value) }))}
                 />
@@ -230,9 +244,12 @@ export const ChefOnboarding: React.FC = () => {
         {/* Step 3: Specialties */}
         {step === 3 && (
           <div className="space-y-6">
-            <Card className="card-uber">
+            <Card className="card-familyhub">
               <CardHeader>
-                <CardTitle>Specialties</CardTitle>
+                <CardTitle className="flex items-center text-foreground font-poppins">
+                  <ChefHat className="h-5 w-5 mr-2 text-primary" />
+                  Specialties
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
@@ -240,10 +257,10 @@ export const ChefOnboarding: React.FC = () => {
                     <Badge
                       key={specialty}
                       variant={formData.specialties.includes(specialty) ? "default" : "outline"}
-                      className={`cursor-pointer animate-press ${
+                      className={`cursor-pointer animate-press font-inter ${
                         formData.specialties.includes(specialty) 
-                          ? 'bg-uber-green text-white' 
-                          : 'hover:bg-uber-gray-50'
+                          ? 'bg-primary text-white hover:bg-primary/90' 
+                          : 'hover:bg-gray-50 border-gray-200'
                       }`}
                       onClick={() => toggleSelection(specialty, 'specialties')}
                     >
@@ -254,9 +271,9 @@ export const ChefOnboarding: React.FC = () => {
               </CardContent>
             </Card>
             
-            <Card className="card-uber">
+            <Card className="card-familyhub">
               <CardHeader>
-                <CardTitle>Cuisine Types</CardTitle>
+                <CardTitle className="text-foreground font-poppins">Cuisine Types</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
@@ -264,10 +281,10 @@ export const ChefOnboarding: React.FC = () => {
                     <Badge
                       key={cuisine}
                       variant={formData.cuisineTypes.includes(cuisine) ? "default" : "outline"}
-                      className={`cursor-pointer animate-press ${
+                      className={`cursor-pointer animate-press font-inter ${
                         formData.cuisineTypes.includes(cuisine) 
-                          ? 'bg-uber-green text-white' 
-                          : 'hover:bg-uber-gray-50'
+                          ? 'bg-primary text-white hover:bg-primary/90' 
+                          : 'hover:bg-gray-50 border-gray-200'
                       }`}
                       onClick={() => toggleSelection(cuisine, 'cuisineTypes')}
                     >
@@ -282,10 +299,10 @@ export const ChefOnboarding: React.FC = () => {
 
         {/* Step 4: Services */}
         {step === 4 && (
-          <Card className="card-uber">
+          <Card className="card-familyhub">
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Star className="h-5 w-5 mr-2 text-uber-green" />
+              <CardTitle className="flex items-center text-foreground font-poppins">
+                <Star className="h-5 w-5 mr-2 text-primary" />
                 Choose Your Services
               </CardTitle>
             </CardHeader>
@@ -294,24 +311,24 @@ export const ChefOnboarding: React.FC = () => {
                 <button
                   key={service.name}
                   onClick={() => toggleService(service)}
-                  className={`w-full p-4 rounded-uber border-2 transition-all animate-press text-left ${
+                  className={`w-full p-4 rounded-2xl border-2 transition-all animate-press text-left ${
                     formData.services.some(s => s.name === service.name)
-                      ? 'border-uber-green bg-uber-green/5' 
-                      : 'border-uber-gray-200 hover:border-uber-gray-300'
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-gray-200 hover:border-gray-300 bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-medium text-uber-base text-uber-black">{service.name}</h3>
-                      <p className="text-uber-sm text-uber-gray-600 mb-2">{service.description}</p>
-                      <div className="flex items-center space-x-4 text-uber-xs text-uber-gray-500">
+                      <h3 className="font-semibold text-base text-foreground font-poppins">{service.name}</h3>
+                      <p className="text-sm text-muted-foreground mb-2 font-inter">{service.description}</p>
+                      <div className="flex items-center space-x-4 text-xs text-muted-foreground font-inter">
                         <span>{service.duration} min</span>
                         <span>${service.price}</span>
                         {service.maxGuests && <span>Max {service.maxGuests} guests</span>}
                       </div>
                     </div>
                     {formData.services.some(s => s.name === service.name) && (
-                      <Check className="h-5 w-5 text-uber-green" />
+                      <Check className="h-5 w-5 text-primary" />
                     )}
                   </div>
                 </button>
@@ -322,14 +339,14 @@ export const ChefOnboarding: React.FC = () => {
 
         {/* Navigation */}
         <div className="flex justify-between items-center mt-8">
-          <div className="text-uber-sm text-uber-gray-500">
+          <div className="text-sm text-muted-foreground font-inter">
             {step < 4 && "Complete all steps to become a chef"}
           </div>
           
           <div className="flex space-x-3">
             {step < 4 ? (
               <Button 
-                className="btn-uber-primary"
+                className="btn-primary"
                 onClick={() => setStep(step + 1)}
                 disabled={
                   (step === 1 && (!formData.name || !formData.bio || !formData.location)) ||
@@ -341,7 +358,7 @@ export const ChefOnboarding: React.FC = () => {
               </Button>
             ) : (
               <Button 
-                className="btn-uber-primary"
+                className="btn-primary"
                 onClick={handleSubmit}
                 disabled={formData.services.length === 0}
               >
