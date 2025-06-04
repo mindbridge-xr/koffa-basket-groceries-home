@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Bell, Plus, Users, CheckCircle, ShoppingCart, ChefHat, Calendar, Clock } from 'lucide-react';
@@ -9,12 +9,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useApp } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { getGreeting, getCurrentTime } from '@/utils/timeUtils';
 
 export const Dashboard: React.FC = () => {
   const [showNewListDialog, setShowNewListDialog] = useState(false);
   const [newListName, setNewListName] = useState('');
-  const { lists, createList } = useApp();
+  const [currentTime, setCurrentTime] = useState(getCurrentTime());
+  const { lists, createList, user } = useApp();
   const navigate = useNavigate();
+
+  // Update time every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(getCurrentTime());
+    }, 60000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleCreateList = () => {
     if (newListName.trim()) {
@@ -55,7 +66,7 @@ export const Dashboard: React.FC = () => {
       icon: Calendar,
       color: "text-purple-500",
       bgColor: "bg-purple-50",
-      onClick: () => console.log('Schedule')
+      onClick: () => navigate('/schedule')
     }
   ];
 
@@ -85,7 +96,7 @@ export const Dashboard: React.FC = () => {
               </div>
               <div>
                 <h1 className="font-semibold text-lg font-poppins">FamilyHub</h1>
-                <p className="text-xs text-muted-foreground font-inter">Johnson Family</p>
+                <p className="text-xs text-muted-foreground font-inter">Johnson Family • {currentTime}</p>
               </div>
             </div>
             
@@ -97,7 +108,9 @@ export const Dashboard: React.FC = () => {
                 </div>
               </div>
               <Avatar className="w-8 h-8 border-2 border-gray-100">
-                <AvatarFallback className="bg-gray-100 text-gray-600 font-medium text-sm">U</AvatarFallback>
+                <AvatarFallback className="bg-gray-100 text-gray-600 font-medium text-sm">
+                  {user?.name?.[0] || 'U'}
+                </AvatarFallback>
               </Avatar>
             </div>
           </div>
@@ -105,25 +118,33 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Welcome Section */}
-      <div className="bg-gradient-welcome mobile-padding">
+      <div className="bg-gradient-primary mobile-padding">
         <div className="text-center py-6">
-          <h2 className="font-semibold text-xl text-foreground mb-1 font-poppins">Good Morning!</h2>
-          <p className="text-muted-foreground font-inter">Welcome back, Sarah</p>
+          <h2 className="font-semibold text-xl text-white mb-1 font-poppins">
+            {getGreeting(user?.name?.split(' ')[0])}
+          </h2>
+          <p className="text-white/90 font-inter">Ready to organize your family's day?</p>
           
           <div className="mt-4 mb-6">
-            <div className="font-bold text-2xl text-primary font-poppins">8</div>
-            <div className="text-sm text-muted-foreground font-inter">Active Tasks</div>
+            <div className="font-bold text-2xl text-white font-poppins">8</div>
+            <div className="text-sm text-white/80 font-inter">Active Tasks</div>
           </div>
           
           <div className="flex justify-center -space-x-2">
             {familyMembers.map((member, index) => (
               <Avatar key={index} className="w-8 h-8 border-2 border-white">
                 <AvatarImage src={member.avatar} alt={member.name} />
-                <AvatarFallback className="bg-primary text-white text-xs font-medium">
+                <AvatarFallback className="bg-white text-primary text-xs font-medium">
                   {member.initial}
                 </AvatarFallback>
               </Avatar>
             ))}
+            <button 
+              onClick={() => navigate('/family-management')}
+              className="w-8 h-8 border-2 border-white bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </div>
@@ -209,6 +230,7 @@ export const Dashboard: React.FC = () => {
         onClick={() => setShowNewListDialog(true)} 
         label="New List"
         icon={<Plus className="h-5 w-5" />}
+        className="bg-gradient-primary shadow-lg hover:shadow-xl active:scale-95 transition-all duration-200"
       />
       <BottomNav />
       

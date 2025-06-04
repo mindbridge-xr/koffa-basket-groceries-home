@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,35 +7,25 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 6%;
-
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 6%;
-
+    --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 6%;
-
-    --primary: 22 100% 59%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 6%;
-
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-
-    --accent: 22 100% 59%;
-    --accent-foreground: 0 0% 98%;
-
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 17 88% 59%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 98%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 98%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 98%;
+    --accent-foreground: 222.2 84% 4.9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 22 100% 59%;
-
-    --radius: 12px;
-
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 17 88% 59%;
+    --radius: 0.75rem;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -43,171 +33,124 @@
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 217.2 10.6% 64.9%;
   }
 
   .dark {
-    --background: 0 0% 6%;
-    --foreground: 0 0% 98%;
-
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 22 100% 59%;
-    --primary-foreground: 0 0% 6%;
-
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 65%;
-
-    --accent: 22 100% 59%;
-    --accent-foreground: 0 0% 98%;
-
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 17 88% 59%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 0 0% 10%;
-    --input: 0 0% 10%;
-    --ring: 22 100% 59%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 17 88% 59%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 94.1%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 10.6% 64.9%;
   }
+}
 
+@layer base {
   * {
     @apply border-border;
   }
-  
-  html {
-    @apply scroll-smooth;
-    -webkit-tap-highlight-color: transparent;
-  }
-
   body {
     @apply bg-background text-foreground font-inter;
-    font-feature-settings: "rlig" 1, "calt" 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-poppins font-semibold;
-    letter-spacing: -0.025em;
-  }
-
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #E5E5E5;
-    border-radius: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #CCCCCC;
   }
 }
 
+/* FamilyHub Design System */
 @layer components {
-  /* FamilyHub button variants */
-  .btn-primary {
-    @apply bg-gradient-primary text-white hover:opacity-90 active:scale-95 transition-all duration-200 font-medium rounded-lg py-3 px-6 h-14 flex items-center justify-center font-poppins;
+  /* Mobile-first spacing */
+  .mobile-padding {
+    @apply px-4 py-4;
+  }
+  
+  .mobile-spacing {
+    @apply px-4;
   }
 
-  .btn-secondary {
-    @apply bg-white text-primary border border-primary hover:bg-primary/5 active:scale-95 transition-all duration-200 font-medium rounded-lg py-3 px-6 h-14 flex items-center justify-center font-poppins;
+  .content-padding {
+    @apply px-4;
   }
 
-  .btn-ghost {
-    @apply bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition-all duration-200 font-medium rounded-lg py-2 px-4 flex items-center justify-center font-poppins;
+  .section-padding {
+    @apply px-4 py-6;
   }
 
-  /* FamilyHub cards */
+  /* Card styles */
   .card-familyhub {
-    @apply bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden;
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 transition-all duration-200;
   }
 
   .card-familyhub-hover {
-    @apply card-familyhub hover:shadow-md transition-all duration-300 cursor-pointer active:scale-[0.98];
+    @apply card-familyhub hover:shadow-md hover:border-gray-200 cursor-pointer active:scale-[0.98] transition-all duration-200;
   }
 
-  /* FamilyHub input */
+  /* Button styles */
+  .btn-primary {
+    @apply bg-gradient-primary text-white font-medium rounded-xl px-4 py-2 shadow-sm hover:shadow-md active:scale-95 transition-all duration-200 border-0;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-100 text-gray-700 font-medium rounded-xl px-4 py-2 hover:bg-gray-200 active:scale-95 transition-all duration-200 border border-gray-200;
+  }
+
+  /* Input styles */
   .input-familyhub {
-    @apply bg-white border border-gray-200 rounded-lg px-4 py-3 text-base placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 font-inter;
-  }
-
-  /* Gradient backgrounds */
-  .bg-gradient-subtle {
-    @apply bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5;
-  }
-
-  .bg-gradient-welcome {
-    @apply bg-gradient-to-r from-primary/10 to-secondary/10;
-  }
-
-  /* Mobile spacing */
-  .mobile-padding {
-    @apply px-5 py-4;
-  }
-
-  .mobile-spacing {
-    @apply p-4;
-  }
-
-  /* Priority indicators */
-  .priority-high {
-    @apply border-l-4 border-l-red-500;
-  }
-
-  .priority-medium {
-    @apply border-l-4 border-l-yellow-500;
-  }
-
-  .priority-low {
-    @apply border-l-4 border-l-green-500;
+    @apply bg-white border-2 border-gray-100 rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-0 transition-colors duration-200;
   }
 
   /* Status badges */
-  .status-badge {
-    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
-  }
-
   .status-completed {
-    @apply status-badge bg-green-100 text-green-800;
+    @apply inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800;
   }
 
   .status-pending {
-    @apply status-badge bg-yellow-100 text-yellow-800;
+    @apply inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-yellow-100 text-yellow-800;
   }
 
-  .status-overdue {
-    @apply status-badge bg-red-100 text-red-800;
+  .status-badge {
+    @apply inline-flex items-center px-2 py-1 rounded-md text-xs font-medium;
   }
-}
 
-/* Remove tap highlights on mobile */
-* {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
+  /* Animations */
+  .animate-press {
+    @apply active:scale-95 transition-transform duration-150;
+  }
 
-input, textarea {
-  -webkit-user-select: text;
-  -khtml-user-select: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
-  user-select: text;
+  /* Gradients */
+  .bg-gradient-welcome {
+    @apply bg-gradient-to-br from-primary/10 via-primary/5 to-transparent;
+  }
+
+  /* Navigation */
+  .nav-item {
+    @apply flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 text-center min-w-0;
+  }
+
+  .nav-item-active {
+    @apply nav-item text-primary bg-primary/10;
+  }
+
+  .nav-item-inactive {
+    @apply nav-item text-muted-foreground hover:text-foreground hover:bg-gray-50;
+  }
 }

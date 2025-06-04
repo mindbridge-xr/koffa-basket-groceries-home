@@ -7,17 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { KoffaLogo } from '@/components/KoffaLogo';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Users, Bell, HelpCircle, Shield, LogOut, Edit, Plus, Mail, Phone } from 'lucide-react';
+import { Settings, Users, Bell, HelpCircle, Shield, LogOut, Edit, Plus, Mail, Phone, Crown } from 'lucide-react';
 
 export const Profile: React.FC = () => {
   const { user, logout, isAuthenticated, familyMembers } = useApp();
   const navigate = useNavigate();
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [editName, setEditName] = useState(user?.name || '');
-  const [inviteEmail, setInviteEmail] = useState('');
   
   if (!isAuthenticated) {
     navigate('/auth');
@@ -25,16 +22,8 @@ export const Profile: React.FC = () => {
   }
 
   const handleSaveProfile = () => {
-    // TODO: Implement profile update
     console.log('Updating profile:', { name: editName });
     setShowEditDialog(false);
-  };
-
-  const handleInviteMember = () => {
-    // TODO: Implement family invitation
-    console.log('Inviting member:', inviteEmail);
-    setInviteEmail('');
-    setShowInviteDialog(false);
   };
 
   const profileStats = [
@@ -44,6 +33,7 @@ export const Profile: React.FC = () => {
   ];
 
   const menuItems = [
+    { icon: Users, label: 'Family Management', action: () => navigate('/family-management') },
     { icon: Settings, label: 'Account Settings', action: () => console.log('Settings') },
     { icon: Bell, label: 'Notifications', action: () => console.log('Notifications') },
     { icon: Shield, label: 'Privacy & Security', action: () => console.log('Privacy') },
@@ -51,10 +41,13 @@ export const Profile: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-koffa-snow-drift pb-20">
-      <div className="bg-koffa-aqua-forest text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-20">
+      {/* Header */}
+      <div className="bg-gradient-primary text-white mobile-padding">
         <div className="flex justify-between items-center mb-4">
-          <KoffaLogo className="text-white" size="sm" />
+          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+            <span className="text-white font-bold text-sm font-poppins">F</span>
+          </div>
           <Button
             variant="ghost"
             size="sm"
@@ -65,123 +58,130 @@ export const Profile: React.FC = () => {
             Edit
           </Button>
         </div>
-        <h1 className="text-2xl font-bold mb-2">My Profile</h1>
-        <p className="text-white/80">Manage your account and preferences</p>
+        <h1 className="text-2xl font-bold mb-2 font-poppins">My Profile</h1>
+        <p className="text-white/80 font-inter">Manage your account and family settings</p>
       </div>
       
-      <div className="p-4 space-y-6">
+      <div className="mobile-spacing space-y-6">
         {/* Profile Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4 mb-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={user?.avatar} alt={user?.name} />
-                <AvatarFallback className="text-2xl">{user?.name?.[0]}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold">{user?.name}</h2>
-                <div className="flex items-center text-gray-600 mb-1">
-                  <Mail className="h-4 w-4 mr-2" />
-                  <span>{user?.email}</span>
-                </div>
-                <div className="flex items-center text-gray-600">
-                  <Phone className="h-4 w-4 mr-2" />
-                  <span>+1 (555) 123-4567</span>
-                </div>
+        <div className="card-familyhub p-6">
+          <div className="flex items-center space-x-4 mb-4">
+            <Avatar className="h-20 w-20 border-4 border-primary/20">
+              <AvatarImage src={user?.avatar} alt={user?.name} />
+              <AvatarFallback className="bg-primary text-white text-2xl font-bold">
+                {user?.name?.[0]}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <div className="flex items-center space-x-2 mb-2">
+                <h2 className="text-2xl font-bold text-foreground font-poppins">{user?.name}</h2>
+                <Crown className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex items-center text-muted-foreground mb-1 font-inter">
+                <Mail className="h-4 w-4 mr-2" />
+                <span>{user?.email}</span>
+              </div>
+              <div className="flex items-center text-muted-foreground font-inter">
+                <Phone className="h-4 w-4 mr-2" />
+                <span>+1 (555) 123-4567</span>
               </div>
             </div>
+          </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 pt-4 border-t">
-              {profileStats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-2xl font-bold text-koffa-aqua-forest">{stat.value}</div>
-                  <div className="text-xs text-muted-foreground">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+            {profileStats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-2xl font-bold text-primary font-poppins">{stat.value}</div>
+                <div className="text-xs text-muted-foreground font-inter">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
         
-        {/* Family Circle */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Users className="h-5 w-5 mr-2" />
-                Family Circle
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowInviteDialog(true)}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Invite
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {familyMembers.length > 0 ? (
-              <div className="space-y-3">
-                {familyMembers.map(member => (
-                  <div key={member.id} className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
-                    <div className="flex items-center">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={member.avatar} alt={member.name} />
-                        <AvatarFallback>{member.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <div className="ml-3">
-                        <p className="font-medium">{member.name}</p>
-                        <p className="text-sm text-gray-500">{member.email}</p>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-muted-foreground">
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                  </div>
+        {/* Family Circle Quick View */}
+        <div className="card-familyhub p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <Users className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold text-lg text-foreground font-poppins">Family Circle</h3>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/family-management')}
+              className="btn-secondary"
+            >
+              Manage
+            </Button>
+          </div>
+          
+          {familyMembers.length > 0 ? (
+            <div className="flex items-center space-x-3">
+              <div className="flex -space-x-2">
+                {familyMembers.slice(0, 4).map((member, index) => (
+                  <Avatar key={index} className="w-10 h-10 border-2 border-white">
+                    <AvatarImage src={member.avatar} alt={member.name} />
+                    <AvatarFallback className="bg-primary text-white text-sm">
+                      {member.name[0]}
+                    </AvatarFallback>
+                  </Avatar>
                 ))}
+                {familyMembers.length > 4 && (
+                  <div className="w-10 h-10 border-2 border-white bg-gray-100 rounded-full flex items-center justify-center">
+                    <span className="text-sm text-muted-foreground font-medium">
+                      +{familyMembers.length - 4}
+                    </span>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="text-center py-8">
-                <Users className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                <h3 className="font-medium mb-2">No family members yet</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Invite family members to share lists and shop together
+              <div>
+                <p className="font-medium text-foreground font-poppins">
+                  {familyMembers.length} member{familyMembers.length !== 1 ? 's' : ''}
                 </p>
-                <Button
-                  className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
-                  onClick={() => setShowInviteDialog(true)}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Invite Family Member
-                </Button>
+                <p className="text-sm text-muted-foreground font-inter">
+                  Johnson Family Circle
+                </p>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          ) : (
+            <div className="text-center py-6">
+              <Users className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground mb-4 font-inter">
+                No family members yet. Start by inviting your family!
+              </p>
+              <Button
+                onClick={() => navigate('/family-management')}
+                className="btn-primary"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Invite Family
+              </Button>
+            </div>
+          )}
+        </div>
 
         {/* Menu Items */}
-        <Card>
-          <CardContent className="p-0">
-            {menuItems.map((item, index) => (
-              <Button
-                key={index}
-                variant="ghost"
-                className="w-full justify-start h-auto p-4 border-b last:border-b-0"
-                onClick={item.action}
-              >
-                <item.icon className="h-5 w-5 mr-3" />
-                <span>{item.label}</span>
-              </Button>
-            ))}
-          </CardContent>
-        </Card>
+        <div className="card-familyhub p-0 overflow-hidden">
+          {menuItems.map((item, index) => (
+            <button
+              key={index}
+              className="w-full flex items-center justify-between p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors text-left"
+              onClick={item.action}
+            >
+              <div className="flex items-center space-x-3">
+                <item.icon className="h-5 w-5 text-muted-foreground" />
+                <span className="font-medium text-foreground font-inter">{item.label}</span>
+              </div>
+              <div className="text-muted-foreground">›</div>
+            </button>
+          ))}
+        </div>
         
         {/* Logout Button */}
         <Button 
           variant="outline" 
-          className="w-full text-destructive hover:bg-destructive/10 border-destructive"
+          className="w-full text-red-600 hover:bg-red-50 border-red-200 hover:border-red-300"
           onClick={logout}
         >
           <LogOut className="h-4 w-4 mr-2" />
@@ -193,13 +193,13 @@ export const Profile: React.FC = () => {
 
       {/* Edit Profile Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Profile</DialogTitle>
+        <DialogContent className="card-familyhub mx-4">
+          <DialogHeader className="text-left">
+            <DialogTitle className="text-xl font-semibold font-poppins">Edit Profile</DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
-              <label htmlFor="name" className="block text-sm font-medium">
+              <label htmlFor="name" className="block text-sm font-medium text-foreground font-inter">
                 Full Name
               </label>
               <Input
@@ -207,70 +207,37 @@ export const Profile: React.FC = () => {
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
                 placeholder="Enter your full name"
+                className="input-familyhub"
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium">
+              <label htmlFor="email" className="block text-sm font-medium text-foreground font-inter">
                 Email
               </label>
               <Input
                 id="email"
                 value={user?.email}
                 disabled
-                className="bg-muted"
+                className="input-familyhub bg-gray-50"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground font-inter">
                 Email cannot be changed. Contact support if needed.
               </p>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+          <DialogFooter className="space-x-3">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowEditDialog(false)}
+              className="btn-secondary flex-1"
+            >
               Cancel
             </Button>
             <Button 
-              className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
               onClick={handleSaveProfile}
+              className="btn-primary flex-1"
             >
               Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Invite Family Dialog */}
-      <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Invite Family Member</DialogTitle>
-          </DialogHeader>
-          <div className="py-4 space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="invite-email" className="block text-sm font-medium">
-                Email Address
-              </label>
-              <Input
-                id="invite-email"
-                type="email"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                placeholder="Enter their email address"
-              />
-            </div>
-            <p className="text-sm text-muted-foreground">
-              They'll receive an invitation to join your family circle and share grocery lists.
-            </p>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowInviteDialog(false)}>
-              Cancel
-            </Button>
-            <Button 
-              className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
-              onClick={handleInviteMember}
-              disabled={!inviteEmail.includes('@')}
-            >
-              Send Invitation
             </Button>
           </DialogFooter>
         </DialogContent>

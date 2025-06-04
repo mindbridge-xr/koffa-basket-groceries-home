@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +20,8 @@ import ChefMarketplace from "./pages/ChefMarketplace";
 import ChefOnboarding from "./pages/ChefOnboarding";
 import ChefDashboard from "./pages/ChefDashboard";
 import Tasks from "./pages/Tasks";
+import Schedule from "./pages/Schedule";
+import FamilyManagement from "./pages/FamilyManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +46,8 @@ const AppRoutes = () => {
       
       <Route path="/" element={<Dashboard />} />
       <Route path="/tasks" element={<Tasks />} />
+      <Route path="/schedule" element={<Schedule />} />
+      <Route path="/family-management" element={<FamilyManagement />} />
       <Route path="/lists" element={<Lists />} />
       <Route path="/shopping" element={<Shopping />} />
       <Route path="/profile" element={<Profile />} />

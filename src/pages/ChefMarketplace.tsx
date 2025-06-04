@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ChefCard } from '@/components/chef/ChefCard';
 import { ServiceCard } from '@/components/chef/ServiceCard';
-import { Search, Filter, Star, TrendingUp, Award, Users } from 'lucide-react';
+import { Search, Filter, Star, TrendingUp, Award, Users, ChefHat } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const ChefMarketplace: React.FC = () => {
@@ -40,15 +40,18 @@ export const ChefMarketplace: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-uber-white pb-20">
-      <div className="bg-uber-black text-uber-white section-padding">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-20">
+      <div className="bg-gradient-primary text-white mobile-padding">
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-uber-2xl font-bold mb-2">Chef Marketplace</h1>
-            <p className="text-uber-sm text-uber-white/80">Discover talented chefs in your area</p>
+          <div className="flex items-center space-x-3">
+            <ChefHat className="h-8 w-8" />
+            <div>
+              <h1 className="text-2xl font-bold mb-1 font-poppins">Chef Marketplace</h1>
+              <p className="text-sm text-white/80 font-inter">Discover talented chefs in your area</p>
+            </div>
           </div>
           <Link to="/chef-onboarding">
-            <Button className="bg-uber-green hover:bg-uber-green/90 text-uber-black font-medium">
+            <Button className="bg-white text-primary hover:bg-white/90 font-medium">
               Become a Chef
             </Button>
           </Link>
@@ -58,22 +61,22 @@ export const ChefMarketplace: React.FC = () => {
         <div className="grid grid-cols-4 gap-4 mb-6">
           {stats.map((stat, index) => (
             <div key={index} className="text-center">
-              <stat.icon className="h-5 w-5 mx-auto mb-1 text-uber-green" />
-              <div className="text-uber-sm font-bold">{stat.value}</div>
-              <div className="text-uber-xs text-uber-white/60">{stat.label}</div>
+              <stat.icon className="h-5 w-5 mx-auto mb-1 text-white" />
+              <div className="text-sm font-bold font-poppins">{stat.value}</div>
+              <div className="text-xs text-white/60 font-inter">{stat.label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="content-padding space-y-6 py-6">
+      <div className="mobile-spacing space-y-6 py-6">
         {/* Search */}
         <div className="space-y-4">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-uber-gray-400 h-5 w-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
             <Input
               placeholder="Search chefs or specialties..."
-              className="input-uber pl-12"
+              className="input-familyhub pl-12"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -87,7 +90,7 @@ export const ChefMarketplace: React.FC = () => {
                 variant={selectedCategory === category.id ? "default" : "outline"}
                 size="sm"
                 className={`whitespace-nowrap ${
-                  selectedCategory === category.id ? 'btn-uber-primary' : 'btn-uber-secondary'
+                  selectedCategory === category.id ? 'btn-primary' : 'btn-secondary'
                 }`}
                 onClick={() => setSelectedCategory(category.id)}
               >
@@ -101,10 +104,10 @@ export const ChefMarketplace: React.FC = () => {
         {/* Featured Chefs */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-uber-lg font-semibold text-uber-black">
+            <h2 className="text-lg font-semibold text-foreground font-poppins">
               {selectedCategory === 'all' ? 'Featured Chefs' : `${categories.find(c => c.id === selectedCategory)?.name} Specialists`}
             </h2>
-            <Button variant="outline" size="sm" className="btn-uber-secondary">
+            <Button variant="outline" size="sm" className="btn-secondary">
               <Filter className="h-4 w-4 mr-1" />
               Filter
             </Button>
@@ -121,12 +124,12 @@ export const ChefMarketplace: React.FC = () => {
           </div>
           
           {filteredChefs.length === 0 && (
-            <div className="card-uber p-8 text-center">
-              <div className="w-16 h-16 bg-uber-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Search className="h-8 w-8 text-uber-gray-400" />
+            <div className="card-familyhub p-8 text-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <Search className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-uber-lg font-semibold text-uber-black mb-2">No chefs found</h3>
-              <p className="text-uber-sm text-uber-gray-500">
+              <h3 className="text-lg font-semibold text-foreground mb-2 font-poppins">No chefs found</h3>
+              <p className="text-sm text-muted-foreground font-inter">
                 Try adjusting your search or category filters.
               </p>
             </div>
@@ -135,7 +138,7 @@ export const ChefMarketplace: React.FC = () => {
 
         {/* Popular Services */}
         <div className="space-y-4">
-          <h2 className="text-uber-lg font-semibold text-uber-black">Popular Services</h2>
+          <h2 className="text-lg font-semibold text-foreground font-poppins">Popular Services</h2>
           <div className="grid grid-cols-1 gap-3">
             {chefs.slice(0, 3).map(chef => 
               chef.services.map(service => (
