@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Clock, User, AlertCircle, Check } from 'lucide-react';
+import { Plus, Clock, User, AlertCircle, Check, CheckCircle } from 'lucide-react';
 
 interface Task {
   id: string;
