@@ -9,13 +9,13 @@ import { ChefCard } from '@/components/chef/ChefCard';
 import { ServiceCard } from '@/components/chef/ServiceCard';
 import { PageHeader } from '@/components/PageHeader';
 import { Search, Filter, Star, TrendingUp, Award, Users, ChefHat } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const ChefMarketplace: React.FC = () => {
   const { chefs, getChefsByService } = useChef();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedChef, setSelectedChef] = useState<string | null>(null);
 
   const categories = [
     { id: 'all', name: 'All Services', icon: '🍳' },
@@ -115,7 +115,7 @@ export const ChefMarketplace: React.FC = () => {
               <ChefCard
                 key={chef.id}
                 chef={chef}
-                onClick={() => setSelectedChef(chef.id)}
+                onClick={() => navigate(`/chef-profile/${chef.id}`)}
               />
             ))}
           </div>
@@ -142,7 +142,7 @@ export const ChefMarketplace: React.FC = () => {
                 <ServiceCard
                   key={service.id}
                   service={service}
-                  onClick={() => console.log('Book service:', service.id)}
+                  onClick={() => navigate(`/chef-booking/${chef.id}?service=${service.id}`)}
                 />
               ))
             )}

@@ -1,83 +1,37 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/toaster';
+import { AppProvider } from '@/context/AppContext';
+import { ChefProvider } from '@/context/ChefContext';
+import ChefMarketplace from './pages/ChefMarketplace';
+import ChefOnboarding from './pages/ChefOnboarding';
+import ChefDashboard from './pages/ChefDashboard';
+import ChefProfile from './pages/ChefProfile';
+import ChefBooking from './pages/ChefBooking';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AppProvider, useApp } from "@/context/AppContext";
-import { ChefProvider } from "@/context/ChefContext";
-import { LandingPage } from "@/components/LandingPage";
-
-import Onboarding from "./pages/Onboarding";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import Lists from "./pages/Lists";
-import Shopping from "./pages/Shopping";
-import Profile from "./pages/Profile";
-import ListDetail from "./pages/ListDetail";
-import CategoryItems from "./pages/CategoryItems";
-import ChefMarketplace from "./pages/ChefMarketplace";
-import ChefOnboarding from "./pages/ChefOnboarding";
-import ChefDashboard from "./pages/ChefDashboard";
-import Tasks from "./pages/Tasks";
-import Schedule from "./pages/Schedule";
-import FamilyManagement from "./pages/FamilyManagement";
-import NotFound from "./pages/NotFound";
-
-const queryClient = new QueryClient();
-
-// Protected route component
-const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
-  const { isAuthenticated } = useApp();
-  return isAuthenticated ? element : <LandingPage />;
-};
-
-const AppRoutes = () => {
-  const { isAuthenticated } = useApp();
-  
-  if (!isAuthenticated) {
-    return <LandingPage />;
-  }
-
+function App() {
   return (
-    <Routes>
-      <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="/auth" element={<Auth />} />
-      
-      <Route path="/" element={<Dashboard />} />
-      <Route path="/tasks" element={<Tasks />} />
-      <Route path="/schedule" element={<Schedule />} />
-      <Route path="/family-management" element={<FamilyManagement />} />
-      <Route path="/lists" element={<Lists />} />
-      <Route path="/shopping" element={<Shopping />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/list/:listId" element={<ListDetail />} />
-      <Route path="/category/:slug" element={<CategoryItems />} />
-      
-      {/* Chef Marketplace Routes */}
-      <Route path="/chef-marketplace" element={<ChefMarketplace />} />
-      <Route path="/chef-onboarding" element={<ChefOnboarding />} />
-      <Route path="/chef-dashboard" element={<ChefDashboard />} />
-      
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <QueryClientProvider client={new QueryClient()}>
+      <AppProvider>
+        <ChefProvider>
+          <Router>
+            <div className="min-h-screen bg-background">
+              <Routes>
+                <Route path="/" element={<ChefMarketplace />} />
+                <Route path="/chef-marketplace" element={<ChefMarketplace />} />
+                <Route path="/chef-profile/:chefId" element={<ChefProfile />} />
+                <Route path="/chef-booking/:chefId" element={<ChefBooking />} />
+                <Route path="/chef-onboarding" element={<ChefOnboarding />} />
+                <Route path="/chef-dashboard" element={<ChefDashboard />} />
+              </Routes>
+              <Toaster />
+            </div>
+          </Router>
+        </ChefProvider>
+      </AppProvider>
+    </QueryClientProvider>
   );
-};
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AppProvider>
-      <ChefProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </TooltipProvider>
-      </ChefProvider>
-    </AppProvider>
-  </QueryClientProvider>
-);
+}
 
 export default App;
