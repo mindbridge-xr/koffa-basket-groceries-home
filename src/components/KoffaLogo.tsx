@@ -19,9 +19,7 @@ export const KoffaLogo: React.FC<KoffaLogoProps> = ({
   };
   return <div className={`flex items-center space-x-3 ${className}`}>
       <div className={`${logoSizes[size]} aspect-square bg-uber-black rounded-xl flex items-center justify-center`}>
-        <span className={`font-bold text-uber-white ${size === 'sm' ? 'text-lg' : size === 'md' ? 'text-2xl' : 'text-3xl'}`}>
-          K
-        </span>
+        <span className={`font-bold text-uber-white ${size === 'sm' ? 'text-lg' : size === 'md' ? 'text-2xl' : 'text-3xl'}`}>🧺</span>
       </div>
       <h1 className={`font-bold ${textSizes[size]} text-uber-black tracking-tight`}>Goffa</h1>
     </div>;
