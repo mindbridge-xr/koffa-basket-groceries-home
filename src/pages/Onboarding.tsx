@@ -1,96 +1,169 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { KoffaLogo } from '@/components/KoffaLogo';
+import { AnimatedSplash } from '@/components/AnimatedSplash';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ArrowRight, Users, ShoppingCart, Calendar, ChefHat } from 'lucide-react';
 
-export const Onboarding: React.FC = () => {
+const Onboarding = () => {
+  const [showSplash, setShowSplash] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
+  const [familyName, setFamilyName] = useState('');
   const navigate = useNavigate();
+
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+  };
 
   const steps = [
     {
-      title: 'Welcome to Koffa',
-      description: 'Your family grocery management app',
-      image: '/lovable-uploads/bdb9f2ed-22a2-40aa-8476-f1681c0b1f4d.png'
+      title: "Welcome to FamilyHub",
+      subtitle: "Your family's digital command center",
+      content: (
+        <div className="text-center space-y-6">
+          <div className="w-32 h-32 bg-gradient-primary rounded-3xl flex items-center justify-center mx-auto">
+            <span className="text-5xl font-bold text-white font-poppins">F</span>
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-foreground font-poppins">Organize your family life</h2>
+            <p className="text-muted-foreground font-inter">
+              Manage shopping lists, schedule activities, book services, and keep everyone connected.
+            </p>
+          </div>
+        </div>
+      )
     },
     {
-      title: 'Create Shopping Lists',
-      description: 'Organize your items by categories and shop efficiently',
-      image: '/lovable-uploads/756b30b7-7e84-4d1e-b608-8a9727e446c6.png'
+      title: "What can you do?",
+      subtitle: "Discover FamilyHub's features",
+      content: (
+        <div className="space-y-6">
+          <div className="grid gap-4">
+            {[
+              { icon: ShoppingCart, title: "Smart Shopping Lists", desc: "Collaborative grocery and task lists" },
+              { icon: Calendar, title: "Family Schedule", desc: "Coordinate events and activities" },
+              { icon: ChefHat, title: "Chef Services", desc: "Book professional cooking services" },
+              { icon: Users, title: "Family Circle", desc: "Manage family members and roles" }
+            ].map((feature, index) => (
+              <div key={index} className="card-familyhub p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                    <feature.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground font-poppins">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground font-inter">{feature.desc}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
     },
     {
-      title: 'Share With Family',
-      description: 'Share lists with family members and collaborate in real-time',
-      image: '/lovable-uploads/ad19043e-44a6-42cd-ae4f-d63c4fdf7b3f.png'
+      title: "Setup your family",
+      subtitle: "Let's get started",
+      content: (
+        <div className="space-y-6">
+          <div className="text-center">
+            <div className="w-24 h-24 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Users className="h-12 w-12 text-white" />
+            </div>
+            <h2 className="text-xl font-bold text-foreground mb-2 font-poppins">What should we call your family?</h2>
+            <p className="text-muted-foreground font-inter">This will be displayed throughout the app</p>
+          </div>
+          <div className="space-y-4">
+            <Input
+              placeholder="e.g., The Johnson Family"
+              value={familyName}
+              onChange={(e) => setFamilyName(e.target.value)}
+              className="input-familyhub text-center text-lg"
+            />
+            <p className="text-sm text-muted-foreground text-center font-inter">
+              You can change this later in settings
+            </p>
+          </div>
+        </div>
+      )
     }
   ];
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(prevStep => prevStep + 1);
+      setCurrentStep(currentStep + 1);
     } else {
+      // Complete onboarding
+      localStorage.setItem('familyName', familyName);
       navigate('/auth');
     }
   };
 
-  const handleSkip = () => {
-    navigate('/auth');
-  };
+  if (showSplash) {
+    return <AnimatedSplash onComplete={handleSplashComplete} duration={2500} />;
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-koffa-snow-drift">
-      <div className="flex-1 flex flex-col items-center justify-center p-6">
-        <div className="animate-fade-in text-center mb-8">
-          {currentStep === 0 ? (
-            <KoffaLogo size="lg" />
-          ) : (
-            <img
-              src={steps[currentStep].image}
-              alt={steps[currentStep].title}
-              className="h-64 w-auto mx-auto mb-6"
-            />
-          )}
-          <h1 className="text-3xl font-bold mt-6 text-koffa-heavy-metal">
-            {steps[currentStep].title}
-          </h1>
-          <p className="text-lg mt-3 text-gray-600 max-w-md mx-auto">
-            {steps[currentStep].description}
-          </p>
-        </div>
-        
-        <div className="flex justify-center gap-1 my-6">
-          {steps.map((_, index) => (
-            <div
-              key={index}
-              className={`h-2 w-2 rounded-full transition-all ${
-                index === currentStep 
-                  ? 'bg-koffa-aqua-forest w-8' 
-                  : 'bg-gray-300'
-              }`}
-            />
-          ))}
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 flex flex-col">
+      {/* Progress */}
+      <div className="mobile-padding">
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex space-x-2">
+            {steps.map((_, index) => (
+              <div
+                key={index}
+                className={`h-2 w-8 rounded-full transition-colors ${
+                  index <= currentStep ? 'bg-primary' : 'bg-gray-200'
+                }`}
+              />
+            ))}
+          </div>
+          <span className="text-sm text-muted-foreground font-inter">
+            {currentStep + 1} of {steps.length}
+          </span>
         </div>
       </div>
-      
-      <div className="p-6 pt-0 space-y-4">
-        <Button
-          className="w-full bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
-          size="lg"
-          onClick={handleNext}
-        >
-          {currentStep < steps.length - 1 ? 'Continue' : 'Get Started'}
-        </Button>
-        
-        {currentStep < steps.length - 1 && (
+
+      {/* Content */}
+      <div className="flex-1 flex flex-col justify-center mobile-padding">
+        <div className="max-w-md mx-auto w-full space-y-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-foreground mb-2 font-poppins">
+              {steps[currentStep].title}
+            </h1>
+            <p className="text-muted-foreground font-inter">
+              {steps[currentStep].subtitle}
+            </p>
+          </div>
+          
+          <div className="space-y-6">
+            {steps[currentStep].content}
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="mobile-padding">
+        <div className="flex space-x-4">
+          {currentStep > 0 && (
+            <Button
+              variant="outline"
+              onClick={() => setCurrentStep(currentStep - 1)}
+              className="btn-secondary flex-1"
+            >
+              Back
+            </Button>
+          )}
           <Button
-            variant="ghost"
-            className="w-full text-koffa-heavy-metal"
-            onClick={handleSkip}
+            onClick={handleNext}
+            disabled={currentStep === steps.length - 1 && !familyName.trim()}
+            className="btn-primary flex-1"
           >
-            Skip
+            {currentStep === steps.length - 1 ? 'Get Started' : 'Next'}
+            <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
-        )}
+        </div>
       </div>
     </div>
   );

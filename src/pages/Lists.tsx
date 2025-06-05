@@ -3,219 +3,198 @@ import React, { useState } from 'react';
 import { useApp } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { BottomNav } from '@/components/BottomNav';
+import { FloatingActionButton } from '@/components/FloatingActionButton';
+import { ListCard } from '@/components/ListCard';
+import { SmartListsDialog } from '@/components/SmartListsDialog';
+import { TemplatesDialog } from '@/components/TemplatesDialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Plus, 
-  Search, 
-  MoreVertical, 
-  Trash2, 
-  Edit, 
-  Share2, 
-  Users,
-  Calendar,
-  ShoppingCart
-} from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { PageHeader } from '@/components/PageHeader';
+import { Search, Plus, Sparkles, FileText, ShoppingCart } from 'lucide-react';
 
-const Lists: React.FC = () => {
-  const { lists, createList, deleteList, updateList } = useApp();
+const Lists = () => {
+  const { lists, createList } = useApp();
   const navigate = useNavigate();
-  const [search, setSearch] = useState('');
   const [showNewListDialog, setShowNewListDialog] = useState(false);
+  const [showSmartDialog, setShowSmartDialog] = useState(false);
+  const [showTemplatesDialog, setShowTemplatesDialog] = useState(false);
   const [newListName, setNewListName] = useState('');
-  const [editingList, setEditingList] = useState<string | null>(null);
-  const [editName, setEditName] = useState('');
-
-  const filteredLists = lists.filter(list =>
-    list.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleCreateList = () => {
     if (newListName.trim()) {
       createList(newListName.trim());
       setNewListName('');
       setShowNewListDialog(false);
-      toast({
-        title: "List created",
-        description: `"${newListName.trim()}" has been created successfully.`,
-      });
     }
   };
 
-  const handleDeleteList = (listId: string, listName: string) => {
-    deleteList(listId);
-    toast({
-      title: "List deleted",
-      description: `"${listName}" has been deleted.`,
-    });
-  };
+  const filteredLists = lists.filter(list =>
+    list.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const handleEditList = (listId: string, newName: string) => {
-    updateList(listId, { name: newName });
-    setEditingList(null);
-    setEditName('');
-    toast({
-      title: "List updated",
-      description: `List name has been updated to "${newName}".`,
-    });
-  };
-
-  const getListStats = (list: any) => {
-    const total = list.items.length;
-    const completed = list.items.filter((item: any) => item.checked).length;
-    return { total, completed };
-  };
+  const quickActions = [
+    {
+      title: "Smart Lists",
+      description: "AI-powered suggestions",
+      icon: Sparkles,
+      color: "text-purple-500",
+      bgColor: "bg-purple-50",
+      onClick: () => setShowSmartDialog(true)
+    },
+    {
+      title: "Templates",
+      description: "Pre-made list templates",
+      icon: FileText,
+      color: "text-blue-500",
+      bgColor: "bg-blue-50",
+      onClick: () => setShowTemplatesDialog(true)
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-koffa-snow-drift pb-20">
-      {/* Header */}
-      <div className="bg-koffa-aqua-forest text-white p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">My Lists</h1>
-          <Button
-            size="sm"
-            className="bg-white/20 hover:bg-white/30 text-white"
-            onClick={() => setShowNewListDialog(true)}
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-        
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-24">
+      <PageHeader 
+        title="My Lists"
+        subtitle="Organize your family's shopping and tasks"
+        showBack={true}
+        onBack={() => navigate('/')}
+      >
+        <Button
+          onClick={() => setShowNewListDialog(true)}
+          className="btn-primary"
+        >
+          <Plus className="h-4 w-4 mr-1" />
+          New List
+        </Button>
+      </PageHeader>
+
+      <div className="mobile-spacing space-y-6">
+        {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
           <Input
-            type="text"
-            placeholder="Search lists..."
-            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/60"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search your lists..."
+            className="input-familyhub pl-12"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-      </div>
 
-      {/* Lists Content */}
-      <div className="p-4">
-        {filteredLists.length === 0 ? (
-          <Card className="text-center py-12">
-            <CardContent>
-              <ShoppingCart className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-              <h3 className="text-xl font-semibold mb-2">
-                {lists.length === 0 ? "No lists yet" : "No matching lists"}
+        {/* Quick Actions */}
+        <div className="space-y-4">
+          <h2 className="font-semibold text-lg text-foreground font-poppins">Quick Actions</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {quickActions.map((action, index) => (
+              <button
+                key={index}
+                onClick={action.onClick}
+                className="card-familyhub-hover p-4 text-left"
+              >
+                <div className={`w-12 h-12 ${action.bgColor} rounded-xl flex items-center justify-center mb-3`}>
+                  <action.icon className={`h-6 w-6 ${action.color}`} />
+                </div>
+                <h3 className="font-semibold text-sm text-foreground mb-1 font-poppins">
+                  {action.title}
+                </h3>
+                <p className="text-xs text-muted-foreground font-inter">
+                  {action.description}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Lists */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-lg text-foreground font-poppins">
+              Your Lists ({filteredLists.length})
+            </h2>
+          </div>
+
+          {filteredLists.length > 0 ? (
+            <div className="grid gap-4">
+              {filteredLists.map((list) => (
+                <ListCard 
+                  key={list.id} 
+                  list={list} 
+                  onClick={() => navigate(`/list/${list.id}`)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="card-familyhub p-8 text-center">
+              <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <ShoppingCart className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2 font-poppins">
+                {searchQuery ? 'No matching lists' : 'No lists yet'}
               </h3>
-              <p className="text-muted-foreground mb-4">
-                {lists.length === 0 
-                  ? "Create your first shopping list to get started!" 
-                  : `No lists match "${search}"`
+              <p className="text-sm text-muted-foreground mb-4 font-inter">
+                {searchQuery 
+                  ? 'Try adjusting your search terms'
+                  : 'Create your first list to get started organizing your family\'s needs'
                 }
               </p>
-              {lists.length === 0 && (
-                <Button
+              {!searchQuery && (
+                <Button 
                   onClick={() => setShowNewListDialog(true)}
-                  className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
+                  className="btn-primary"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Create Your First List
                 </Button>
               )}
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {filteredLists.map((list) => {
-              const stats = getListStats(list);
-              return (
-                <Card key={list.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div 
-                        className="flex-1 cursor-pointer"
-                        onClick={() => navigate(`/list/${list.id}`)}
-                      >
-                        <div className="flex items-center mb-2">
-                          <h3 className="font-semibold text-lg mr-2">{list.name}</h3>
-                          {list.shared && (
-                            <Badge variant="secondary" className="text-xs">
-                              <Users className="h-3 w-3 mr-1" />
-                              Shared
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        <div className="flex items-center text-sm text-muted-foreground mb-2">
-                          <Calendar className="h-4 w-4 mr-1" />
-                          {list.lastUsed ? new Date(list.lastUsed).toLocaleDateString() : 'Never used'}
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">
-                            {stats.completed} of {stats.total} items completed
-                          </span>
-                          {stats.total > 0 && (
-                            <div className="w-20 bg-gray-200 rounded-full h-2">
-                              <div 
-                                className="bg-koffa-aqua-forest h-2 rounded-full transition-all duration-300"
-                                style={{ width: `${(stats.completed / stats.total) * 100}%` }}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="ml-4">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingList(list.id);
-                            setEditName(list.name);
-                          }}
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
+
+      <FloatingActionButton 
+        onClick={() => setShowNewListDialog(true)} 
+        label="New List"
+        icon={<Plus className="h-5 w-5" />}
+        className="bg-gradient-primary shadow-lg hover:shadow-xl active:scale-95 transition-all duration-200"
+      />
 
       <BottomNav />
 
-      {/* New List Dialog */}
+      {/* Dialogs */}
       <Dialog open={showNewListDialog} onOpenChange={setShowNewListDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New List</DialogTitle>
+        <DialogContent className="card-familyhub mx-4">
+          <DialogHeader className="text-left">
+            <DialogTitle className="text-xl font-semibold font-poppins">Create New List</DialogTitle>
           </DialogHeader>
-          <div className="py-4">
+          <div className="py-4 space-y-4">
             <Input
               placeholder="List name (e.g., Weekly Groceries)"
               value={newListName}
               onChange={(e) => setNewListName(e.target.value)}
+              className="input-familyhub"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   handleCreateList();
                 }
               }}
             />
+            <p className="text-sm text-muted-foreground font-inter">
+              Tip: Use descriptive names like "Weekly Groceries" or "Birthday Party Shopping"
+            </p>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewListDialog(false)}>
+          <DialogFooter className="space-x-3">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowNewListDialog(false)}
+              className="btn-secondary flex-1"
+            >
               Cancel
             </Button>
             <Button 
-              className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
               onClick={handleCreateList}
               disabled={!newListName.trim()}
+              className="btn-primary flex-1"
             >
               Create List
             </Button>
@@ -223,53 +202,8 @@ const Lists: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit List Dialog */}
-      <Dialog open={!!editingList} onOpenChange={() => setEditingList(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit List</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <Input
-              placeholder="List name"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && editingList) {
-                  handleEditList(editingList, editName);
-                }
-              }}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingList(null)}>
-              Cancel
-            </Button>
-            <Button 
-              variant="destructive"
-              onClick={() => {
-                if (editingList) {
-                  const list = lists.find(l => l.id === editingList);
-                  if (list) {
-                    handleDeleteList(editingList, list.name);
-                    setEditingList(null);
-                  }
-                }
-              }}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </Button>
-            <Button 
-              className="bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
-              onClick={() => editingList && handleEditList(editingList, editName)}
-              disabled={!editName.trim()}
-            >
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <SmartListsDialog open={showSmartDialog} onOpenChange={setShowSmartDialog} />
+      <TemplatesDialog open={showTemplatesDialog} onOpenChange={setShowTemplatesDialog} />
     </div>
   );
 };
