@@ -146,6 +146,9 @@ export const ChefBooking: React.FC = () => {
     navigate('/chef-dashboard');
   };
 
+  // Check if step 2 is valid
+  const isStep2Valid = bookingData.date && bookingData.time;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-20">
       <PageHeader 
@@ -273,6 +276,7 @@ export const ChefBooking: React.FC = () => {
                     type="date"
                     className="input-familyhub"
                     value={bookingData.date}
+                    min={new Date().toISOString().split('T')[0]}
                     onChange={(e) => setBookingData(prev => ({ ...prev, date: e.target.value }))}
                   />
                 </CardContent>
@@ -329,7 +333,7 @@ export const ChefBooking: React.FC = () => {
             <Button 
               className="w-full btn-primary" 
               onClick={() => setStep(3)}
-              disabled={!bookingData.date || !bookingData.time}
+              disabled={!isStep2Valid}
             >
               Continue
             </Button>
