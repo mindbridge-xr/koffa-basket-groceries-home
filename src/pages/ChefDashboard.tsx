@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useChef } from '@/context/ChefContext';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 
 export const ChefDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const { chefProfile, earnings, bookings } = useChef();
   const [activeTab, setActiveTab] = useState<'overview' | 'bookings' | 'earnings'>('overview');
 
@@ -27,7 +28,13 @@ export const ChefDashboard: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 flex items-center justify-center pb-20">
         <div className="text-center mobile-spacing">
           <h2 className="text-xl font-semibold text-foreground mb-4 font-poppins">Chef Profile Not Found</h2>
-          <Button className="btn-primary">Complete Setup</Button>
+          <p className="text-muted-foreground mb-6 font-inter">Complete your chef profile to start accepting bookings</p>
+          <Button 
+            className="btn-primary"
+            onClick={() => navigate('/chef-onboarding')}
+          >
+            Complete Setup
+          </Button>
         </div>
         <BottomNav />
       </div>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChef } from '@/context/ChefContext';
@@ -16,8 +15,9 @@ import { Chef } from '@/types/chef';
 
 export const ChefOnboarding: React.FC = () => {
   const navigate = useNavigate();
-  const { becomeChef } = useChef();
+  const { becomeChef, setIsChef } = useChef();
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [profileData, setProfileData] = useState({
     name: '',
@@ -79,12 +79,50 @@ export const ChefOnboarding: React.FC = () => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (profileData.name && profileData.email && profileData.bio) {
-      becomeChef(profileData);
-      navigate('/chef-dashboard');
+      setIsSubmitting(true);
+      
+      try {
+        // Create a complete chef profile with default services
+        const completeProfile = {
+          ...profileData,
+          services: [
+            {
+              id: 'service-1',
+              name: 'Personal Chef Service',
+              description: 'Professional cooking service for your home',
+              duration: 180,
+              price: profileData.hourlyRate * 3,
+              category: 'private-chef' as const,
+              maxGuests: 6,
+              includesGroceries: false,
+              customizable: true
+            }
+          ]
+        };
+
+        console.log('Creating chef profile:', completeProfile);
+        
+        // Set chef status and profile
+        setIsChef(true);
+        becomeChef(completeProfile);
+        
+        // Navigate to chef dashboard
+        setTimeout(() => {
+          navigate('/chef-dashboard');
+        }, 100);
+        
+      } catch (error) {
+        console.error('Error creating chef profile:', error);
+        setIsSubmitting(false);
+      }
     }
   };
+
+  const canContinueStep1 = profileData.name && profileData.email && profileData.bio && profileData.location;
+  const canContinueStep2 = profileData.specialties.length > 0 && profileData.cuisineTypes.length > 0;
+  const canContinueStep3 = profileData.hourlyRate >= 10;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-20">
@@ -165,7 +203,7 @@ export const ChefOnboarding: React.FC = () => {
             <Button 
               className="w-full btn-primary" 
               onClick={() => setStep(2)}
-              disabled={!profileData.name || !profileData.email || !profileData.bio}
+              disabled={!canContinueStep1}
             >
               Continue
             </Button>
@@ -259,7 +297,7 @@ export const ChefOnboarding: React.FC = () => {
             <Button 
               className="w-full btn-primary" 
               onClick={() => setStep(3)}
-              disabled={profileData.specialties.length === 0 || profileData.cuisineTypes.length === 0}
+              disabled={!canContinueStep2}
             >
               Continue
             </Button>
@@ -319,7 +357,7 @@ export const ChefOnboarding: React.FC = () => {
             <Button 
               className="w-full btn-primary" 
               onClick={() => setStep(4)}
-              disabled={profileData.hourlyRate < 10}
+              disabled={!canContinueStep3}
             >
               Continue
             </Button>
@@ -390,9 +428,19 @@ export const ChefOnboarding: React.FC = () => {
             <Button 
               className="w-full btn-primary" 
               onClick={handleSubmit}
+              disabled={isSubmitting}
             >
-              <ChefHat className="h-4 w-4 mr-2" />
-              Complete Profile
+              {isSubmitting ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Setting up your profile...
+                </div>
+              ) : (
+                <>
+                  <ChefHat className="h-4 w-4 mr-2" />
+                  Complete Profile
+                </>
+              )}
             </Button>
           </div>
         )}
