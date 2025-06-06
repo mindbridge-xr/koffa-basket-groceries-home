@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useChef } from '@/context/ChefContext';
@@ -12,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar,
   Clock,
@@ -21,7 +21,9 @@ import {
   CheckCircle,
   Plus,
   Minus,
-  ChefHat
+  ChefHat,
+  CreditCard,
+  ArrowRight
 } from 'lucide-react';
 import { Recipe, BookingRequest } from '@/types/chef';
 
@@ -30,7 +32,9 @@ export const ChefBooking: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { chefs, createBooking } = useChef();
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const chef = chefs.find(c => c.id === chefId);
   const preselectedServiceId = searchParams.get('service');
@@ -127,23 +131,57 @@ export const ChefBooking: React.FC = () => {
     }));
   };
 
+  const handlePayment = async () => {
+    setIsProcessing(true);
+    
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Show success message
+      toast({
+        title: "Payment Successful!",
+        description: "Your booking has been confirmed. Check your dashboard for details.",
+      });
+
+      // Create the booking
+      if (!selectedService) return;
+
+      const booking = {
+        chefId: chef.id,
+        clientId: 'demo-client',
+        serviceId: bookingData.serviceId,
+        date: bookingData.date,
+        time: bookingData.time,
+        duration: selectedService.duration,
+        totalPrice,
+        status: 'confirmed' as const,
+        notes: `Event: ${bookingData.eventType}, Guests: ${bookingData.guestCount}, Grocery: ${bookingData.groceryHandling}, Special requests: ${bookingData.specialRequests}, Recipes: ${bookingData.selectedRecipes.map(r => r.name).join(', ')}, Dietary restrictions: ${bookingData.dietaryRestrictions.join(', ')}`
+      };
+
+      createBooking(booking);
+      
+      // Navigate to dashboard after successful booking
+      setTimeout(() => {
+        navigate('/chef-dashboard');
+      }, 1000);
+      
+    } catch (error) {
+      toast({
+        title: "Payment Failed",
+        description: "There was an error processing your payment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleSubmit = () => {
     if (!selectedService) return;
-
-    const booking = {
-      chefId: chef.id,
-      clientId: 'demo-client',
-      serviceId: bookingData.serviceId,
-      date: bookingData.date,
-      time: bookingData.time,
-      duration: selectedService.duration,
-      totalPrice,
-      status: 'pending' as const,
-      notes: `Event: ${bookingData.eventType}, Guests: ${bookingData.guestCount}, Grocery: ${bookingData.groceryHandling}, Special requests: ${bookingData.specialRequests}`
-    };
-
-    createBooking(booking);
-    navigate('/chef-dashboard');
+    
+    // Show payment confirmation
+    setStep(5);
   };
 
   // Check if step 2 is valid
@@ -157,7 +195,7 @@ export const ChefBooking: React.FC = () => {
         showBack={true}
         onBack={() => step > 1 ? setStep(step - 1) : navigate(`/chef-profile/${chef.id}`)}
       >
-        <div className="text-sm font-medium">Step {step} of 4</div>
+        <div className="text-sm font-medium">Step {Math.min(step, 4)} of 4</div>
       </PageHeader>
 
       {/* Progress Bar */}
@@ -165,7 +203,7 @@ export const ChefBooking: React.FC = () => {
         <div className="w-full h-2 bg-gray-200 rounded-full">
           <div 
             className="h-full bg-gradient-primary rounded-full transition-all duration-300"
-            style={{ width: `${(step / 4) * 100}%` }}
+            style={{ width: `${(Math.min(step, 4) / 4) * 100}%` }}
           />
         </div>
       </div>
@@ -516,9 +554,82 @@ export const ChefBooking: React.FC = () => {
               className="w-full btn-primary" 
               onClick={handleSubmit}
             >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Confirm Booking
+              <ArrowRight className="h-4 w-4 mr-2" />
+              Proceed to Payment
             </Button>
+          </div>
+        )}
+
+        {/* Step 5: Payment Confirmation */}
+        {step === 5 && (
+          <div className="space-y-6">
+            <div className="text-center">
+              <CreditCard className="h-16 w-16 mx-auto text-primary mb-4" />
+              <h2 className="text-xl font-bold text-foreground font-poppins mb-2">Confirm Payment</h2>
+              <p className="text-muted-foreground font-inter">Review your booking details before payment</p>
+            </div>
+
+            {/* Booking Summary */}
+            <Card className="card-familyhub">
+              <CardHeader>
+                <CardTitle className="font-poppins">Booking Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="font-inter">Chef</span>
+                  <span className="font-poppins font-medium">{chef.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-inter">Service</span>
+                  <span className="font-poppins font-medium">{selectedService?.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-inter">Date & Time</span>
+                  <span className="font-poppins font-medium">{bookingData.date} at {bookingData.time}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-inter">Guests</span>
+                  <span className="font-poppins font-medium">{bookingData.guestCount}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-inter">Selected Recipes</span>
+                  <span className="font-poppins font-medium">{bookingData.selectedRecipes.length}</span>
+                </div>
+                <div className="border-t pt-3 flex justify-between">
+                  <span className="font-semibold font-poppins">Total Amount</span>
+                  <span className="text-xl font-bold text-primary font-poppins">${totalPrice}</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-3">
+              <Button 
+                className="w-full btn-primary" 
+                onClick={handlePayment}
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Processing Payment...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Confirm & Pay ${totalPrice}
+                  </>
+                )}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="w-full btn-secondary"
+                onClick={() => setStep(4)}
+                disabled={isProcessing}
+              >
+                Back to Review
+              </Button>
+            </div>
           </div>
         )}
       </div>

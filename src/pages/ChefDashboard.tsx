@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChef } from '@/context/ChefContext';
@@ -7,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PageHeader } from '@/components/PageHeader';
+import { useToast } from '@/hooks/use-toast';
 import { 
   DollarSign, 
   Calendar, 
@@ -15,12 +17,17 @@ import {
   Clock, 
   Users,
   Eye,
-  Plus
+  Plus,
+  Edit,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle
 } from 'lucide-react';
 
 export const ChefDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { chefProfile, earnings, bookings } = useChef();
+  const { chefProfile, earnings, bookings, updateBookingStatus } = useChef();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'overview' | 'bookings' | 'earnings'>('overview');
 
   if (!chefProfile) {
@@ -71,6 +78,35 @@ export const ChefDashboard: React.FC = () => {
       positive: true
     }
   ];
+
+  const handleModifyBooking = (bookingId: string) => {
+    toast({
+      title: "Modify Booking",
+      description: "Booking modification feature coming soon!",
+    });
+  };
+
+  const handleRequestRefund = (bookingId: string) => {
+    toast({
+      title: "Refund Requested",
+      description: "Your refund request has been submitted for review.",
+    });
+  };
+
+  const handleReschedule = (bookingId: string) => {
+    toast({
+      title: "Reschedule Booking",
+      description: "Rescheduling feature coming soon!",
+    });
+  };
+
+  const canModifyBooking = (booking: any) => {
+    const bookingDate = new Date(booking.date);
+    const now = new Date();
+    const timeDiff = bookingDate.getTime() - now.getTime();
+    const hoursDiff = timeDiff / (1000 * 3600);
+    return hoursDiff > 48; // Can modify if more than 48 hours away
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-20">
@@ -221,52 +257,98 @@ export const ChefDashboard: React.FC = () => {
         {activeTab === 'bookings' && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-foreground font-poppins">Upcoming Bookings</h3>
+              <h3 className="text-lg font-semibold text-foreground font-poppins">Your Bookings</h3>
               <Badge variant="outline">{bookings.length} total</Badge>
             </div>
             
             {bookings.length > 0 ? (
               <div className="space-y-3">
-                {bookings.map(booking => (
-                  <Card key={booking.id} className="card-familyhub">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-semibold text-base text-foreground font-poppins">
-                          {chefProfile.services.find(s => s.id === booking.serviceId)?.name || 'Service'}
-                        </h4>
-                        <Badge 
-                          className={
-                            booking.status === 'confirmed' ? 'bg-green-500 text-white' :
-                            booking.status === 'pending' ? 'bg-yellow-500 text-white' :
-                            'bg-gray-500 text-white'
-                          }
-                        >
-                          {booking.status}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center space-x-4 text-sm text-muted-foreground font-inter">
-                        <div className="flex items-center">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          <span>{booking.date}</span>
+                {bookings.map(booking => {
+                  const canModify = canModifyBooking(booking);
+                  return (
+                    <Card key={booking.id} className="card-familyhub">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-semibold text-base text-foreground font-poppins">
+                            {chefProfile.services.find(s => s.id === booking.serviceId)?.name || 'Service'}
+                          </h4>
+                          <Badge 
+                            className={
+                              booking.status === 'confirmed' ? 'bg-green-500 text-white' :
+                              booking.status === 'pending' ? 'bg-yellow-500 text-white' :
+                              'bg-gray-500 text-white'
+                            }
+                          >
+                            {booking.status}
+                          </Badge>
                         </div>
-                        <div className="flex items-center">
-                          <Clock className="h-3 w-3 mr-1" />
-                          <span>{booking.time}</span>
+                        
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground font-inter mb-3">
+                          <div className="flex items-center">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            <span>{booking.date}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Clock className="h-3 w-3 mr-1" />
+                            <span>{booking.time}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <DollarSign className="h-3 w-3 mr-1" />
+                            <span>${booking.totalPrice}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center">
-                          <DollarSign className="h-3 w-3 mr-1" />
-                          <span>{booking.totalPrice}</span>
+
+                        {/* Booking Management Actions */}
+                        <div className="flex space-x-2 pt-3 border-t border-gray-100">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleModifyBooking(booking.id)}
+                            disabled={!canModify}
+                            className="flex-1"
+                          >
+                            <Edit className="h-3 w-3 mr-1" />
+                            Modify
+                          </Button>
+                          
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleReschedule(booking.id)}
+                            disabled={!canModify}
+                            className="flex-1"
+                          >
+                            <RefreshCw className="h-3 w-3 mr-1" />
+                            Reschedule
+                          </Button>
+                          
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleRequestRefund(booking.id)}
+                            disabled={!canModify}
+                            className="flex-1 text-red-600 hover:text-red-700"
+                          >
+                            <AlertCircle className="h-3 w-3 mr-1" />
+                            Refund
+                          </Button>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        
+                        {!canModify && (
+                          <p className="text-xs text-muted-foreground mt-2 font-inter">
+                            * Modifications available until 48 hours before the booking
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             ) : (
               <Card className="card-familyhub p-8 text-center">
                 <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-lg font-semibold text-foreground mb-2 font-poppins">No bookings yet</h3>
-                <p className="text-sm text-muted-foreground font-inter">Your upcoming bookings will appear here.</p>
+                <p className="text-sm text-muted-foreground font-inter">Your bookings will appear here once confirmed.</p>
               </Card>
             )}
           </div>
