@@ -10,39 +10,44 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CategoryCard } from '@/components/CategoryCard';
 import { Tables } from '@/lib/supabase/types';
-
 type ListItem = Tables['items'] & {
   checked?: boolean;
   quantity?: number;
   note?: string;
 };
-
 export const ListDetail: React.FC = () => {
-  const { listId } = useParams<{ listId: string }>();
-  const { lists, currentList, setCurrentList, familyMembers, shareList, unshareList, categories } = useApp();
+  const {
+    listId
+  } = useParams<{
+    listId: string;
+  }>();
+  const {
+    lists,
+    currentList,
+    setCurrentList,
+    familyMembers,
+    shareList,
+    unshareList,
+    categories
+  } = useApp();
   const [showCompleted, setShowCompleted] = useState(true);
-  
   useEffect(() => {
     if (listId) {
       setCurrentList(listId);
     }
-    
     return () => {
       setCurrentList(null);
     };
   }, [listId, setCurrentList]);
-  
   if (!currentList) {
-    return (
-      <div className="min-h-screen bg-koffa-snow-drift flex flex-col items-center justify-center p-4">
+    return <div className="min-h-screen bg-koffa-snow-drift flex flex-col items-center justify-center p-4">
         <p className="text-gray-600">List not found</p>
         <Link to="/" className="text-koffa-aqua-forest hover:underline mt-2">
           Go back home
         </Link>
-      </div>
-    );
+      </div>;
   }
-  
+
   // Convert the items to the expected format
   const listItems: ListItem[] = currentList.items.map(item => ({
     id: item.id,
@@ -54,10 +59,8 @@ export const ListDetail: React.FC = () => {
     quantity: item.quantity,
     note: item.note
   }));
-  
   const completedItems = listItems.filter(item => item.checked);
   const pendingItems = listItems.filter(item => !item.checked);
-  
   const groupedByCategory = listItems.reduce((acc, item) => {
     const categoryId = item.category_id || 'uncategorized';
     if (!acc[categoryId]) {
@@ -66,7 +69,6 @@ export const ListDetail: React.FC = () => {
     acc[categoryId].push(item);
     return acc;
   }, {} as Record<string, ListItem[]>);
-  
   const handleShareToggle = (userId: string) => {
     if (currentList.sharedWith?.includes(userId)) {
       unshareList(currentList.id, userId);
@@ -74,10 +76,8 @@ export const ListDetail: React.FC = () => {
       shareList(currentList.id, userId);
     }
   };
-  
-  return (
-    <div className="min-h-screen bg-koffa-snow-drift pb-24">
-      <div className="bg-koffa-aqua-forest text-white p-6">
+  return <div className="min-h-screen bg-koffa-snow-drift pb-24">
+      <div className="bg-koffa-aqua-forest text-white p-6 bg-red-500">
         <div className="flex justify-between items-center mb-4">
           <Link to="/lists" className="flex items-center text-white/90 hover:text-white">
             <ChevronLeft className="h-5 w-5 mr-1" />
@@ -95,11 +95,7 @@ export const ListDetail: React.FC = () => {
                 <div className="space-y-4">
                   <h4 className="font-medium">Share with family</h4>
                   <div className="space-y-2">
-                    {familyMembers.map(member => (
-                      <div 
-                        key={member.id} 
-                        className="flex items-center justify-between p-2 rounded hover:bg-muted"
-                      >
+                    {familyMembers.map(member => <div key={member.id} className="flex items-center justify-between p-2 rounded hover:bg-muted">
                         <div className="flex items-center">
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={member.avatar} alt={member.name} />
@@ -107,16 +103,10 @@ export const ListDetail: React.FC = () => {
                           </Avatar>
                           <span className="ml-2">{member.name}</span>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={currentList.sharedWith?.includes(member.id) ? "bg-koffa-aqua-forest text-white hover:bg-koffa-aqua-forest/90" : ""}
-                          onClick={() => handleShareToggle(member.id)}
-                        >
+                        <Button variant="outline" size="sm" className={currentList.sharedWith?.includes(member.id) ? "bg-koffa-aqua-forest text-white hover:bg-koffa-aqua-forest/90" : ""} onClick={() => handleShareToggle(member.id)}>
                           {currentList.sharedWith?.includes(member.id) ? "Shared" : "Share"}
                         </Button>
-                      </div>
-                    ))}
+                      </div>)}
                   </div>
                 </div>
               </PopoverContent>
@@ -130,11 +120,7 @@ export const ListDetail: React.FC = () => {
               </PopoverTrigger>
               <PopoverContent className="w-48">
                 <div className="space-y-2">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => setShowCompleted(!showCompleted)}
-                  >
+                  <Button variant="ghost" className="w-full justify-start" onClick={() => setShowCompleted(!showCompleted)}>
                     {showCompleted ? "Hide" : "Show"} completed
                   </Button>
                 </div>
@@ -152,52 +138,30 @@ export const ListDetail: React.FC = () => {
       </div>
       
       <div className="p-4 space-y-6">
-        {pendingItems.length > 0 && (
-          <div>
+        {pendingItems.length > 0 && <div>
             <h2 className="text-lg font-medium mb-3">To Buy</h2>
             <div className="space-y-2">
-              {pendingItems.map(item => (
-                <GroceryItemCard
-                  key={item.id}
-                  item={item}
-                  listId={currentList.id}
-                  showDelete={true}
-                />
-              ))}
+              {pendingItems.map(item => <GroceryItemCard key={item.id} item={item} listId={currentList.id} showDelete={true} />)}
             </div>
-          </div>
-        )}
+          </div>}
         
-        {showCompleted && completedItems.length > 0 && (
-          <div>
+        {showCompleted && completedItems.length > 0 && <div>
             <h2 className="text-lg font-medium mb-3">Completed</h2>
             <div className="space-y-2">
-              {completedItems.map(item => (
-                <GroceryItemCard
-                  key={item.id}
-                  item={item}
-                  listId={currentList.id}
-                  showDelete={true}
-                />
-              ))}
+              {completedItems.map(item => <GroceryItemCard key={item.id} item={item} listId={currentList.id} showDelete={true} />)}
             </div>
-          </div>
-        )}
+          </div>}
         
-        {listItems.length === 0 && (
-          <div className="text-center p-8">
+        {listItems.length === 0 && <div className="text-center p-8">
             <h3 className="text-lg font-medium text-gray-600">Empty list</h3>
             <p className="text-gray-500 mt-2">
               Add items to your list using the form below
             </p>
-          </div>
-        )}
+          </div>}
       </div>
       
       <AddItemForm listId={currentList.id} />
       <BottomNav />
-    </div>
-  );
+    </div>;
 };
-
 export default ListDetail;
