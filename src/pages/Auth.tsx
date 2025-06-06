@@ -41,6 +41,10 @@ export const Auth: React.FC = () => {
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
+    // Clear form when switching modes
+    setName('');
+    setEmail('');
+    setPassword('');
   };
 
   return (
@@ -95,12 +99,13 @@ export const Auth: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="********"
+                minLength={6}
               />
             </div>
             
             <Button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || (!isLogin && !name.trim()) || !email.trim() || !password.trim()}
               className="w-full bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
               size="lg"
             >
