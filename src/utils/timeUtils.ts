@@ -31,6 +31,20 @@ export const getTimeBasedGreeting = (userName?: string): { greeting: string; mes
   }
 };
 
+export const getGreeting = (userName?: string): string => {
+  const result = getTimeBasedGreeting(userName);
+  return result.greeting;
+};
+
+export const getCurrentTime = (): string => {
+  const now = new Date();
+  return now.toLocaleTimeString('en-US', { 
+    hour: 'numeric', 
+    minute: '2-digit',
+    hour12: true 
+  });
+};
+
 export const getContextualMessage = (): string => {
   const messages = [
     "Your family's productivity starts here",

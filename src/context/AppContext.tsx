@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface AppContextType {
@@ -51,6 +50,7 @@ interface FamilyMember {
   name: string;
   avatar?: string;
   email?: string;
+  role: 'admin' | 'parent' | 'member';
 }
 
 interface Category {
@@ -114,9 +114,9 @@ const mockLists: GroceryList[] = [
 ];
 
 const mockFamilyMembers: FamilyMember[] = [
-  { id: 'user2', name: 'Sarah', avatar: undefined, email: 'sarah@example.com' },
-  { id: 'user3', name: 'Mike', avatar: undefined, email: 'mike@example.com' },
-  { id: 'user4', name: 'Emma', avatar: undefined, email: 'emma@example.com' },
+  { id: 'user2', name: 'Sarah', avatar: undefined, email: 'sarah@example.com', role: 'parent' },
+  { id: 'user3', name: 'Mike', avatar: undefined, email: 'mike@example.com', role: 'parent' },
+  { id: 'user4', name: 'Emma', avatar: undefined, email: 'emma@example.com', role: 'member' },
 ];
 
 const mockCategories: Category[] = [
