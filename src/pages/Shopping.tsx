@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useApp } from '@/context/AppContext';
 import { BottomNav } from '@/components/BottomNav';
@@ -8,11 +7,13 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, Circle, ShoppingCart, Clock, MapPin, Filter, ArrowLeft, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { GroceryItemCard } from '@/components/GroceryItemCard';
+import { CustomGroceryListDialog } from '@/components/CustomGroceryListDialog';
 
 export const Shopping: React.FC = () => {
   const { lists, toggleItemChecked } = useApp();
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [showCustomListDialog, setShowCustomListDialog] = useState(false);
 
   // Get active shopping lists (lists with uncompleted items)
   const activeShoppingLists = lists.filter(list => 
@@ -153,8 +154,19 @@ export const Shopping: React.FC = () => {
       <div className="bg-gradient-primary text-white mobile-padding">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold font-poppins">Shopping Mode</h1>
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <ShoppingCart className="h-6 w-6" />
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCustomListDialog(true)}
+              className="text-white hover:bg-white/10 border border-white/20"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Custom List
+            </Button>
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+              <ShoppingCart className="h-6 w-6" />
+            </div>
           </div>
         </div>
         <p className="text-sm text-white/80 font-inter">Select a list to start shopping</p>
@@ -215,6 +227,11 @@ export const Shopping: React.FC = () => {
           </div>
         )}
       </div>
+
+      <CustomGroceryListDialog 
+        open={showCustomListDialog}
+        onOpenChange={setShowCustomListDialog}
+      />
 
       <BottomNav />
     </div>

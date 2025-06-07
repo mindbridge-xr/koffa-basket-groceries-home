@@ -10,6 +10,7 @@ import { useApp } from '@/context/AppContext';
 import { useTasks } from '@/context/TaskContext';
 import { useNavigate } from 'react-router-dom';
 import { getGreeting, getCurrentTime } from '@/utils/timeUtils';
+import { NotificationButton } from '@/components/NotificationButton';
 
 export const Dashboard: React.FC = () => {
   const [showNewListDialog, setShowNewListDialog] = useState(false);
@@ -104,12 +105,7 @@ export const Dashboard: React.FC = () => {
             </div>
             
             <div className="flex items-center space-x-3">
-              <div className="relative">
-                <Bell className="h-6 w-6 text-muted-foreground" />
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-medium">3</span>
-                </div>
-              </div>
+              <NotificationButton />
               <Avatar className="w-8 h-8 border-2 border-gray-100">
                 <AvatarFallback className="bg-gray-100 text-gray-600 font-medium text-sm">
                   {user?.name?.[0] || 'U'}

@@ -1,72 +1,53 @@
-
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
+import Dashboard from '@/pages/Dashboard';
+import Lists from '@/pages/Lists';
+import ListDetail from '@/pages/ListDetail';
+import Shopping from '@/pages/Shopping';
+import Tasks from '@/pages/Tasks';
+import TaskDetail from '@/pages/TaskDetail';
+import ChefMarketplace from '@/pages/ChefMarketplace';
+import ChefDashboard from '@/pages/ChefDashboard';
+import ChefOnboarding from '@/pages/ChefOnboarding';
+import FamilyManagement from '@/pages/FamilyManagement';
+import Schedule from '@/pages/Schedule';
+import Settings from '@/pages/Settings';
 import { AppProvider } from '@/context/AppContext';
-import { ChefProvider } from '@/context/ChefContext';
 import { TaskProvider } from '@/context/TaskContext';
-import Index from './pages/Index';
-import Onboarding from './pages/Onboarding';
-import Auth from './pages/Auth';
-import Dashboard from './pages/Dashboard';
-import Lists from './pages/Lists';
-import ListDetail from './pages/ListDetail';
-import Shopping from './pages/Shopping';
-import CategoryItems from './pages/CategoryItems';
-import Profile from './pages/Profile';
-import FamilyManagement from './pages/FamilyManagement';
-import Schedule from './pages/Schedule';
-import Tasks from './pages/Tasks';
-import ChefMarketplace from './pages/ChefMarketplace';
-import ChefOnboarding from './pages/ChefOnboarding';
-import ChefDashboard from './pages/ChefDashboard';
-import ChefProfile from './pages/ChefProfile';
-import ChefBooking from './pages/ChefBooking';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10, // 10 minutes
-    },
-  },
-});
+import { ChefProvider } from '@/context/ChefContext';
+import { ActivityProvider } from '@/context/ActivityContext';
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppProvider>
-        <ChefProvider>
-          <TaskProvider>
-            <Router>
-              <div className="min-h-screen bg-background">
+    <Router>
+      <QueryClient>
+        <Toaster />
+        <ActivityProvider>
+          <AppProvider>
+            <TaskProvider>
+              <ChefProvider>
                 <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/onboarding" element={<Onboarding />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/" element={<Dashboard />} />
                   <Route path="/lists" element={<Lists />} />
-                  <Route path="/list/:listId" element={<ListDetail />} />
+                  <Route path="/list/:id" element={<ListDetail />} />
                   <Route path="/shopping" element={<Shopping />} />
-                  <Route path="/shopping/:category" element={<CategoryItems />} />
-                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/tasks" element={<Tasks />} />
+                  <Route path="/task/:id" element={<TaskDetail />} />
+                  <Route path="/chef-marketplace" element={<ChefMarketplace />} />
+                  <Route path="/chef-dashboard" element={<ChefDashboard />} />
+                  <Route path="/chef-onboarding" element={<ChefOnboarding />} />
                   <Route path="/family-management" element={<FamilyManagement />} />
                   <Route path="/schedule" element={<Schedule />} />
-                  <Route path="/tasks" element={<Tasks />} />
-                  <Route path="/chef-marketplace" element={<ChefMarketplace />} />
-                  <Route path="/chef-profile/:chefId" element={<ChefProfile />} />
-                  <Route path="/chef-booking/:chefId" element={<ChefBooking />} />
-                  <Route path="/chef-onboarding" element={<ChefOnboarding />} />
-                  <Route path="/chef-dashboard" element={<ChefDashboard />} />
+                  <Route path="/settings" element={<Settings />} />
                 </Routes>
-                <Toaster />
-              </div>
-            </Router>
-          </TaskProvider>
-        </ChefProvider>
-      </AppProvider>
-    </QueryClientProvider>
+              </ChefProvider>
+            </TaskProvider>
+          </AppProvider>
+        </ActivityProvider>
+      </QueryClient>
+    </Router>
   );
 }
 
