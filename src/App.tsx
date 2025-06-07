@@ -49,7 +49,7 @@ function App() {
                 <Route path="/shopping" element={<Shopping />} />
                 <Route path="/shopping/:category" element={<CategoryItems />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/family" element={<FamilyManagement />} />
+                <Route path="/family-management" element={<FamilyManagement />} />
                 <Route path="/schedule" element={<Schedule />} />
                 <Route path="/tasks" element={<Tasks />} />
                 <Route path="/chef-marketplace" element={<ChefMarketplace />} />
