@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { BottomNav } from '@/components/BottomNav';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useApp } from '@/context/AppContext';
+import { useTasks } from '@/context/TaskContext';
 import { useNavigate } from 'react-router-dom';
 import { getGreeting, getCurrentTime } from '@/utils/timeUtils';
 
@@ -16,6 +16,7 @@ export const Dashboard: React.FC = () => {
   const [newListName, setNewListName] = useState('');
   const [currentTime, setCurrentTime] = useState(getCurrentTime());
   const { lists, createList, user } = useApp();
+  const { getTaskStats } = useTasks();
   const navigate = useNavigate();
 
   // Update time every minute
@@ -34,6 +35,8 @@ export const Dashboard: React.FC = () => {
       setShowNewListDialog(false);
     }
   };
+
+  const taskStats = getTaskStats();
 
   const quickActions = [
     {
@@ -126,7 +129,7 @@ export const Dashboard: React.FC = () => {
           <p className="text-white/90 font-inter">Ready to organize your family's day?</p>
           
           <div className="mt-4 mb-6">
-            <div className="font-bold text-2xl text-white font-poppins">8</div>
+            <div className="font-bold text-2xl text-white font-poppins">{taskStats.pending + taskStats.inProgress}</div>
             <div className="text-sm text-white/80 font-inter">Active Tasks</div>
           </div>
           

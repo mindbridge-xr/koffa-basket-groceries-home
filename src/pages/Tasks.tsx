@@ -5,7 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/PageHeader';
+import { AddTaskDialog } from '@/components/AddTaskDialog';
 import { Plus, CheckCircle, Clock, Calendar, Users, Star, Filter } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Task {
   id: string;
@@ -20,6 +22,7 @@ interface Task {
 }
 
 export const Tasks: React.FC = () => {
+  const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: '1',
@@ -60,6 +63,20 @@ export const Tasks: React.FC = () => {
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
   const [showCompleted, setShowCompleted] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
+
+  const handleAddTask = (newTaskData: Omit<Task, 'id' | 'status'>) => {
+    const newTask: Task = {
+      ...newTaskData,
+      id: Date.now().toString(),
+      status: 'pending'
+    };
+    
+    setTasks(prev => [newTask, ...prev]);
+    toast({
+      title: "Task created!",
+      description: `"${newTask.title}" has been added to your tasks.`,
+    });
+  };
 
   const categories = [
     { id: 'all', name: 'All Tasks', icon: '📋', color: 'bg-gray-100' },
@@ -307,6 +324,12 @@ export const Tasks: React.FC = () => {
           </Card>
         )}
       </div>
+
+      <AddTaskDialog 
+        open={showAddTask}
+        onOpenChange={setShowAddTask}
+        onAddTask={handleAddTask}
+      />
 
       <BottomNav />
     </div>
