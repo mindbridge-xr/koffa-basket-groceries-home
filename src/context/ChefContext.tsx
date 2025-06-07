@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState } from 'react';
 import { Chef, ChefService, Booking, Earnings, Recipe, ChefReview } from '@/types/chef';
 
@@ -13,9 +14,12 @@ interface ChefContextType {
   updateBookingStatus: (bookingId: string, status: Booking['status']) => void;
   getChefsByService: (service: string) => Chef[];
   becomeChef: (profile: Omit<Chef, 'id' | 'createdAt' | 'rating' | 'totalBookings'>) => void;
+  searchChefs: (query: string) => Chef[];
+  filterChefsByLocation: (location: string) => Chef[];
+  getTopRatedChefs: () => Chef[];
 }
 
-// Enhanced mock data with recipes and reviews
+// Enhanced mock recipes with more variety
 const mockRecipes: Recipe[] = [
   {
     id: 'recipe-1',
@@ -40,6 +44,30 @@ const mockRecipes: Recipe[] = [
     dietaryTags: ['gluten-free', 'keto'],
     servings: 4,
     mealType: 'dinner'
+  },
+  {
+    id: 'recipe-3',
+    name: 'Chocolate Soufflé',
+    description: 'Classic French chocolate soufflé with vanilla ice cream',
+    ingredients: ['Dark chocolate', 'Eggs', 'Sugar', 'Butter', 'Vanilla'],
+    cookingTime: 45,
+    difficulty: 'hard',
+    cuisineType: 'French',
+    dietaryTags: ['vegetarian'],
+    servings: 6,
+    mealType: 'dessert'
+  },
+  {
+    id: 'recipe-4',
+    name: 'Quinoa Buddha Bowl',
+    description: 'Nutritious bowl with quinoa, roasted vegetables, and tahini dressing',
+    ingredients: ['Quinoa', 'Sweet potato', 'Chickpeas', 'Kale', 'Tahini'],
+    cookingTime: 35,
+    difficulty: 'easy',
+    cuisineType: 'Mediterranean',
+    dietaryTags: ['vegan', 'gluten-free'],
+    servings: 2,
+    mealType: 'lunch'
   }
 ];
 
@@ -63,16 +91,27 @@ const mockReviews: ChefReview[] = [
     bookingId: 'booking-2',
     serviceType: 'Weekly Meal Prep',
     createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'review-3',
+    clientId: 'client-3',
+    clientName: 'Emily Davis',
+    rating: 4,
+    comment: 'Great cooking class! Lisa taught us so much about French techniques. The food was delicious.',
+    bookingId: 'booking-3',
+    serviceType: 'Cooking Class',
+    createdAt: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString()
   }
 ];
 
+// Enhanced mock chefs with more diversity
 const mockChefs: Chef[] = [
   {
     id: 'chef-1',
     name: 'Maria Rodriguez',
     email: 'maria@example.com',
     bio: 'Professional chef with 10+ years experience in Italian and Mexican cuisine. Passionate about creating memorable dining experiences with fresh, local ingredients.',
-    specialties: ['Pasta', 'Tacos', 'Desserts'],
+    specialties: ['Pasta', 'Tacos', 'Desserts', 'Wine Pairing'],
     cuisineTypes: ['Italian', 'Mexican'],
     experienceLevel: 'professional',
     rating: 4.8,
@@ -96,6 +135,17 @@ const mockChefs: Chef[] = [
         maxGuests: 8,
         includesGroceries: false,
         customizable: true
+      },
+      {
+        id: 'service-1b',
+        name: 'Cooking Consultation',
+        description: 'One-on-one cooking guidance and meal planning session',
+        duration: 90,
+        price: 120,
+        category: 'consultation',
+        maxGuests: 2,
+        includesGroceries: false,
+        customizable: true
       }
     ],
     portfolio: [
@@ -109,9 +159,9 @@ const mockChefs: Chef[] = [
         eventType: 'Private Dinner'
       }
     ],
-    recipes: mockRecipes,
+    recipes: mockRecipes.slice(0, 2),
     reviews: [mockReviews[0]],
-    certifications: ['Culinary Institute of America', 'Food Safety Certified'],
+    certifications: ['Culinary Institute of America', 'Food Safety Certified', 'Wine Sommelier Level 1'],
     createdAt: new Date().toISOString()
   },
   {
@@ -119,15 +169,18 @@ const mockChefs: Chef[] = [
     name: 'James Chen',
     email: 'james@example.com',
     bio: 'Culinary school graduate specializing in Asian fusion and healthy meal prep. Focused on creating nutritious, flavorful meals for busy families.',
-    specialties: ['Stir-fry', 'Sushi', 'Meal Prep'],
-    cuisineTypes: ['Asian', 'Fusion'],
+    specialties: ['Stir-fry', 'Sushi', 'Meal Prep', 'Healthy Cooking'],
+    cuisineTypes: ['Asian', 'Fusion', 'Japanese'],
     experienceLevel: 'culinary-trained',
     rating: 4.9,
     totalBookings: 89,
     isVerified: true,
     hourlyRate: 65,
     location: 'Midtown',
-    availability: [],
+    availability: [
+      { dayOfWeek: 0, startTime: '10:00', endTime: '18:00' },
+      { dayOfWeek: 6, startTime: '08:00', endTime: '16:00' }
+    ],
     services: [
       {
         id: 'service-2',
@@ -138,6 +191,17 @@ const mockChefs: Chef[] = [
         category: 'meal-prep',
         includesGroceries: true,
         customizable: true
+      },
+      {
+        id: 'service-2b',
+        name: 'Sushi Making Class',
+        description: 'Learn to make authentic sushi from scratch',
+        duration: 120,
+        price: 80,
+        category: 'cooking-class',
+        maxGuests: 6,
+        includesGroceries: true,
+        customizable: false
       }
     ],
     portfolio: [
@@ -150,9 +214,67 @@ const mockChefs: Chef[] = [
         eventType: 'Meal Prep'
       }
     ],
-    recipes: mockRecipes,
+    recipes: mockRecipes.slice(1, 3),
     reviews: [mockReviews[1]],
-    certifications: ['Nutrition Specialist', 'Asian Cuisine Expert'],
+    certifications: ['Nutrition Specialist', 'Asian Cuisine Expert', 'Food Safety Manager'],
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'chef-3',
+    name: 'Lisa Thompson',
+    email: 'lisa@example.com',
+    bio: 'French-trained chef with expertise in classical techniques and modern plating. Specializes in teaching cooking classes and creating elegant dinner parties.',
+    specialties: ['French Cuisine', 'Pastry', 'Plating', 'Technique'],
+    cuisineTypes: ['French', 'European'],
+    experienceLevel: 'professional',
+    rating: 4.7,
+    totalBookings: 67,
+    isVerified: true,
+    hourlyRate: 85,
+    location: 'Uptown',
+    availability: [
+      { dayOfWeek: 2, startTime: '14:00', endTime: '20:00' },
+      { dayOfWeek: 4, startTime: '14:00', endTime: '20:00' },
+      { dayOfWeek: 6, startTime: '10:00', endTime: '18:00' }
+    ],
+    services: [
+      {
+        id: 'service-3',
+        name: 'French Cooking Class',
+        description: 'Master French techniques with hands-on instruction',
+        duration: 150,
+        price: 95,
+        category: 'cooking-class',
+        maxGuests: 4,
+        includesGroceries: true,
+        customizable: true
+      },
+      {
+        id: 'service-3b',
+        name: 'Elegant Dinner Party',
+        description: 'Multi-course French-inspired dinner with professional service',
+        duration: 300,
+        price: 350,
+        category: 'private-chef',
+        maxGuests: 10,
+        includesGroceries: false,
+        customizable: true
+      }
+    ],
+    portfolio: [
+      {
+        id: 'portfolio-3',
+        title: 'French Pastry Workshop',
+        description: 'Interactive pastry class featuring croissants and éclairs',
+        tags: ['French', 'Pastry', 'Workshop'],
+        createdAt: new Date().toISOString(),
+        clientTestimonial: 'Learned so much!',
+        eventType: 'Cooking Class'
+      }
+    ],
+    recipes: [mockRecipes[2], mockRecipes[0]],
+    reviews: [mockReviews[2]],
+    certifications: ['Le Cordon Bleu Paris', 'Pastry Arts Certificate', 'ServSafe Manager'],
     createdAt: new Date().toISOString()
   }
 ];
@@ -203,12 +325,32 @@ export const ChefProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
 
+  const searchChefs = (query: string) => {
+    const lowercaseQuery = query.toLowerCase();
+    return chefs.filter(chef =>
+      chef.name.toLowerCase().includes(lowercaseQuery) ||
+      chef.specialties.some(s => s.toLowerCase().includes(lowercaseQuery)) ||
+      chef.cuisineTypes.some(c => c.toLowerCase().includes(lowercaseQuery)) ||
+      chef.bio.toLowerCase().includes(lowercaseQuery)
+    );
+  };
+
+  const filterChefsByLocation = (location: string) => {
+    return chefs.filter(chef => chef.location === location);
+  };
+
+  const getTopRatedChefs = () => {
+    return [...chefs].sort((a, b) => b.rating - a.rating).slice(0, 5);
+  };
+
   const becomeChef = (profile: Omit<Chef, 'id' | 'createdAt' | 'rating' | 'totalBookings'>) => {
     const newChefProfile: Chef = {
       ...profile,
       id: Date.now().toString(),
       rating: 0,
       totalBookings: 0,
+      reviews: [],
+      recipes: [],
       createdAt: new Date().toISOString()
     };
     setChefProfile(newChefProfile);
@@ -227,7 +369,10 @@ export const ChefProvider: React.FC<{ children: React.ReactNode }> = ({ children
       createBooking,
       updateBookingStatus,
       getChefsByService,
-      becomeChef
+      becomeChef,
+      searchChefs,
+      filterChefsByLocation,
+      getTopRatedChefs
     }}>
       {children}
     </ChefContext.Provider>

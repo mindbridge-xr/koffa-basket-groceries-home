@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PageHeader } from '@/components/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Star, 
   MapPin, 
@@ -18,14 +19,22 @@ import {
   Calendar,
   ChefHat,
   Award,
-  MessageCircle
+  MessageCircle,
+  Heart,
+  Share2,
+  Phone,
+  Mail,
+  Globe,
+  DollarSign
 } from 'lucide-react';
 
 export const ChefProfile: React.FC = () => {
   const { chefId } = useParams<{ chefId: string }>();
   const navigate = useNavigate();
   const { chefs } = useChef();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
+  const [isFavorited, setIsFavorited] = useState(false);
 
   const chef = chefs.find(c => c.id === chefId);
 
@@ -33,7 +42,9 @@ export const ChefProfile: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 flex items-center justify-center pb-20">
         <div className="text-center mobile-spacing">
+          <ChefHat className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-xl font-semibold text-foreground mb-4 font-poppins">Chef Not Found</h2>
+          <p className="text-muted-foreground mb-6 font-inter">The chef you're looking for doesn't exist.</p>
           <Button onClick={() => navigate('/chef-marketplace')} className="btn-primary">
             Back to Marketplace
           </Button>
@@ -49,6 +60,39 @@ export const ChefProfile: React.FC = () => {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${colors[colorIndex].slice(1)}&color=ffffff&size=128&bold=true`;
   };
 
+  const handleFavorite = () => {
+    setIsFavorited(!isFavorited);
+    toast({
+      title: isFavorited ? "Removed from favorites" : "Added to favorites",
+      description: isFavorited ? `${chef.name} removed from your favorites` : `${chef.name} added to your favorites`,
+    });
+  };
+
+  const handleShare = () => {
+    navigator.share?.({
+      title: `${chef.name} - Professional Chef`,
+      text: `Check out ${chef.name}, a ${chef.experienceLevel.replace('-', ' ')} chef specializing in ${chef.cuisineTypes.join(', ')}.`,
+      url: window.location.href,
+    }).catch(() => {
+      navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: "Link copied!",
+        description: "Chef profile link copied to clipboard.",
+      });
+    });
+  };
+
+  const handleContact = (method: 'phone' | 'email') => {
+    if (method === 'email') {
+      window.location.href = `mailto:${chef.email}`;
+    } else {
+      toast({
+        title: "Contact Chef",
+        description: "Phone contact feature coming soon!",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-20">
       <PageHeader 
@@ -56,14 +100,34 @@ export const ChefProfile: React.FC = () => {
         subtitle="Professional Chef Profile"
         showBack={true}
         onBack={() => navigate('/chef-marketplace')}
-      />
+      >
+        <div className="flex space-x-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-white hover:bg-white/10"
+            onClick={handleFavorite}
+          >
+            <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current text-red-400' : ''}`} />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-white hover:bg-white/10"
+            onClick={handleShare}
+          >
+            <Share2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </PageHeader>
 
       <div className="mobile-spacing py-4 space-y-6">
-        {/* Chef Header */}
-        <Card className="card-familyhub">
-          <CardContent className="p-6">
-            <div className="flex items-start space-x-4 mb-4">
-              <Avatar className="h-20 w-20">
+        {/* Enhanced Chef Header */}
+        <Card className="card-familyhub overflow-hidden">
+          <div className="relative">
+            <div className="h-32 bg-gradient-to-r from-primary to-secondary"></div>
+            <div className="absolute -bottom-8 left-6">
+              <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
                 <AvatarImage 
                   src={chef.avatar || getChefAvatar(chef.name)} 
                   alt={chef.name} 
@@ -72,7 +136,11 @@ export const ChefProfile: React.FC = () => {
                   {chef.name[0]}
                 </AvatarFallback>
               </Avatar>
-              
+            </div>
+          </div>
+          
+          <CardContent className="pt-12 pb-6">
+            <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-2">
                   <h1 className="text-2xl font-bold text-foreground font-poppins">{chef.name}</h1>
@@ -81,7 +149,7 @@ export const ChefProfile: React.FC = () => {
                   )}
                 </div>
                 
-                <div className="flex items-center space-x-4 mb-2">
+                <div className="flex items-center space-x-4 mb-3">
                   <div className="flex items-center">
                     <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
                     <span className="text-sm font-medium font-inter">{chef.rating}</span>
@@ -108,6 +176,28 @@ export const ChefProfile: React.FC = () => {
                   {chef.experienceLevel.replace('-', ' ')}
                 </Badge>
               </div>
+              
+              <div className="text-right">
+                <div className="text-2xl font-bold text-primary font-poppins mb-2">
+                  ${chef.hourlyRate}/hr
+                </div>
+                <div className="flex space-x-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleContact('email')}
+                  >
+                    <Mail className="h-3 w-3" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleContact('phone')}
+                  >
+                    <Phone className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
             </div>
             
             <p className="text-sm text-muted-foreground mb-4 font-inter">{chef.bio}</p>
@@ -120,23 +210,17 @@ export const ChefProfile: React.FC = () => {
               ))}
             </div>
             
-            <div className="flex items-center justify-between">
-              <span className="text-2xl font-bold text-primary font-poppins">
-                ${chef.hourlyRate}/hr
-              </span>
-              
-              <Button 
-                className="btn-primary"
-                onClick={() => navigate(`/chef-booking/${chef.id}`)}
-              >
-                <Calendar className="h-4 w-4 mr-2" />
-                Book Now
-              </Button>
-            </div>
+            <Button 
+              className="w-full btn-primary"
+              onClick={() => navigate(`/chef-booking/${chef.id}`)}
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              Book Now
+            </Button>
           </CardContent>
         </Card>
 
-        {/* Tabs */}
+        {/* Enhanced Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 bg-gray-50 rounded-2xl p-1">
             <TabsTrigger value="overview" className="font-inter">Overview</TabsTrigger>
@@ -146,7 +230,7 @@ export const ChefProfile: React.FC = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4 mt-6">
-            {/* Quick Stats */}
+            {/* Enhanced Quick Stats */}
             <div className="grid grid-cols-2 gap-3">
               <Card className="card-familyhub">
                 <CardContent className="p-4 text-center">
@@ -165,7 +249,7 @@ export const ChefProfile: React.FC = () => {
               </Card>
             </div>
 
-            {/* Cuisine Types */}
+            {/* Cuisine Types & Certifications */}
             <Card className="card-familyhub">
               <CardHeader>
                 <CardTitle className="font-poppins">Cuisine Specialties</CardTitle>
@@ -180,6 +264,24 @@ export const ChefProfile: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {chef.certifications && chef.certifications.length > 0 && (
+              <Card className="card-familyhub">
+                <CardHeader>
+                  <CardTitle className="font-poppins">Certifications</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {chef.certifications.map((cert, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Award className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-inter">{cert}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="services" className="space-y-4 mt-6">
@@ -211,6 +313,13 @@ export const ChefProfile: React.FC = () => {
                         <span className="text-xs font-inter">Up to {service.maxGuests}</span>
                       </div>
                     )}
+
+                    {service.includesGroceries && (
+                      <div className="flex items-center text-muted-foreground">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        <span className="text-xs font-inter">Groceries included</span>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="flex items-center justify-between">
@@ -236,12 +345,26 @@ export const ChefProfile: React.FC = () => {
                 {chef.portfolio.map(item => (
                   <Card key={item.id} className="card-familyhub">
                     <CardContent className="p-4">
-                      <h3 className="font-semibold text-base text-foreground mb-2 font-poppins">
-                        {item.title}
-                      </h3>
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-semibold text-base text-foreground font-poppins">
+                          {item.title}
+                        </h3>
+                        {item.eventType && (
+                          <Badge variant="outline" className="text-xs">
+                            {item.eventType}
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-sm text-muted-foreground mb-3 font-inter">
                         {item.description}
                       </p>
+                      {item.clientTestimonial && (
+                        <div className="bg-gray-50 p-3 rounded-lg mb-3">
+                          <p className="text-sm italic text-muted-foreground font-inter">
+                            "{item.clientTestimonial}"
+                          </p>
+                        </div>
+                      )}
                       <div className="flex flex-wrap gap-2">
                         {item.tags.map((tag, index) => (
                           <Badge key={index} variant="outline" className="text-xs">

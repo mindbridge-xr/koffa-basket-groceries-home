@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useChef } from '@/context/ChefContext';
@@ -7,10 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/PageHeader';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar,
@@ -23,7 +24,10 @@ import {
   Minus,
   ChefHat,
   CreditCard,
-  ArrowRight
+  ArrowRight,
+  ArrowLeft,
+  AlertCircle,
+  Info
 } from 'lucide-react';
 import { Recipe, BookingRequest } from '@/types/chef';
 
@@ -49,14 +53,16 @@ export const ChefBooking: React.FC = () => {
     groceryHandling: 'client-buys' as BookingRequest['groceryHandling'],
     specialRequests: '',
     dietaryRestrictions: [] as string[],
-    groceryBudget: 0
+    groceryBudget: 100
   });
 
   if (!chef) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 flex items-center justify-center pb-20">
         <div className="text-center mobile-spacing">
+          <ChefHat className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-xl font-semibold text-foreground mb-4 font-poppins">Chef Not Found</h2>
+          <p className="text-muted-foreground mb-6 font-inter">The chef you're looking for doesn't exist.</p>
           <Button onClick={() => navigate('/chef-marketplace')} className="btn-primary">
             Back to Marketplace
           </Button>
@@ -66,7 +72,7 @@ export const ChefBooking: React.FC = () => {
     );
   }
 
-  // Mock recipes for demo
+  // Enhanced mock recipes with more variety
   const mockRecipes: Recipe[] = [
     {
       id: 'recipe-1',
@@ -103,10 +109,22 @@ export const ChefBooking: React.FC = () => {
       dietaryTags: ['vegetarian'],
       servings: 6,
       mealType: 'dessert'
+    },
+    {
+      id: 'recipe-4',
+      name: 'Quinoa Buddha Bowl',
+      description: 'Nutritious bowl with quinoa, roasted vegetables, and tahini dressing',
+      ingredients: ['Quinoa', 'Sweet potato', 'Chickpeas', 'Kale', 'Tahini'],
+      cookingTime: 35,
+      difficulty: 'easy',
+      cuisineType: 'Mediterranean',
+      dietaryTags: ['vegan', 'gluten-free'],
+      servings: 2,
+      mealType: 'lunch'
     }
   ];
 
-  const dietaryOptions = ['Vegetarian', 'Vegan', 'Gluten-free', 'Dairy-free', 'Nut-free', 'Keto', 'Low-carb'];
+  const dietaryOptions = ['Vegetarian', 'Vegan', 'Gluten-free', 'Dairy-free', 'Nut-free', 'Keto', 'Low-carb', 'Pescatarian'];
 
   const selectedService = chef.services.find(s => s.id === bookingData.serviceId);
   const basePrice = selectedService?.price || 0;
@@ -141,7 +159,7 @@ export const ChefBooking: React.FC = () => {
       // Show success message
       toast({
         title: "Payment Successful!",
-        description: "Your booking has been confirmed. Check your dashboard for details.",
+        description: "Your booking has been confirmed. The chef will contact you soon.",
       });
 
       // Create the booking
@@ -163,8 +181,8 @@ export const ChefBooking: React.FC = () => {
       
       // Navigate to dashboard after successful booking
       setTimeout(() => {
-        navigate('/chef-dashboard');
-      }, 1000);
+        navigate('/dashboard');
+      }, 1500);
       
     } catch (error) {
       toast({
@@ -177,15 +195,27 @@ export const ChefBooking: React.FC = () => {
     }
   };
 
-  const handleSubmit = () => {
-    if (!selectedService) return;
-    
-    // Show payment confirmation
-    setStep(5);
+  // Enhanced validation
+  const isStep1Valid = bookingData.serviceId;
+  const isStep2Valid = bookingData.date && bookingData.time && bookingData.guestCount > 0;
+  const isStep3Valid = bookingData.selectedRecipes.length > 0;
+  const isStep4Valid = true; // Optional step
+
+  const canContinue = () => {
+    switch (step) {
+      case 1: return isStep1Valid;
+      case 2: return isStep2Valid;
+      case 3: return isStep3Valid;
+      case 4: return isStep4Valid;
+      default: return false;
+    }
   };
 
-  // Check if step 2 is valid
-  const isStep2Valid = bookingData.date && bookingData.time;
+  const getMinDate = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-20">
@@ -195,30 +225,39 @@ export const ChefBooking: React.FC = () => {
         showBack={true}
         onBack={() => step > 1 ? setStep(step - 1) : navigate(`/chef-profile/${chef.id}`)}
       >
-        <div className="text-sm font-medium">Step {Math.min(step, 4)} of 4</div>
+        <div className="text-sm font-medium text-white">Step {Math.min(step, 4)} of 4</div>
       </PageHeader>
 
-      {/* Progress Bar */}
+      {/* Enhanced Progress Bar */}
       <div className="mobile-spacing pt-4">
-        <div className="w-full h-2 bg-gray-200 rounded-full">
+        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
           <div 
-            className="h-full bg-gradient-primary rounded-full transition-all duration-300"
+            className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-500 ease-out"
             style={{ width: `${(Math.min(step, 4) / 4) * 100}%` }}
           />
+        </div>
+        <div className="flex justify-between mt-2 text-xs text-muted-foreground font-inter">
+          <span className={step >= 1 ? 'text-primary font-medium' : ''}>Service</span>
+          <span className={step >= 2 ? 'text-primary font-medium' : ''}>Details</span>
+          <span className={step >= 3 ? 'text-primary font-medium' : ''}>Menu</span>
+          <span className={step >= 4 ? 'text-primary font-medium' : ''}>Payment</span>
         </div>
       </div>
 
       <div className="mobile-spacing py-6 space-y-6">
-        {/* Step 1: Service Selection */}
+        {/* Step 1: Enhanced Service Selection */}
         {step === 1 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-foreground font-poppins">Choose Your Service</h2>
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-foreground font-poppins mb-2">Choose Your Service</h2>
+              <p className="text-muted-foreground font-inter">Select the perfect service for your needs</p>
+            </div>
             
             <div className="space-y-3">
               {chef.services.map(service => (
                 <Card 
                   key={service.id}
-                  className={`card-familyhub cursor-pointer transition-all ${
+                  className={`card-familyhub cursor-pointer transition-all hover:shadow-md ${
                     bookingData.serviceId === service.id ? 'ring-2 ring-primary bg-primary/5' : ''
                   }`}
                   onClick={() => setBookingData(prev => ({ ...prev, serviceId: service.id }))}
@@ -228,9 +267,14 @@ export const ChefBooking: React.FC = () => {
                       <h3 className="font-semibold text-lg text-foreground font-poppins">
                         {service.name}
                       </h3>
-                      <Badge variant="outline" className="capitalize">
-                        {service.category.replace('-', ' ')}
-                      </Badge>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="outline" className="capitalize">
+                          {service.category.replace('-', ' ')}
+                        </Badge>
+                        {bookingData.serviceId === service.id && (
+                          <CheckCircle className="h-5 w-5 text-primary" />
+                        )}
+                      </div>
                     </div>
                     
                     <p className="text-sm text-muted-foreground mb-3 font-inter">
@@ -249,6 +293,12 @@ export const ChefBooking: React.FC = () => {
                             <span className="font-inter">Up to {service.maxGuests}</span>
                           </div>
                         )}
+                        {service.includesGroceries && (
+                          <div className="flex items-center">
+                            <CheckCircle className="h-3 w-3 mr-1 text-green-500" />
+                            <span className="font-inter">Groceries included</span>
+                          </div>
+                        )}
                       </div>
                       <span className="text-xl font-bold text-primary font-poppins">
                         ${service.price}
@@ -262,17 +312,21 @@ export const ChefBooking: React.FC = () => {
             <Button 
               className="w-full btn-primary" 
               onClick={() => setStep(2)}
-              disabled={!bookingData.serviceId}
+              disabled={!canContinue()}
             >
-              Continue
+              <ArrowRight className="h-4 w-4 mr-2" />
+              Continue to Details
             </Button>
           </div>
         )}
 
-        {/* Step 2: Event Details */}
+        {/* Step 2: Enhanced Event Details */}
         {step === 2 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-foreground font-poppins">Event Details</h2>
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-foreground font-poppins mb-2">Event Details</h2>
+              <p className="text-muted-foreground font-inter">Tell us about your event</p>
+            </div>
             
             <Card className="card-familyhub">
               <CardHeader>
@@ -284,17 +338,19 @@ export const ChefBooking: React.FC = () => {
                   onValueChange={(value: BookingRequest['eventType']) => 
                     setBookingData(prev => ({ ...prev, eventType: value }))
                   }
+                  className="grid grid-cols-2 gap-4"
                 >
                   {[
                     { value: 'breakfast', label: 'Breakfast', icon: '🌅' },
                     { value: 'lunch', label: 'Lunch', icon: '🥗' },
                     { value: 'dinner', label: 'Dinner', icon: '🍽️' },
                     { value: 'meal-prep', label: 'Meal Prep', icon: '📦' },
+                    { value: 'cooking-class', label: 'Cooking Class', icon: '👩‍🍳' },
                     { value: 'private-event', label: 'Private Event', icon: '🎉' }
                   ].map(option => (
-                    <div key={option.value} className="flex items-center space-x-2">
+                    <div key={option.value} className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-gray-50">
                       <RadioGroupItem value={option.value} id={option.value} />
-                      <Label htmlFor={option.value} className="flex items-center space-x-2 cursor-pointer">
+                      <Label htmlFor={option.value} className="flex items-center space-x-2 cursor-pointer flex-1">
                         <span>{option.icon}</span>
                         <span className="font-inter">{option.label}</span>
                       </Label>
@@ -304,91 +360,122 @@ export const ChefBooking: React.FC = () => {
               </CardContent>
             </Card>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <Card className="card-familyhub">
                 <CardHeader>
-                  <CardTitle className="font-poppins">Date</CardTitle>
+                  <CardTitle className="font-poppins">Date & Time</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <Input
-                    type="date"
-                    className="input-familyhub"
-                    value={bookingData.date}
-                    min={new Date().toISOString().split('T')[0]}
-                    onChange={(e) => setBookingData(prev => ({ ...prev, date: e.target.value }))}
-                  />
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="date" className="text-sm font-medium font-inter">Date</Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      className="input-familyhub mt-1"
+                      value={bookingData.date}
+                      min={getMinDate()}
+                      onChange={(e) => setBookingData(prev => ({ ...prev, date: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="time" className="text-sm font-medium font-inter">Time</Label>
+                    <Select value={bookingData.time} onValueChange={(value) => setBookingData(prev => ({ ...prev, time: value }))}>
+                      <SelectTrigger className="input-familyhub mt-1">
+                        <SelectValue placeholder="Select time" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => {
+                          const hour = i + 8; // 8 AM to 7 PM
+                          const time24 = `${hour.toString().padStart(2, '0')}:00`;
+                          const time12 = hour > 12 ? `${hour - 12}:00 PM` : `${hour}:00 AM`;
+                          return (
+                            <SelectItem key={time24} value={time24}>
+                              {time12}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </CardContent>
               </Card>
 
               <Card className="card-familyhub">
                 <CardHeader>
-                  <CardTitle className="font-poppins">Time</CardTitle>
+                  <CardTitle className="font-poppins">Number of Guests</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Input
-                    type="time"
-                    className="input-familyhub"
-                    value={bookingData.time}
-                    onChange={(e) => setBookingData(prev => ({ ...prev, time: e.target.value }))}
-                  />
+                  <div className="flex items-center justify-center space-x-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setBookingData(prev => ({ 
+                        ...prev, 
+                        guestCount: Math.max(1, prev.guestCount - 1) 
+                      }))}
+                      disabled={bookingData.guestCount <= 1}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="text-2xl font-bold text-foreground font-poppins w-12 text-center">
+                      {bookingData.guestCount}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setBookingData(prev => ({ 
+                        ...prev, 
+                        guestCount: Math.min(selectedService?.maxGuests || 20, prev.guestCount + 1)
+                      }))}
+                      disabled={selectedService?.maxGuests ? bookingData.guestCount >= selectedService.maxGuests : false}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {selectedService?.maxGuests && (
+                    <p className="text-xs text-muted-foreground text-center mt-2 font-inter">
+                      Maximum {selectedService.maxGuests} guests for this service
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             </div>
 
-            <Card className="card-familyhub">
-              <CardHeader>
-                <CardTitle className="font-poppins">Number of Guests</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-center space-x-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setBookingData(prev => ({ 
-                      ...prev, 
-                      guestCount: Math.max(1, prev.guestCount - 1) 
-                    }))}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="text-2xl font-bold text-foreground font-poppins w-12 text-center">
-                    {bookingData.guestCount}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setBookingData(prev => ({ 
-                      ...prev, 
-                      guestCount: prev.guestCount + 1 
-                    }))}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Button 
-              className="w-full btn-primary" 
-              onClick={() => setStep(3)}
-              disabled={!isStep2Valid}
-            >
-              Continue
-            </Button>
+            <div className="flex space-x-3">
+              <Button 
+                variant="outline"
+                className="flex-1 btn-secondary" 
+                onClick={() => setStep(1)}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+              <Button 
+                className="flex-1 btn-primary" 
+                onClick={() => setStep(3)}
+                disabled={!canContinue()}
+              >
+                <ArrowRight className="h-4 w-4 mr-2" />
+                Continue
+              </Button>
+            </div>
           </div>
         )}
 
-        {/* Step 3: Menu Selection */}
+        {/* Step 3: Enhanced Menu Selection */}
         {step === 3 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-foreground font-poppins">Menu Selection</h2>
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-foreground font-poppins mb-2">Menu Selection</h2>
+              <p className="text-muted-foreground font-inter">Customize your dining experience</p>
+            </div>
             
             <Card className="card-familyhub">
               <CardHeader>
                 <CardTitle className="font-poppins">Dietary Restrictions</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   {dietaryOptions.map(option => (
                     <div key={option} className="flex items-center space-x-2">
                       <Checkbox
@@ -406,14 +493,19 @@ export const ChefBooking: React.FC = () => {
             </Card>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground font-poppins">
-                Choose Your Menu ({bookingData.selectedRecipes.length} selected)
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-foreground font-poppins">
+                  Choose Your Menu
+                </h3>
+                <Badge variant="outline">
+                  {bookingData.selectedRecipes.length} selected
+                </Badge>
+              </div>
               
               {mockRecipes.map(recipe => (
                 <Card 
                   key={recipe.id}
-                  className={`card-familyhub cursor-pointer transition-all ${
+                  className={`card-familyhub cursor-pointer transition-all hover:shadow-md ${
                     bookingData.selectedRecipes.some(r => r.id === recipe.id) 
                       ? 'ring-2 ring-primary bg-primary/5' 
                       : ''
@@ -423,9 +515,14 @@ export const ChefBooking: React.FC = () => {
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h4 className="font-semibold text-base text-foreground font-poppins">
-                          {recipe.name}
-                        </h4>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <h4 className="font-semibold text-base text-foreground font-poppins">
+                            {recipe.name}
+                          </h4>
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {recipe.mealType}
+                          </Badge>
+                        </div>
                         <p className="text-sm text-muted-foreground mb-2 font-inter">
                           {recipe.description}
                         </p>
@@ -433,6 +530,7 @@ export const ChefBooking: React.FC = () => {
                           <span className="font-inter">{recipe.cookingTime} min</span>
                           <span className="font-inter capitalize">{recipe.difficulty}</span>
                           <span className="font-inter">{recipe.servings} servings</span>
+                          <span className="font-inter">{recipe.cuisineType}</span>
                         </div>
                         <div className="flex flex-wrap gap-1">
                           {recipe.dietaryTags.map((tag, index) => (
@@ -451,20 +549,34 @@ export const ChefBooking: React.FC = () => {
               ))}
             </div>
 
-            <Button 
-              className="w-full btn-primary" 
-              onClick={() => setStep(4)}
-              disabled={bookingData.selectedRecipes.length === 0}
-            >
-              Continue
-            </Button>
+            <div className="flex space-x-3">
+              <Button 
+                variant="outline"
+                className="flex-1 btn-secondary" 
+                onClick={() => setStep(2)}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+              <Button 
+                className="flex-1 btn-primary" 
+                onClick={() => setStep(4)}
+                disabled={!canContinue()}
+              >
+                <ArrowRight className="h-4 w-4 mr-2" />
+                Continue
+              </Button>
+            </div>
           </div>
         )}
 
-        {/* Step 4: Grocery & Final Details */}
+        {/* Step 4: Enhanced Grocery & Payment */}
         {step === 4 && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-foreground font-poppins">Grocery & Payment</h2>
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-foreground font-poppins mb-2">Final Details</h2>
+              <p className="text-muted-foreground font-inter">Choose grocery options and add special requests</p>
+            </div>
             
             <Card className="card-familyhub">
               <CardHeader>
@@ -479,36 +591,83 @@ export const ChefBooking: React.FC = () => {
                   onValueChange={(value: BookingRequest['groceryHandling']) => 
                     setBookingData(prev => ({ ...prev, groceryHandling: value }))
                   }
+                  className="space-y-3"
                 >
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="client-buys" id="client-buys" />
-                      <Label htmlFor="client-buys" className="cursor-pointer font-inter">
-                        I'll buy the groceries myself (Free)
+                  <div className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                    <RadioGroupItem value="client-buys" id="client-buys" className="mt-1" />
+                    <div className="flex-1">
+                      <Label htmlFor="client-buys" className="cursor-pointer font-inter font-medium">
+                        I'll buy the groceries myself
                       </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Free - You'll receive a detailed shopping list
+                      </p>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="chef-buys" id="chef-buys" />
-                      <Label htmlFor="chef-buys" className="cursor-pointer font-inter">
-                        Chef handles grocery shopping (+$50)
+                  </div>
+                  <div className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                    <RadioGroupItem value="chef-buys" id="chef-buys" className="mt-1" />
+                    <div className="flex-1">
+                      <Label htmlFor="chef-buys" className="cursor-pointer font-inter font-medium">
+                        Chef handles grocery shopping
                       </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        +$50 - Chef will buy all ingredients with receipts
+                      </p>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="family-shops" id="family-shops" />
-                      <Label htmlFor="family-shops" className="cursor-pointer font-inter">
-                        Assign to family member (Free)
+                  </div>
+                  <div className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                    <RadioGroupItem value="family-shops" id="family-shops" className="mt-1" />
+                    <div className="flex-1">
+                      <Label htmlFor="family-shops" className="cursor-pointer font-inter font-medium">
+                        Assign to family member
                       </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Free - Delegate shopping to a family member
+                      </p>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="delivery" id="delivery" />
-                      <Label htmlFor="delivery" className="cursor-pointer font-inter">
-                        Grocery delivery service (Varies)
+                  </div>
+                  <div className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                    <RadioGroupItem value="delivery" id="delivery" className="mt-1" />
+                    <div className="flex-1">
+                      <Label htmlFor="delivery" className="cursor-pointer font-inter font-medium">
+                        Grocery delivery service
                       </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Price varies - Use your preferred delivery service
+                      </p>
                     </div>
                   </div>
                 </RadioGroup>
               </CardContent>
             </Card>
+
+            {bookingData.groceryHandling === 'chef-buys' && (
+              <Card className="card-familyhub">
+                <CardHeader>
+                  <CardTitle className="font-poppins">Grocery Budget</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <Label htmlFor="budget" className="text-sm font-medium font-inter">
+                      Estimated budget: ${bookingData.groceryBudget}
+                    </Label>
+                    <input
+                      type="range"
+                      id="budget"
+                      min="50"
+                      max="300"
+                      value={bookingData.groceryBudget}
+                      onChange={(e) => setBookingData(prev => ({ ...prev, groceryBudget: parseInt(e.target.value) }))}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground font-inter">
+                      <span>$50</span>
+                      <span>$300</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <Card className="card-familyhub">
               <CardHeader>
@@ -516,7 +675,7 @@ export const ChefBooking: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <textarea
-                  placeholder="Any special requests or notes for the chef..."
+                  placeholder="Any special requests, allergies, or notes for the chef..."
                   className="input-familyhub min-h-20 resize-none w-full"
                   value={bookingData.specialRequests}
                   onChange={(e) => setBookingData(prev => ({ ...prev, specialRequests: e.target.value }))}
@@ -524,8 +683,8 @@ export const ChefBooking: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Price Summary */}
-            <Card className="card-familyhub">
+            {/* Enhanced Price Summary */}
+            <Card className="card-familyhub border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center font-poppins">
                   <DollarSign className="h-5 w-5 mr-2" />
@@ -534,7 +693,7 @@ export const ChefBooking: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="font-inter">Service Fee</span>
+                  <span className="font-inter">{selectedService?.name}</span>
                   <span className="font-poppins">${basePrice}</span>
                 </div>
                 {groceryFee > 0 && (
@@ -547,20 +706,38 @@ export const ChefBooking: React.FC = () => {
                   <span className="font-semibold font-poppins">Total</span>
                   <span className="text-xl font-bold text-primary font-poppins">${totalPrice}</span>
                 </div>
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <Info className="h-4 w-4 text-blue-500 mt-0.5" />
+                    <p className="text-xs text-blue-700 font-inter">
+                      Payment will be processed securely. You can cancel up to 48 hours before your booking.
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
-            <Button 
-              className="w-full btn-primary" 
-              onClick={handleSubmit}
-            >
-              <ArrowRight className="h-4 w-4 mr-2" />
-              Proceed to Payment
-            </Button>
+            <div className="flex space-x-3">
+              <Button 
+                variant="outline"
+                className="flex-1 btn-secondary" 
+                onClick={() => setStep(3)}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+              <Button 
+                className="flex-1 btn-primary" 
+                onClick={() => setStep(5)}
+              >
+                <CreditCard className="h-4 w-4 mr-2" />
+                Proceed to Payment
+              </Button>
+            </div>
           </div>
         )}
 
-        {/* Step 5: Payment Confirmation */}
+        {/* Step 5: Enhanced Payment Confirmation */}
         {step === 5 && (
           <div className="space-y-6">
             <div className="text-center">
@@ -569,7 +746,7 @@ export const ChefBooking: React.FC = () => {
               <p className="text-muted-foreground font-inter">Review your booking details before payment</p>
             </div>
 
-            {/* Booking Summary */}
+            {/* Enhanced Booking Summary */}
             <Card className="card-familyhub">
               <CardHeader>
                 <CardTitle className="font-poppins">Booking Summary</CardTitle>
@@ -584,6 +761,10 @@ export const ChefBooking: React.FC = () => {
                   <span className="font-poppins font-medium">{selectedService?.name}</span>
                 </div>
                 <div className="flex justify-between">
+                  <span className="font-inter">Event Type</span>
+                  <span className="font-poppins font-medium capitalize">{bookingData.eventType.replace('-', ' ')}</span>
+                </div>
+                <div className="flex justify-between">
                   <span className="font-inter">Date & Time</span>
                   <span className="font-poppins font-medium">{bookingData.date} at {bookingData.time}</span>
                 </div>
@@ -592,8 +773,12 @@ export const ChefBooking: React.FC = () => {
                   <span className="font-poppins font-medium">{bookingData.guestCount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-inter">Selected Recipes</span>
+                  <span className="font-inter">Recipes</span>
                   <span className="font-poppins font-medium">{bookingData.selectedRecipes.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-inter">Grocery Handling</span>
+                  <span className="font-poppins font-medium capitalize">{bookingData.groceryHandling.replace('-', ' ')}</span>
                 </div>
                 <div className="border-t pt-3 flex justify-between">
                   <span className="font-semibold font-poppins">Total Amount</span>
@@ -627,6 +812,7 @@ export const ChefBooking: React.FC = () => {
                 onClick={() => setStep(4)}
                 disabled={isProcessing}
               >
+                <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Review
               </Button>
             </div>
