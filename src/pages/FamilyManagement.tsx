@@ -83,20 +83,21 @@ export const FamilyManagement: React.FC = () => {
       >
         <Button 
           onClick={() => setShowInviteDialog(true)}
-          className="btn-primary"
+          className="btn-primary min-h-[44px] px-3 sm:px-4"
         >
           <Plus className="h-4 w-4 mr-1" />
-          Invite
+          <span className="hidden xs:inline">Invite</span>
+          <span className="xs:hidden">+</span>
         </Button>
       </PageHeader>
 
-      <div className="mobile-spacing space-y-6">
+      <div className="mobile-spacing space-y-4 sm:space-y-6">
         {/* Family Stats */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 xs:grid-cols-3 gap-3 sm:gap-4">
           {familyStats.map((stat, index) => (
-            <div key={index} className="card-familyhub p-4 text-center">
-              <stat.icon className="h-6 w-6 mx-auto mb-2 text-primary" />
-              <div className="text-2xl font-bold text-foreground font-poppins">{stat.value}</div>
+            <div key={index} className="card-familyhub p-3 sm:p-4 text-center">
+              <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 text-primary" />
+              <div className="text-xl sm:text-2xl font-bold text-foreground font-poppins">{stat.value}</div>
               <div className="text-xs text-muted-foreground font-inter">{stat.label}</div>
             </div>
           ))}
@@ -105,32 +106,32 @@ export const FamilyManagement: React.FC = () => {
         {/* Current User */}
         <Card className="card-familyhub">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-poppins flex items-center">
-              <Crown className="h-5 w-5 mr-2 text-primary" />
+            <CardTitle className="text-base sm:text-lg font-poppins flex items-center">
+              <Crown className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
               Family Admin
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Avatar className="h-12 w-12 border-2 border-primary/20">
+              <div className="flex items-center space-x-3 min-w-0 flex-1">
+                <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-primary/20 flex-shrink-0">
                   <AvatarImage src={user?.avatar} alt={user?.name} />
                   <AvatarFallback className="bg-primary text-white font-bold">
                     {user?.name?.[0]}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <h3 className="font-semibold text-foreground font-poppins">{user?.name}</h3>
-                    <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <h3 className="font-semibold text-foreground font-poppins text-sm sm:text-base truncate">{user?.name}</h3>
+                    <Badge className="bg-yellow-100 text-yellow-800 text-xs flex-shrink-0">
                       Admin
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground font-inter">{user?.email}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground font-inter truncate">{user?.email}</p>
                   <p className="text-xs text-muted-foreground font-inter">You • Family organizer</p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="btn-secondary">
+              <Button variant="outline" size="sm" className="btn-secondary flex-shrink-0 min-h-[44px] min-w-[44px]">
                 <Settings className="h-4 w-4" />
               </Button>
             </div>
@@ -140,54 +141,56 @@ export const FamilyManagement: React.FC = () => {
         {/* Family Members */}
         <Card className="card-familyhub">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-poppins flex items-center justify-between">
+            <CardTitle className="text-base sm:text-lg font-poppins flex items-center justify-between">
               <span className="flex items-center">
-                <Users className="h-5 w-5 mr-2 text-primary" />
-                Family Members ({familyMembers.length})
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-primary" />
+                <span className="truncate">Family Members ({familyMembers.length})</span>
               </span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4">
             {familyMembers.length > 0 ? (
               familyMembers.map((member, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-10 w-10">
+                <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors min-h-[60px]">
+                  <div className="flex items-center space-x-3 min-w-0 flex-1">
+                    <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
                       <AvatarImage src={member.avatar} alt={member.name} />
-                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
                         {member.name[0]}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <h4 className="font-medium text-foreground font-poppins">{member.name}</h4>
-                        {getRoleIcon(member.role)}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <h4 className="font-medium text-foreground font-poppins text-sm truncate">{member.name}</h4>
+                        <div className="flex-shrink-0">
+                          {getRoleIcon(member.role)}
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <p className="text-sm text-muted-foreground font-inter">{member.email}</p>
-                        <Badge className={`text-xs ${getRoleBadgeColor(member.role)}`}>
+                      <div className="flex flex-col xs:flex-row xs:items-center xs:space-x-2 space-y-1 xs:space-y-0">
+                        <p className="text-xs sm:text-sm text-muted-foreground font-inter truncate">{member.email}</p>
+                        <Badge className={`text-xs ${getRoleBadgeColor(member.role)} flex-shrink-0 w-fit`}>
                           {member.role}
                         </Badge>
                       </div>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="flex-shrink-0 min-h-[44px] min-w-[44px]">
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </div>
               ))
             ) : (
-              <div className="text-center py-8">
-                <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold text-foreground mb-2 font-poppins">
+              <div className="text-center py-6 sm:py-8">
+                <Users className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2 font-poppins">
                   No family members yet
                 </h3>
-                <p className="text-sm text-muted-foreground mb-4 font-inter">
+                <p className="text-sm text-muted-foreground mb-4 font-inter px-4">
                   Start building your family circle by inviting members
                 </p>
                 <Button 
                   onClick={() => setShowInviteDialog(true)}
-                  className="btn-primary"
+                  className="btn-primary min-h-[44px]"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Invite First Member
@@ -200,29 +203,29 @@ export const FamilyManagement: React.FC = () => {
         {/* Family Settings */}
         <Card className="card-familyhub">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-poppins">Family Settings</CardTitle>
+            <CardTitle className="text-base sm:text-lg font-poppins">Family Settings</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">
-              <div className="flex items-center space-x-3">
-                <Settings className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <h4 className="font-medium text-foreground font-poppins">Family Preferences</h4>
-                  <p className="text-sm text-muted-foreground font-inter">Manage family-wide settings</p>
+          <CardContent className="space-y-2 sm:space-y-3">
+            <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors text-left min-h-[60px]">
+              <div className="flex items-center space-x-3 min-w-0 flex-1">
+                <Settings className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-medium text-foreground font-poppins text-sm">Family Preferences</h4>
+                  <p className="text-xs sm:text-sm text-muted-foreground font-inter">Manage family-wide settings</p>
                 </div>
               </div>
-              <div className="text-muted-foreground">›</div>
+              <div className="text-muted-foreground text-lg">›</div>
             </button>
             
-            <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors text-left">
-              <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <h4 className="font-medium text-foreground font-poppins">Notifications</h4>
-                  <p className="text-sm text-muted-foreground font-inter">Configure family notifications</p>
+            <button className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors text-left min-h-[60px]">
+              <div className="flex items-center space-x-3 min-w-0 flex-1">
+                <Mail className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-medium text-foreground font-poppins text-sm">Notifications</h4>
+                  <p className="text-xs sm:text-sm text-muted-foreground font-inter">Configure family notifications</p>
                 </div>
               </div>
-              <div className="text-muted-foreground">›</div>
+              <div className="text-muted-foreground text-lg">›</div>
             </button>
           </CardContent>
         </Card>
@@ -232,9 +235,9 @@ export const FamilyManagement: React.FC = () => {
 
       {/* Invite Member Dialog */}
       <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
-        <DialogContent className="card-familyhub mx-4">
+        <DialogContent className="card-familyhub">
           <DialogHeader className="text-left">
-            <DialogTitle className="text-xl font-semibold font-poppins">Invite Family Member</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl font-semibold font-poppins">Invite Family Member</DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
@@ -246,7 +249,7 @@ export const FamilyManagement: React.FC = () => {
                 placeholder="Enter their full name"
                 value={inviteName}
                 onChange={(e) => setInviteName(e.target.value)}
-                className="input-familyhub"
+                className="input-familyhub min-h-[44px]"
               />
             </div>
             
@@ -260,7 +263,7 @@ export const FamilyManagement: React.FC = () => {
                 placeholder="their@email.com"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
-                className="input-familyhub"
+                className="input-familyhub min-h-[44px]"
               />
             </div>
             
@@ -269,7 +272,7 @@ export const FamilyManagement: React.FC = () => {
                 Family Role
               </label>
               <Select value={inviteRole} onValueChange={setInviteRole}>
-                <SelectTrigger className="input-familyhub">
+                <SelectTrigger className="input-familyhub min-h-[44px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -283,17 +286,17 @@ export const FamilyManagement: React.FC = () => {
               </p>
             </div>
           </div>
-          <DialogFooter className="space-x-3">
+          <DialogFooter className="gap-3">
             <Button 
               variant="outline" 
               onClick={() => setShowInviteDialog(false)}
-              className="btn-secondary flex-1"
+              className="btn-secondary flex-1 min-h-[44px]"
             >
               Cancel
             </Button>
             <Button 
               onClick={handleInviteMember}
-              className="btn-primary flex-1"
+              className="btn-primary flex-1 min-h-[44px]"
             >
               Send Invitation
             </Button>
