@@ -20,6 +20,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({
         services={chefProfile.services}
         onUpdateService={onUpdateService}
         onToggleService={onToggleService}
+        chefProfile={chefProfile}
       />
       <RecentActivityCard />
     </div>
