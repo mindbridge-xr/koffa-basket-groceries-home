@@ -21,6 +21,7 @@ import { AppProvider } from '@/context/AppContext';
 import { TaskProvider } from '@/context/TaskContext';
 import { ChefProvider } from '@/context/ChefContext';
 import { ActivityProvider } from '@/context/ActivityContext';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const queryClient = new QueryClient();
 
@@ -28,31 +29,33 @@ function App() {
   return (
     <Router>
       <QueryClientProvider client={queryClient}>
-        <Toaster />
-        <ActivityProvider>
+        <ErrorBoundary>
+          <Toaster />
           <AppProvider>
-            <TaskProvider>
-              <ChefProvider>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/lists" element={<Lists />} />
-                  <Route path="/list/:id" element={<ListDetail />} />
-                  <Route path="/shopping" element={<Shopping />} />
-                  <Route path="/tasks" element={<Tasks />} />
-                  <Route path="/task/:id" element={<TaskDetail />} />
-                  <Route path="/chef-marketplace" element={<ChefMarketplace />} />
-                  <Route path="/chef-dashboard" element={<ChefDashboard />} />
-                  <Route path="/chef-onboarding" element={<ChefOnboarding />} />
-                  <Route path="/chef/:chefId" element={<ChefProfile />} />
-                  <Route path="/family-management" element={<FamilyManagement />} />
-                  <Route path="/schedule" element={<Schedule />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/profile" element={<Profile />} />
-                </Routes>
-              </ChefProvider>
-            </TaskProvider>
+            <ActivityProvider>
+              <TaskProvider>
+                <ChefProvider>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/lists" element={<Lists />} />
+                    <Route path="/list/:id" element={<ListDetail />} />
+                    <Route path="/shopping" element={<Shopping />} />
+                    <Route path="/tasks" element={<Tasks />} />
+                    <Route path="/task/:id" element={<TaskDetail />} />
+                    <Route path="/chef-marketplace" element={<ChefMarketplace />} />
+                    <Route path="/chef-dashboard" element={<ChefDashboard />} />
+                    <Route path="/chef-onboarding" element={<ChefOnboarding />} />
+                    <Route path="/chef/:chefId" element={<ChefProfile />} />
+                    <Route path="/family-management" element={<FamilyManagement />} />
+                    <Route path="/schedule" element={<Schedule />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/profile" element={<Profile />} />
+                  </Routes>
+                </ChefProvider>
+              </TaskProvider>
+            </ActivityProvider>
           </AppProvider>
-        </ActivityProvider>
+        </ErrorBoundary>
       </QueryClientProvider>
     </Router>
   );

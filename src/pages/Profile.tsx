@@ -14,9 +14,18 @@ import { useApp } from '@/context/AppContext';
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Safe context usage with error handling
+  let user, contextError;
+  try {
+    const context = useApp();
+    user = context.user;
+  } catch (error) {
+    console.error('Context error:', error);
+    contextError = error;
+  }
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -25,6 +34,21 @@ const Profile: React.FC = () => {
   const handleEditSuccess = () => {
     setIsEditing(false);
   };
+
+  // Handle context errors
+  if (contextError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading Profile...</h2>
+          <p className="text-gray-600 mb-4">Please wait while we load your profile.</p>
+          <Button onClick={() => navigate('/')} variant="outline">
+            Go Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (

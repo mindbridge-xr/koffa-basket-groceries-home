@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState } from 'react';
 import { GroceryList, GroceryItem, Category } from '@/types/grocery';
 import { User, UserStats, FamilyMember } from '@/types/user';
@@ -35,6 +34,8 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  console.log('AppProvider rendering...');
+  
   const [isAuthenticated, setIsAuthenticated] = useState(true); // Auto-authenticate for demo
   const [lists, setLists] = useState<GroceryList[]>(mockLists);
   const [currentList, setCurrentListState] = useState<GroceryList | null>(null);
@@ -188,33 +189,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
+  const value = {
+    isAuthenticated,
+    setIsAuthenticated,
+    lists,
+    currentList,
+    setCurrentList,
+    familyMembers,
+    shareList,
+    unshareList,
+    categories,
+    createList,
+    deleteList,
+    updateList,
+    addItemToList,
+    removeItemFromList,
+    toggleItemChecked,
+    updateItem,
+    getFilteredItems,
+    user,
+    login,
+    register,
+    logout,
+    updateUserProfile,
+    getUserStats,
+    uploadAvatar
+  };
+
+  console.log('AppProvider value:', { user: user?.name, isAuthenticated });
+
   return (
-    <AppContext.Provider value={{
-      isAuthenticated,
-      setIsAuthenticated,
-      lists,
-      currentList,
-      setCurrentList,
-      familyMembers,
-      shareList,
-      unshareList,
-      categories,
-      createList,
-      deleteList,
-      updateList,
-      addItemToList,
-      removeItemFromList,
-      toggleItemChecked,
-      updateItem,
-      getFilteredItems,
-      user,
-      login,
-      register,
-      logout,
-      updateUserProfile,
-      getUserStats,
-      uploadAvatar
-    }}>
+    <AppContext.Provider value={value}>
       {children}
     </AppContext.Provider>
   );
@@ -223,6 +228,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 export const useApp = () => {
   const context = useContext(AppContext);
   if (context === undefined) {
+    console.error('useApp must be used within an AppProvider');
     throw new Error('useApp must be used within an AppProvider');
   }
   return context;
