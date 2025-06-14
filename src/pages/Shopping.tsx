@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useApp } from '@/context/AppContext';
 import { BottomNav } from '@/components/BottomNav';
@@ -15,7 +16,9 @@ import {
   Timer,
   Target,
   TrendingUp,
-  Zap
+  Zap,
+  ShoppingCart,
+  Clock
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { CustomGroceryListDialog } from '@/components/CustomGroceryListDialog';

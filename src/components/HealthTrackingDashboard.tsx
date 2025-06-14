@@ -13,6 +13,7 @@ import {
   Target
 } from 'lucide-react';
 import { HealthMetrics } from '@/types/smartShopping';
+import { cn } from '@/lib/utils';
 
 interface HealthTrackingDashboardProps {
   metrics: HealthMetrics;
