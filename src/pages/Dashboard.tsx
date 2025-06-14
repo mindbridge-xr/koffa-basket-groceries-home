@@ -57,12 +57,12 @@ export const Dashboard: React.FC = () => {
       onClick: () => setShowNewListDialog(true)
     },
     {
-      title: "Book Chef",
-      description: "Professional cooking",
+      title: "Smart Cooking",
+      description: "AI recipes & nutrition",
       icon: ChefHat,
-      color: "text-primary",
+      color: "text-orange-500",
       bgColor: "bg-orange-50",
-      onClick: () => navigate('/chef-marketplace')
+      onClick: () => navigate('/smart-cooking')
     },
     {
       title: "Schedule",

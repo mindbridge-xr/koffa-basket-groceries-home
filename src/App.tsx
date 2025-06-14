@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -24,6 +23,7 @@ import { TaskProvider } from '@/context/TaskContext';
 import { ChefProvider } from '@/context/ChefContext';
 import { ActivityProvider } from '@/context/ActivityContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import SmartCooking from '@/pages/SmartCooking';
 
 const queryClient = new QueryClient();
 
@@ -44,6 +44,7 @@ function App() {
                     <Route path="/shopping" element={<Shopping />} />
                     <Route path="/tasks" element={<Tasks />} />
                     <Route path="/task/:id" element={<TaskDetail />} />
+                    <Route path="/smart-cooking" element={<SmartCooking />} />
                     <Route path="/chef-welcome" element={<ChefWelcome />} />
                     <Route path="/chef-marketplace" element={<ChefMarketplace />} />
                     <Route path="/chef-dashboard" element={<ChefDashboard />} />
