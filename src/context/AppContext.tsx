@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState } from 'react';
-import { GroceryList, GroceryItem, FamilyMember, Category } from '@/types/grocery';
-import { User, UserStats } from '@/types/user';
+import { GroceryList, GroceryItem, Category } from '@/types/grocery';
+import { User, UserStats, FamilyMember } from '@/types/user';
 import { mockLists, mockFamilyMembers, mockCategories, mockUser } from '@/data/mockData';
 import { useUserStats } from '@/hooks/useUserStats';
 

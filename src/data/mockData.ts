@@ -1,6 +1,5 @@
-
-import { GroceryList, FamilyMember, Category } from '@/types/grocery';
-import { User, Achievement } from '@/types/user';
+import { GroceryList, Category } from '@/types/grocery';
+import { User, Achievement, FamilyMember } from '@/types/user';
 
 export const mockLists: GroceryList[] = [
   {
