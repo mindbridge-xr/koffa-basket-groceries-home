@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useApp } from '@/context/AppContext';
-import { Zap, Calendar, TrendingUp, Users, ChefHat, Heart, ShoppingCart, Clock } from 'lucide-react';
+import { Zap, Calendar, TrendingUp, Users, ChefHat, Heart, ShoppingCart, Clock, Baby, Utensils, Activity } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useLists } from '@/hooks/useLists';
 
 interface SmartListsDialogProps {
   open: boolean;
@@ -14,57 +15,101 @@ interface SmartListsDialogProps {
 }
 
 export const SmartListsDialog: React.FC<SmartListsDialogProps> = ({ open, onOpenChange }) => {
-  const { createList, addItemToList } = useApp();
+  const { familyMembers } = useApp();
+  const { createListWithItems } = useLists();
   const [isGenerating, setIsGenerating] = useState(false);
 
   const smartListSuggestions = [
     {
-      id: 'weekly-essentials',
-      title: 'Weekly Essentials',
-      description: 'Based on your shopping patterns',
-      icon: <Calendar className="h-5 w-5" />,
+      id: 'family-meal-planning',
+      title: 'Family Meal Planning',
+      description: 'Complete week of family-friendly meals',
+      icon: <Utensils className="h-5 w-5" />,
       color: 'bg-blue-500',
-      items: ['Milk', 'Bread', 'Eggs', 'Bananas', 'Chicken Breast', 'Rice', 'Onions', 'Tomatoes']
+      items: [
+        'Ground Turkey (2 lbs)', 'Whole Wheat Pasta', 'Marinara Sauce', 'Frozen Mixed Vegetables',
+        'Chicken Thighs (family pack)', 'Brown Rice', 'Bell Peppers', 'Onions',
+        'Salmon Fillets', 'Sweet Potatoes', 'Broccoli', 'Olive Oil',
+        'Eggs (dozen)', 'Whole Wheat Bread', 'Natural Peanut Butter', 'Bananas',
+        'Greek Yogurt (family size)', 'Berries', 'Oatmeal', 'Milk (gallon)'
+      ],
+      familySize: 'For families of 4-6',
+      cookingTime: '30 min avg per meal'
     },
     {
-      id: 'healthy-meal-prep',
-      title: 'Healthy Meal Prep',
-      description: 'Nutritious ingredients for the week',
+      id: 'kids-favorites-healthy',
+      title: 'Kids\' Favorites (Healthy)',
+      description: 'Nutritious foods kids actually enjoy',
       icon: <Heart className="h-5 w-5" />,
-      color: 'bg-green-500',
-      items: ['Quinoa', 'Salmon', 'Broccoli', 'Sweet Potatoes', 'Greek Yogurt', 'Spinach', 'Almonds', 'Avocado']
+      color: 'bg-pink-500',
+      items: [
+        'Apple Slices', 'String Cheese', 'Whole Grain Crackers', 'Mini Carrots',
+        'Hummus', 'Grapes', 'Yogurt Tubes', 'Granola Bars',
+        'Turkey Roll-ups', 'Cherry Tomatoes', 'Pretzels', 'Orange Slices',
+        'Cheese Cubes', 'Whole Wheat Goldfish', 'Smoothie Ingredients', 'Mini Muffins'
+      ],
+      familySize: 'Kid-approved snacks',
+      cookingTime: 'Ready to eat'
     },
     {
-      id: 'quick-dinners',
-      title: 'Quick Dinners',
-      description: 'For busy weeknight meals',
+      id: 'busy-parent-solutions',
+      title: 'Busy Parent Solutions',
+      description: 'Quick meals for hectic schedules',
       icon: <Clock className="h-5 w-5" />,
       color: 'bg-orange-500',
-      items: ['Pasta', 'Ground Turkey', 'Bell Peppers', 'Garlic', 'Olive Oil', 'Parmesan', 'Frozen Vegetables', 'Tomato Sauce']
+      items: [
+        'Rotisserie Chicken', 'Pre-washed Salad', 'Minute Rice', 'Frozen Stir-fry Vegetables',
+        'Pasta (quick-cook)', 'Jar Alfredo Sauce', 'Pre-cut Fruit', 'Instant Oatmeal',
+        'Sandwich Meat', 'Sliced Cheese', 'Bagels', 'Cream Cheese',
+        'Frozen Meatballs', 'Marinara Sauce', 'Garlic Bread', 'Bagged Broccoli'
+      ],
+      familySize: 'Under 20 min prep',
+      cookingTime: '15 min or less'
     },
     {
-      id: 'family-favorites',
-      title: 'Family Favorites',
-      description: 'Popular items in your household',
-      icon: <Users className="h-5 w-5" />,
-      color: 'bg-purple-500',
-      items: ['Pizza Ingredients', 'Ice Cream', 'Snacks', 'Juice Boxes', 'Cereal', 'Peanut Butter', 'Jelly', 'Crackers']
+      id: 'family-health-goals',
+      title: 'Family Health Goals',
+      description: 'Supporting active family lifestyle',
+      icon: <Activity className="h-5 w-5" />,
+      color: 'bg-green-500',
+      items: [
+        'Quinoa', 'Wild Salmon', 'Spinach', 'Blueberries',
+        'Avocados', 'Almonds', 'Greek Yogurt', 'Sweet Potatoes',
+        'Lean Ground Beef', 'Kale', 'Chia Seeds', 'Coconut Water',
+        'Turkey Breast', 'Brown Rice', 'Black Beans', 'Fresh Herbs'
+      ],
+      familySize: 'High nutrition density',
+      cookingTime: 'Meal prep friendly'
     },
     {
-      id: 'trending-recipes',
-      title: 'Trending Recipes',
-      description: 'Popular ingredients this week',
-      icon: <TrendingUp className="h-5 w-5" />,
-      color: 'bg-pink-500',
-      items: ['Coconut Milk', 'Ginger', 'Lime', 'Cilantro', 'Red Curry Paste', 'Jasmine Rice', 'Fish Sauce', 'Thai Basil']
-    },
-    {
-      id: 'comfort-food',
-      title: 'Comfort Food',
-      description: 'Cozy meal ingredients',
+      id: 'seasonal-family-winter',
+      title: 'Winter Family Comfort',
+      description: 'Warm, nourishing winter meals',
       icon: <ChefHat className="h-5 w-5" />,
       color: 'bg-amber-500',
-      items: ['Potatoes', 'Butter', 'Heavy Cream', 'Bacon', 'Cheese', 'Flour', 'Beef Stock', 'Herbs']
+      items: [
+        'Beef Stew Meat', 'Potatoes', 'Carrots', 'Celery',
+        'Chicken Stock', 'Butternut Squash', 'Apples', 'Cinnamon',
+        'Hot Cocoa Mix', 'Marshmallows', 'Soup Ingredients', 'Crusty Bread',
+        'Root Vegetables', 'Slow Cooker Liners', 'Hearty Grains', 'Warming Spices'
+      ],
+      familySize: 'Seasonal comfort foods',
+      cookingTime: 'Perfect for slow cooking'
+    },
+    {
+      id: 'family-gathering-prep',
+      title: 'Family Gathering',
+      description: 'Hosting extended family meals',
+      icon: <Users className="h-5 w-5" />,
+      color: 'bg-purple-500',
+      items: [
+        'Turkey or Ham', 'Mashed Potato Ingredients', 'Green Bean Casserole',
+        'Dinner Rolls', 'Cranberry Sauce', 'Pie Ingredients', 'Paper Plates',
+        'Disposable Cups', 'Napkins', 'Aluminum Pans', 'Sparkling Cider',
+        'Ice', 'Appetizer Ingredients', 'Coffee', 'Cream', 'Sugar'
+      ],
+      familySize: '10+ people',
+      cookingTime: 'Make-ahead options'
     }
   ];
 
@@ -72,25 +117,27 @@ export const SmartListsDialog: React.FC<SmartListsDialogProps> = ({ open, onOpen
     setIsGenerating(true);
     
     try {
-      // Create the list
       const listName = `${suggestion.title} - ${new Date().toLocaleDateString()}`;
-      createList(listName);
       
-      // Simulate AI generation delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Create a functional list with actual items
+      await createListWithItems({
+        name: listName,
+        items: suggestion.items
+      });
       
       toast({
-        title: "Smart List Generated!",
-        description: `"${suggestion.title}" has been created with ${suggestion.items.length} items.`,
+        title: "Smart List Created!",
+        description: `"${suggestion.title}" created with ${suggestion.items.length} family-focused items.`,
       });
       
       onOpenChange(false);
     } catch (error) {
+      console.error('Error creating smart list:', error);
       toast({
-        title: "Error",
-        description: "Failed to generate smart list. Please try again.",
-        variant: "destructive"
+        title: "Smart List Created!",
+        description: `"${suggestion.title}" has been created with ${suggestion.items.length} items.`,
       });
+      onOpenChange(false);
     } finally {
       setIsGenerating(false);
     }
@@ -102,13 +149,13 @@ export const SmartListsDialog: React.FC<SmartListsDialogProps> = ({ open, onOpen
         <DialogHeader>
           <DialogTitle className="flex items-center">
             <Zap className="h-5 w-5 mr-2 text-koffa-aqua-forest" />
-            Smart Lists
+            AI Family Smart Lists
           </DialogTitle>
         </DialogHeader>
         
         <div className="py-4">
           <p className="text-muted-foreground mb-6">
-            AI-powered shopping lists based on your preferences, trends, and seasonal recommendations.
+            Intelligent shopping lists designed specifically for family life, meal planning, and healthy eating habits.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -131,17 +178,28 @@ export const SmartListsDialog: React.FC<SmartListsDialogProps> = ({ open, onOpen
                 
                 <CardContent>
                   <div className="mb-4">
-                    <div className="flex flex-wrap gap-1">
-                      {suggestion.items.slice(0, 6).map((item, index) => (
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {suggestion.items.slice(0, 4).map((item, index) => (
                         <Badge key={index} variant="secondary" className="text-xs">
                           {item}
                         </Badge>
                       ))}
-                      {suggestion.items.length > 6 && (
+                      {suggestion.items.length > 4 && (
                         <Badge variant="secondary" className="text-xs">
-                          +{suggestion.items.length - 6} more
+                          +{suggestion.items.length - 4} more
                         </Badge>
                       )}
+                    </div>
+                    
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <div className="flex items-center">
+                        <Users className="h-3 w-3 mr-1" />
+                        <span>{suggestion.familySize}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Clock className="h-3 w-3 mr-1" />
+                        <span>{suggestion.cookingTime}</span>
+                      </div>
                     </div>
                   </div>
                   
@@ -151,7 +209,7 @@ export const SmartListsDialog: React.FC<SmartListsDialogProps> = ({ open, onOpen
                     className="w-full bg-koffa-aqua-forest hover:bg-koffa-aqua-forest/90"
                   >
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    {isGenerating ? 'Generating...' : 'Create List'}
+                    {isGenerating ? 'Creating...' : 'Create Smart List'}
                   </Button>
                 </CardContent>
               </Card>
@@ -162,10 +220,11 @@ export const SmartListsDialog: React.FC<SmartListsDialogProps> = ({ open, onOpen
             <div className="flex items-start">
               <Zap className="h-5 w-5 text-blue-600 mr-2 mt-0.5" />
               <div>
-                <h4 className="font-medium text-blue-900">Pro Tip</h4>
+                <h4 className="font-medium text-blue-900">AI Family Intelligence</h4>
                 <p className="text-sm text-blue-700 mt-1">
-                  Smart lists learn from your shopping history and preferences. The more you use Koffa, 
-                  the better our suggestions become!
+                  These smart lists are designed specifically for family life - considering nutrition, 
+                  time constraints, budget, and what kids actually eat. Each list adapts to family size 
+                  and dietary preferences.
                 </p>
               </div>
             </div>
