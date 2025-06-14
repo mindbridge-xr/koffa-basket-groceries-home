@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Chef, ChefService, Booking, Earnings, Recipe, ChefReview } from '@/types/chef';
 
 interface ChefContextType {
@@ -298,9 +297,49 @@ export const ChefProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [earnings] = useState<Earnings | null>(mockEarnings);
 
+  // Initialize chef profile on component mount
+  useEffect(() => {
+    const storedIsChef = localStorage.getItem('isChef');
+    const storedChefProfile = localStorage.getItem('chefProfile');
+    
+    if (storedIsChef === 'true' && storedChefProfile) {
+      try {
+        const profile = JSON.parse(storedChefProfile);
+        setChefProfile(profile);
+        setIsChef(true);
+      } catch (error) {
+        console.error('Error parsing stored chef profile:', error);
+        // If there's an error parsing, initialize with demo profile
+        initializeDemoProfile();
+      }
+    } else {
+      // For demo purposes, automatically initialize with the first mock chef profile
+      initializeDemoProfile();
+    }
+  }, []);
+
+  const initializeDemoProfile = () => {
+    const demoProfile = mockChefs[0]; // Use Maria Rodriguez as demo profile
+    setChefProfile(demoProfile);
+    setIsChef(true);
+    localStorage.setItem('isChef', 'true');
+    localStorage.setItem('chefProfile', JSON.stringify(demoProfile));
+  };
+
   const updateChefProfile = (profile: Partial<Chef>) => {
     if (chefProfile) {
-      setChefProfile({ ...chefProfile, ...profile });
+      const updatedProfile = { ...chefProfile, ...profile };
+      setChefProfile(updatedProfile);
+      localStorage.setItem('chefProfile', JSON.stringify(updatedProfile));
+    }
+  };
+
+  const handleSetIsChef = (value: boolean) => {
+    setIsChef(value);
+    localStorage.setItem('isChef', value.toString());
+    if (!value) {
+      setChefProfile(null);
+      localStorage.removeItem('chefProfile');
     }
   };
 
@@ -355,13 +394,15 @@ export const ChefProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     setChefProfile(newChefProfile);
     setIsChef(true);
+    localStorage.setItem('isChef', 'true');
+    localStorage.setItem('chefProfile', JSON.stringify(newChefProfile));
   };
 
   return (
     <ChefContext.Provider value={{
       isChef,
       chefProfile,
-      setIsChef,
+      setIsChef: handleSetIsChef,
       updateChefProfile,
       chefs,
       bookings,
