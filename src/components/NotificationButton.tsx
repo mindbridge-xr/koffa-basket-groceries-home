@@ -10,6 +10,17 @@ import { useActivity } from '@/context/ActivityContext';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 
+interface NotificationItem {
+  id: string;
+  title: string;
+  content: string;
+  timestamp: Date;
+  read: boolean;
+  icon: string;
+  itemType: 'notification' | 'activity';
+  actionUrl?: string;
+}
+
 export const NotificationButton: React.FC = () => {
   const [open, setOpen] = useState(false);
   const { activities, notifications, unreadCount, markActivityAsRead, markNotificationAsRead, markAllAsRead } = useActivity();
@@ -28,10 +39,36 @@ export const NotificationButton: React.FC = () => {
     setOpen(false);
   };
 
-  const allItems = [
-    ...notifications.map(n => ({ ...n, itemType: 'notification' })),
-    ...activities.map(a => ({ ...a, itemType: 'activity' }))
+  // Transform data to consistent format
+  const allItems: NotificationItem[] = [
+    ...notifications.map(n => ({ 
+      id: n.id,
+      title: n.title,
+      content: n.message,
+      timestamp: n.timestamp,
+      read: n.read,
+      icon: '🔔',
+      itemType: 'notification' as const,
+      actionUrl: n.actionUrl
+    })),
+    ...activities.map(a => ({ 
+      id: a.id,
+      title: a.title,
+      content: a.description,
+      timestamp: a.timestamp,
+      read: a.read,
+      icon: a.icon,
+      itemType: 'activity' as const
+    }))
   ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+  const handleItemClick = (item: NotificationItem) => {
+    if (item.itemType === 'notification') {
+      handleNotificationClick(item);
+    } else {
+      handleActivityClick(item);
+    }
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -66,7 +103,7 @@ export const NotificationButton: React.FC = () => {
                     className={`w-full p-3 text-left hover:bg-gray-50 rounded-lg transition-colors ${
                       !item.read ? 'bg-blue-50/50' : ''
                     }`}
-                    onClick={() => item.itemType === 'notification' ? handleNotificationClick(item) : handleActivityClick(item)}
+                    onClick={() => handleItemClick(item)}
                   >
                     <div className="flex items-start space-x-3">
                       <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -75,14 +112,14 @@ export const NotificationButton: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <h4 className={`text-sm font-medium font-poppins ${!item.read ? 'text-foreground' : 'text-muted-foreground'}`}>
-                            {item.itemType === 'notification' ? item.title : item.title}
+                            {item.title}
                           </h4>
                           {!item.read && (
                             <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground font-inter">
-                          {item.itemType === 'notification' ? item.message : item.description}
+                          {item.content}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1 font-inter">
                           {formatDistanceToNow(item.timestamp, { addSuffix: true })}
