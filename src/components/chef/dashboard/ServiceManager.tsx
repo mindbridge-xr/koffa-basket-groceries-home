@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -148,7 +147,6 @@ export const ServiceManager: React.FC<ServiceManagerProps> = ({
                           <Switch 
                             checked={service.active !== false}
                             onCheckedChange={(checked) => onToggleService(service.id, checked)}
-                            size="sm"
                           />
                         </h4>
                         <p className="text-sm text-muted-foreground font-inter line-clamp-2 mt-1">
