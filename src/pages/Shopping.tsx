@@ -24,9 +24,7 @@ import { Link } from 'react-router-dom';
 import { CustomGroceryListDialog } from '@/components/CustomGroceryListDialog';
 import { SmartShoppingTile } from '@/components/SmartShoppingTile';
 import { HealthTrackingDashboard } from '@/components/HealthTrackingDashboard';
-import { useHealthTracking } from '@/hooks/useHealthTracking';
-import { organizeSmartList, calculateShoppingRoute } from '@/utils/smartListOrganizer';
-import { StoreSection } from '@/types/smartShopping';
+import { useShoppingSession } from '@/hooks/useShoppingSession';
 import { cn } from '@/lib/utils';
 
 export const Shopping: React.FC = () => {
@@ -35,34 +33,59 @@ export const Shopping: React.FC = () => {
   const [showCompleted, setShowCompleted] = useState(false);
   const [showCustomListDialog, setShowCustomListDialog] = useState(false);
   const [showHealthDashboard, setShowHealthDashboard] = useState(false);
-  const [smartSections, setSmartSections] = useState<StoreSection[]>([]);
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
 
   const {
+    sessionState,
+    isActive,
+    currentSection,
+    progress,
+    isComplete,
     isTracking,
     currentMetrics,
-    startTracking,
-    stopTracking,
-    getWeeklyStats
-  } = useHealthTracking();
+    weeklyStats,
+    startSession,
+    endSession,
+    updateItemStatus,
+    completeCurrentSection
+  } = useShoppingSession();
 
-  // Get active shopping lists (lists with uncompleted items)
+  // Get active shopping lists
   const activeShoppingLists = lists.filter(list => 
     list.items.some(item => !item.checked)
   );
 
   const selectedList = selectedListId ? lists.find(l => l.id === selectedListId) : null;
 
+  // Start shopping session when list is selected
   useEffect(() => {
+    if (selectedList && !isActive) {
+      startSession(selectedList.id, selectedList.items);
+    }
+  }, [selectedList, isActive, startSession]);
+
+  const handleItemToggle = (itemId: string) => {
     if (selectedList) {
-      const sections = organizeSmartList(selectedList.items);
-      setSmartSections(sections);
+      // Update in app context
+      toggleItemChecked(selectedList.id, itemId);
       
-      if (!isTracking) {
-        startTracking(selectedList.id);
+      // Update in shopping session
+      const item = selectedList.items.find(i => i.id === itemId);
+      if (item) {
+        updateItemStatus(itemId, !item.checked);
       }
     }
-  }, [selectedList, startTracking, isTracking]);
+  };
+
+  const handleSectionComplete = () => {
+    completeCurrentSection();
+  };
+
+  const handleShoppingComplete = () => {
+    const session = endSession();
+    if (session) {
+      setShowHealthDashboard(true);
+    }
+  };
 
   const getProgress = (list: any) => {
     if (list.items.length === 0) return 0;
@@ -70,52 +93,9 @@ export const Shopping: React.FC = () => {
     return (completed / list.items.length) * 100;
   };
 
-  const handleItemToggle = (itemId: string) => {
-    if (selectedList) {
-      toggleItemChecked(selectedList.id, itemId);
-      
-      // Update smart sections
-      setSmartSections(prev => prev.map(section => ({
-        ...section,
-        items: section.items.map(item => 
-          item.id === itemId ? { ...item, checked: !item.checked } : item
-        )
-      })));
-    }
-  };
-
-  const handleSectionComplete = (sectionId: string) => {
-    setSmartSections(prev => prev.map(section => 
-      section.id === sectionId ? { ...section, visited: true } : section
-    ));
-    
-    const nextIncompleteSection = smartSections.findIndex(
-      (section, index) => index > currentSectionIndex && !section.visited
-    );
-    
-    if (nextIncompleteSection !== -1) {
-      setCurrentSectionIndex(nextIncompleteSection);
-    }
-  };
-
-  const handleShoppingComplete = () => {
-    if (selectedList) {
-      const completedItems = selectedList.items.filter(item => item.checked).length;
-      const session = stopTracking(selectedList.id, completedItems, selectedList.items.length);
-      
-      if (session) {
-        // Show completion celebration
-        setShowHealthDashboard(true);
-      }
-    }
-  };
-
-  if (selectedList) {
+  if (selectedList && isActive) {
     const pendingItems = selectedList.items.filter(item => !item.checked);
     const completedItems = selectedList.items.filter(item => item.checked);
-    const progress = getProgress(selectedList);
-    const currentSection = smartSections[currentSectionIndex];
-    const weeklyStats = getWeeklyStats();
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-20">
@@ -123,7 +103,10 @@ export const Shopping: React.FC = () => {
         <div className="bg-gradient-primary text-white mobile-padding">
           <div className="flex items-center justify-between mb-6">
             <button 
-              onClick={() => setSelectedListId(null)}
+              onClick={() => {
+                endSession();
+                setSelectedListId(null);
+              }}
               className="p-2 hover:bg-white/20 rounded-xl transition-colors active:scale-95"
             >
               <ArrowLeft className="h-6 w-6" />
@@ -181,7 +164,7 @@ export const Shopping: React.FC = () => {
             </div>
           </div>
           
-          {/* Section navigation */}
+          {/* Current section info */}
           {currentSection && (
             <div className="bg-white/10 rounded-lg p-3 mb-4">
               <div className="flex items-center justify-between">
@@ -195,7 +178,7 @@ export const Shopping: React.FC = () => {
                   </div>
                 </div>
                 <Badge className="bg-white/20 text-white">
-                  Section {currentSectionIndex + 1}/{smartSections.length}
+                  Section {sessionState.currentSectionIndex + 1}/{sessionState.sections.length}
                 </Badge>
               </div>
             </div>
@@ -215,10 +198,11 @@ export const Shopping: React.FC = () => {
 
         {/* Smart Shopping Sections */}
         <div className="mobile-spacing space-y-6 py-6">
-          {smartSections.map((section, sectionIndex) => {
+          {sessionState.sections.map((section, sectionIndex) => {
             const sectionPendingItems = section.items.filter(item => !item.checked);
             const sectionCompletedItems = section.items.filter(item => item.checked);
-            const showSection = sectionIndex === currentSectionIndex || 
+            const isCurrentSection = sectionIndex === sessionState.currentSectionIndex;
+            const showSection = isCurrentSection || 
                               (showCompleted && sectionCompletedItems.length > 0) ||
                               sectionPendingItems.length > 0;
 
@@ -227,7 +211,7 @@ export const Shopping: React.FC = () => {
             return (
               <Card key={section.id} className={cn(
                 "overflow-hidden transition-all duration-300",
-                sectionIndex === currentSectionIndex ? "ring-2 ring-primary shadow-lg" : "shadow",
+                isCurrentSection ? "ring-2 ring-primary shadow-lg" : "shadow",
                 section.visited && "bg-green-50 border-green-200"
               )}>
                 <CardHeader className="pb-3">
@@ -252,9 +236,9 @@ export const Shopping: React.FC = () => {
                       </div>
                     </div>
                     
-                    {sectionIndex === currentSectionIndex && sectionPendingItems.length === 0 && (
+                    {isCurrentSection && sectionPendingItems.length === 0 && (
                       <Button
-                        onClick={() => handleSectionComplete(section.id)}
+                        onClick={handleSectionComplete}
                         className="btn-primary"
                         size="sm"
                       >
@@ -297,7 +281,7 @@ export const Shopping: React.FC = () => {
           })}
 
           {/* Shopping Complete State */}
-          {pendingItems.length === 0 && (
+          {isComplete && (
             <Card className="p-8 text-center bg-gradient-to-br from-green-50 to-blue-50">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 className="h-10 w-10 text-green-600" />
@@ -333,7 +317,10 @@ export const Shopping: React.FC = () => {
                 </Button>
                 <Button 
                   variant="outline"
-                  onClick={() => setSelectedListId(null)}
+                  onClick={() => {
+                    endSession();
+                    setSelectedListId(null);
+                  }}
                 >
                   Back to Lists
                 </Button>
@@ -370,9 +357,9 @@ export const Shopping: React.FC = () => {
     );
   }
 
+  // List selection view
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-20">
-      
       <div className="bg-gradient-primary text-white mobile-padding">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold font-poppins">Shopping Mode</h1>
@@ -401,7 +388,7 @@ export const Shopping: React.FC = () => {
             <div className="space-y-3">
               {activeShoppingLists.map(list => {
                 const pendingCount = list.items.filter(item => !item.checked).length;
-                const progress = getProgress(list);
+                const listProgress = getProgress(list);
                 
                 return (
                   <button
@@ -417,9 +404,9 @@ export const Shopping: React.FC = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <Progress value={progress} className="h-2" />
+                      <Progress value={listProgress} className="h-2" />
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground font-inter">{Math.round(progress)}% complete</span>
+                        <span className="text-muted-foreground font-inter">{Math.round(listProgress)}% complete</span>
                         <div className="flex items-center text-muted-foreground font-inter">
                           <Clock className="h-3 w-3 mr-1" />
                           <span>~{Math.ceil(pendingCount * 1.5)} min</span>

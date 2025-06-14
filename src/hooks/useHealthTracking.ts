@@ -12,36 +12,45 @@ export const useHealthTracking = () => {
   });
   const [sessions, setSessions] = useState<ShoppingSession[]>([]);
   const startTimeRef = useRef<Date | null>(null);
-  const initialStepsRef = useRef<number>(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Simulate step counting (in real app, this would use device sensors)
+  // Realistic step counting simulation
   useEffect(() => {
-    if (!isTracking) return;
+    if (!isTracking || !startTimeRef.current) return;
 
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setCurrentMetrics(prev => {
-        const newSteps = prev.steps + Math.floor(Math.random() * 3); // Simulate steps
-        const duration = startTimeRef.current 
-          ? Math.floor((Date.now() - startTimeRef.current.getTime()) / 60000)
-          : 0;
+        const duration = Math.floor((Date.now() - startTimeRef.current!.getTime()) / 60000);
+        
+        // More realistic step increment (2-6 steps every 3 seconds while shopping)
+        const stepIncrement = Math.floor(Math.random() * 5) + 2;
+        const newSteps = prev.steps + stepIncrement;
+        
+        // Realistic calorie burn (approximately 0.04 calories per step)
+        const caloriesBurned = Math.floor(newSteps * 0.04);
+        
+        // Distance calculation (average step = 0.762 meters)
+        const distanceWalked = Math.floor(newSteps * 0.762);
         
         return {
-          ...prev,
           steps: newSteps,
-          caloriesBurned: Math.floor(newSteps * 0.04), // Rough calorie calculation
-          distanceWalked: Math.floor(newSteps * 0.7), // Rough distance in meters
+          caloriesBurned,
+          distanceWalked,
           shoppingDuration: duration
         };
       });
-    }, 2000); // Update every 2 seconds
+    }, 3000); // Update every 3 seconds for more realistic tracking
 
-    return () => clearInterval(interval);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, [isTracking]);
 
   const startTracking = (listId: string) => {
     setIsTracking(true);
     startTimeRef.current = new Date();
-    initialStepsRef.current = currentMetrics.steps;
     
     // Reset metrics for new session
     setCurrentMetrics({
@@ -53,20 +62,25 @@ export const useHealthTracking = () => {
   };
 
   const stopTracking = (listId: string, itemsCompleted: number, totalItems: number) => {
-    if (!startTimeRef.current) return;
+    if (!startTimeRef.current) return null;
 
     setIsTracking(false);
+    
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
     
     const session: ShoppingSession = {
       id: Date.now().toString(),
       listId,
       startTime: startTimeRef.current,
       endTime: new Date(),
-      healthMetrics: currentMetrics,
+      healthMetrics: { ...currentMetrics },
       itemsCompleted,
       totalItems,
-      efficiency: Math.round((itemsCompleted / totalItems) * 100),
-      route: [] // Would be populated with actual route data
+      efficiency: totalItems > 0 ? Math.round((itemsCompleted / totalItems) * 100) : 0,
+      route: []
     };
 
     setSessions(prev => [session, ...prev]);
