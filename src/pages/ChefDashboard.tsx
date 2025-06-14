@@ -20,11 +20,11 @@ export const ChefDashboard: React.FC = () => {
   if (!chefProfile) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 flex items-center justify-center pb-20">
-        <div className="text-center mobile-spacing">
-          <h2 className="text-xl font-semibold text-foreground mb-4 font-poppins">Chef Profile Not Found</h2>
-          <p className="text-muted-foreground mb-6 font-inter">Complete your chef profile to start accepting bookings</p>
+        <div className="text-center mobile-spacing max-w-sm mx-auto">
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4 font-poppins">Chef Profile Not Found</h2>
+          <p className="text-sm sm:text-base text-muted-foreground mb-6 font-inter">Complete your chef profile to start accepting bookings</p>
           <Button 
-            className="btn-primary"
+            className="btn-primary w-full sm:w-auto"
             onClick={() => navigate('/chef-onboarding')}
           >
             Complete Setup
@@ -109,7 +109,7 @@ export const ChefDashboard: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 pb-20">
       <StatusHeader chefProfile={chefProfile} earnings={earnings} />
 
-      <div className="mobile-spacing py-4 space-y-6">
+      <div className="px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl mx-auto">
         <InteractiveStats earnings={earnings} chefProfile={chefProfile} />
         
         <ChefDashboardTabs 
@@ -117,7 +117,9 @@ export const ChefDashboard: React.FC = () => {
           onTabChange={setActiveTab} 
         />
 
-        {renderTabContent()}
+        <div className="min-h-[400px]">
+          {renderTabContent()}
+        </div>
       </div>
 
       <BottomNav />
