@@ -12,9 +12,11 @@ import TaskDetail from '@/pages/TaskDetail';
 import ChefMarketplace from '@/pages/ChefMarketplace';
 import ChefDashboard from '@/pages/ChefDashboard';
 import ChefOnboarding from '@/pages/ChefOnboarding';
+import ChefProfile from '@/pages/ChefProfile';
 import FamilyManagement from '@/pages/FamilyManagement';
 import Schedule from '@/pages/Schedule';
 import Settings from '@/pages/Settings';
+import Profile from '@/pages/Profile';
 import { AppProvider } from '@/context/AppContext';
 import { TaskProvider } from '@/context/TaskContext';
 import { ChefProvider } from '@/context/ChefContext';
@@ -41,9 +43,11 @@ function App() {
                   <Route path="/chef-marketplace" element={<ChefMarketplace />} />
                   <Route path="/chef-dashboard" element={<ChefDashboard />} />
                   <Route path="/chef-onboarding" element={<ChefOnboarding />} />
+                  <Route path="/chef/:chefId" element={<ChefProfile />} />
                   <Route path="/family-management" element={<FamilyManagement />} />
                   <Route path="/schedule" element={<Schedule />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/profile" element={<Profile />} />
                 </Routes>
               </ChefProvider>
             </TaskProvider>

@@ -22,6 +22,9 @@ interface AppContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
+  updateUserProfile: (updates: Partial<User>) => void;
+  getUserStats: () => UserStats;
+  uploadAvatar: (file: File) => Promise<string>;
 }
 
 interface GroceryList {
@@ -66,6 +69,44 @@ interface User {
   name: string;
   email: string;
   avatar?: string;
+  phone?: string;
+  bio?: string;
+  location?: string;
+  dietaryPreferences?: string[];
+  cookingSkillLevel?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  favoriteCuisines?: string[];
+  familyRole?: 'parent' | 'guardian' | 'teen' | 'child';
+  joinedAt?: string;
+  notificationPreferences?: {
+    tasks: boolean;
+    shopping: boolean;
+    chef: boolean;
+    family: boolean;
+  };
+  preferences?: {
+    theme: 'light' | 'dark' | 'system';
+    language: string;
+    privacy: 'public' | 'family' | 'private';
+  };
+}
+
+interface UserStats {
+  totalLists: number;
+  totalItems: number;
+  completedTasks: number;
+  sharedLists: number;
+  profileCompletion: number;
+  joinedDaysAgo: number;
+  achievements: Achievement[];
+}
+
+interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  unlockedAt: string;
+  category: 'cooking' | 'shopping' | 'tasks' | 'family';
 }
 
 // Enhanced mock data for demo
@@ -134,8 +175,54 @@ const mockUser: User = {
   id: 'user1',
   name: 'Demo User',
   email: 'demo@koffa.app',
-  avatar: undefined
+  avatar: undefined,
+  phone: '+1 (555) 123-4567',
+  bio: 'Family organizer who loves cooking and trying new recipes. Always looking for ways to make meal planning easier!',
+  location: 'San Francisco, CA',
+  dietaryPreferences: ['vegetarian', 'gluten-free'],
+  cookingSkillLevel: 'intermediate',
+  favoriteCuisines: ['Italian', 'Mediterranean', 'Asian'],
+  familyRole: 'parent',
+  joinedAt: '2024-01-01',
+  notificationPreferences: {
+    tasks: true,
+    shopping: true,
+    chef: true,
+    family: true
+  },
+  preferences: {
+    theme: 'light',
+    language: 'en',
+    privacy: 'family'
+  }
 };
+
+const mockAchievements: Achievement[] = [
+  {
+    id: '1',
+    title: 'List Master',
+    description: 'Created 10 grocery lists',
+    icon: '📝',
+    unlockedAt: '2024-01-15',
+    category: 'shopping'
+  },
+  {
+    id: '2',
+    title: 'Task Ninja',
+    description: 'Completed 25 tasks',
+    icon: '✅',
+    unlockedAt: '2024-01-20',
+    category: 'tasks'
+  },
+  {
+    id: '3',
+    title: 'Family Coordinator',
+    description: 'Shared lists with all family members',
+    icon: '👨‍👩‍👧‍👦',
+    unlockedAt: '2024-01-25',
+    category: 'family'
+  }
+];
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -145,7 +232,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [currentList, setCurrentListState] = useState<GroceryList | null>(null);
   const [familyMembers] = useState<FamilyMember[]>(mockFamilyMembers);
   const [categories] = useState<Category[]>(mockCategories);
-  const [user] = useState<User | null>(mockUser);
+  const [user, setUser] = useState<User | null>(mockUser);
 
   const setCurrentList = (listId: string | null) => {
     if (listId) {
@@ -272,6 +359,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsAuthenticated(false);
   };
 
+  const updateUserProfile = (updates: Partial<User>) => {
+    if (user) {
+      setUser({ ...user, ...updates });
+    }
+  };
+
+  const getUserStats = (): UserStats => {
+    const completedTasks = 0; // This will be calculated from TaskContext
+    const totalItems = lists.reduce((sum, list) => sum + list.items.length, 0);
+    const sharedLists = lists.filter(list => list.shared).length;
+    
+    // Calculate profile completion
+    const requiredFields = ['name', 'email', 'phone', 'bio', 'location'];
+    const completedFields = requiredFields.filter(field => user?.[field as keyof User]);
+    const profileCompletion = Math.round((completedFields.length / requiredFields.length) * 100);
+    
+    const joinedDaysAgo = user?.joinedAt ? 
+      Math.floor((Date.now() - new Date(user.joinedAt).getTime()) / (1000 * 60 * 60 * 24)) : 0;
+    
+    return {
+      totalLists: lists.length,
+      totalItems,
+      completedTasks,
+      sharedLists,
+      profileCompletion,
+      joinedDaysAgo,
+      achievements: mockAchievements
+    };
+  };
+
+  const uploadAvatar = async (file: File): Promise<string> => {
+    // Simulate file upload - in real app this would upload to storage
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const mockUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`;
+        if (user) {
+          setUser({ ...user, avatar: mockUrl });
+        }
+        resolve(mockUrl);
+      }, 1000);
+    });
+  };
+
   return (
     <AppContext.Provider value={{
       isAuthenticated,
@@ -294,7 +424,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       user,
       login,
       register,
-      logout
+      logout,
+      updateUserProfile,
+      getUserStats,
+      uploadAvatar
     }}>
       {children}
     </AppContext.Provider>
