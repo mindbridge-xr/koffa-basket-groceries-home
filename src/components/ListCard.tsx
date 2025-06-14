@@ -2,6 +2,7 @@
 import React from 'react';
 import { GroceryList } from '@/types';
 import { Users, ArrowRight, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ListCardProps {
   list: GroceryList;
@@ -9,13 +10,20 @@ interface ListCardProps {
 }
 
 export const ListCard: React.FC<ListCardProps> = ({ list, onClick }) => {
+  const navigate = useNavigate();
   const completedItems = list.items.filter(item => item.checked).length;
   const totalItems = list.items.length;
   const progress = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
 
+  const handleClick = () => {
+    console.log('ListCard: Navigating to list with ID:', list.id);
+    navigate(`/list/${list.id}`);
+    onClick();
+  };
+
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       className="card-familyhub-hover p-4 text-left w-full"
     >
       <div className="flex items-center justify-between mb-3">

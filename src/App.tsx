@@ -18,6 +18,7 @@ import FamilyManagement from '@/pages/FamilyManagement';
 import Schedule from '@/pages/Schedule';
 import Settings from '@/pages/Settings';
 import Profile from '@/pages/Profile';
+import NotFound from '@/pages/NotFound';
 import { AppProvider } from '@/context/AppContext';
 import { TaskProvider } from '@/context/TaskContext';
 import { ChefProvider } from '@/context/ChefContext';
@@ -52,6 +53,7 @@ function App() {
                     <Route path="/schedule" element={<Schedule />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="*" element={<NotFound />} />
                   </Routes>
                 </ChefProvider>
               </TaskProvider>
