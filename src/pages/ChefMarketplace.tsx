@@ -36,7 +36,7 @@ export const ChefMarketplace: React.FC = () => {
     return matchesSearch && matchesService && matchesLocation && matchesPrice;
   });
 
-  const hasActiveFilters = searchTerm || selectedService !== 'all' || selectedLocation !== 'all' || priceRange !== 'all';
+  const hasActiveFilters = Boolean(searchTerm) || selectedService !== 'all' || selectedLocation !== 'all' || priceRange !== 'all';
 
   const handleClearFilters = () => {
     setSearchTerm('');
