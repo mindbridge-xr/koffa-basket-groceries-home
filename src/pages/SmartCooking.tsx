@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +23,7 @@ export const SmartCooking: React.FC = () => {
   const { 
     searchRecipes, 
     getRecipesByIngredients, 
+    getRandomRecipe,
     recipes, 
     isLoading: isMealDBLoading 
   } = useMealDB();
@@ -39,19 +40,37 @@ export const SmartCooking: React.FC = () => {
     isCalculating 
   } = useNutrition();
 
+  // Load some initial content when the page loads
+  useEffect(() => {
+    console.log('SmartCooking page loaded');
+    // Load a random recipe on initial page load
+    if (recipes.length === 0) {
+      getRandomRecipe();
+    }
+  }, []);
+
   const handleSearch = async () => {
     if (searchQuery.trim()) {
+      console.log('Searching for:', searchQuery);
       await searchRecipes(searchQuery);
+    } else {
+      toast({
+        title: "Search query required",
+        description: "Please enter a recipe name or ingredient to search"
+      });
     }
   };
 
   const handleGenerateRecipe = async () => {
+    console.log('Generating recipe...');
     const availableIngredients = lists.flatMap(list => 
       list.items.filter(item => !item.checked).map(item => item.name)
     );
     
+    console.log('Available ingredients from lists:', availableIngredients);
+    
     await generateRecipe({
-      ingredients: availableIngredients.slice(0, 10),
+      ingredients: availableIngredients.length > 0 ? availableIngredients.slice(0, 10) : ['chicken', 'rice', 'vegetables'],
       dietaryRestrictions: ['family-friendly'],
       cookingTime: '30 minutes',
       servings: 4
@@ -59,6 +78,8 @@ export const SmartCooking: React.FC = () => {
   };
 
   const handleAddToShoppingList = (ingredients: string[]) => {
+    console.log('Adding ingredients to shopping list:', ingredients);
+    
     if (lists.length === 0) {
       createList('Recipe Ingredients');
       toast({
@@ -218,9 +239,10 @@ export const SmartCooking: React.FC = () => {
                               size="sm"
                               variant="outline"
                               onClick={() => calculateNutrition(recipe)}
+                              disabled={isCalculating}
                             >
                               <Calculator className="h-4 w-4 mr-1" />
-                              Nutrition
+                              {isCalculating ? 'Calculating...' : 'Nutrition'}
                             </Button>
                           </div>
                         </div>
@@ -234,7 +256,7 @@ export const SmartCooking: React.FC = () => {
                 <CardContent className="p-8 text-center">
                   <ChefHat className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground font-inter">
-                    Search for recipes or generate custom ones with AI
+                    {isMealDBLoading ? 'Loading recipes...' : 'Search for recipes or generate custom ones with AI'}
                   </p>
                 </CardContent>
               </Card>
@@ -256,6 +278,9 @@ export const SmartCooking: React.FC = () => {
                       {generatedRecipe.servings} servings
                     </div>
                   </div>
+                  <p className="text-sm text-muted-foreground font-inter mt-2">
+                    {generatedRecipe.description}
+                  </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
@@ -292,7 +317,7 @@ export const SmartCooking: React.FC = () => {
                 <CardContent className="p-8 text-center">
                   <Zap className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground font-inter">
-                    Generate a custom recipe using AI
+                    {isGenerating ? 'Generating your custom recipe...' : 'Generate a custom recipe using AI'}
                   </p>
                 </CardContent>
               </Card>
@@ -363,7 +388,7 @@ export const SmartCooking: React.FC = () => {
                 <CardContent className="p-8 text-center">
                   <Calculator className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground font-inter">
-                    Select a recipe to view nutrition information
+                    {isCalculating ? 'Calculating nutrition information...' : 'Select a recipe to view nutrition information'}
                   </p>
                 </CardContent>
               </Card>

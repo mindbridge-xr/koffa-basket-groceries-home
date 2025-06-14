@@ -18,12 +18,14 @@ export function useNutrition() {
   const [isCalculating, setIsCalculating] = useState(false);
 
   const calculateNutrition = async (recipe: any) => {
+    console.log('Calculating nutrition for recipe:', recipe.strMeal || recipe.name);
     setIsCalculating(true);
     
     try {
       // For demo purposes, simulate nutrition calculation
       // In a real implementation, this would use a nutrition API
       const mockNutrition = await simulateNutritionCalculation(recipe);
+      console.log('Calculated nutrition:', mockNutrition);
       setNutritionData(mockNutrition);
       
       toast({
@@ -43,6 +45,7 @@ export function useNutrition() {
   };
 
   const simulateNutritionCalculation = async (recipe: any): Promise<NutritionData> => {
+    console.log('Simulating nutrition calculation...');
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
@@ -53,10 +56,13 @@ export function useNutrition() {
       'Seafood': { calories: 280, protein: 28, carbs: 15, fat: 12 },
       'Vegetarian': { calories: 250, protein: 12, carbs: 40, fat: 8 },
       'Dessert': { calories: 450, protein: 6, carbs: 65, fat: 18 },
+      'Pasta': { calories: 380, protein: 15, carbs: 55, fat: 12 },
       'Default': { calories: 320, protein: 20, carbs: 35, fat: 12 }
     };
     
     const category = recipe.strCategory || 'Default';
+    console.log('Recipe category for nutrition:', category);
+    
     const base = baseNutrition[category as keyof typeof baseNutrition] || baseNutrition.Default;
     
     // Add some randomization for realism
@@ -95,6 +101,7 @@ export function useNutrition() {
     
     nutrition.healthScore = Math.min(Math.max(healthScore, 0), 100);
     
+    console.log('Final nutrition data:', nutrition);
     return nutrition;
   };
 
