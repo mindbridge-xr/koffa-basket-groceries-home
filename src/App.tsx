@@ -9,6 +9,7 @@ import ListDetail from '@/pages/ListDetail';
 import Shopping from '@/pages/Shopping';
 import Tasks from '@/pages/Tasks';
 import TaskDetail from '@/pages/TaskDetail';
+import ChefWelcome from '@/pages/ChefWelcome';
 import ChefMarketplace from '@/pages/ChefMarketplace';
 import ChefDashboard from '@/pages/ChefDashboard';
 import ChefOnboarding from '@/pages/ChefOnboarding';
@@ -42,6 +43,7 @@ function App() {
                     <Route path="/shopping" element={<Shopping />} />
                     <Route path="/tasks" element={<Tasks />} />
                     <Route path="/task/:id" element={<TaskDetail />} />
+                    <Route path="/chef-welcome" element={<ChefWelcome />} />
                     <Route path="/chef-marketplace" element={<ChefMarketplace />} />
                     <Route path="/chef-dashboard" element={<ChefDashboard />} />
                     <Route path="/chef-onboarding" element={<ChefOnboarding />} />
