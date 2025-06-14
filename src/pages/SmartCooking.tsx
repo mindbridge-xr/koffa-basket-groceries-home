@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BottomNav } from '@/components/BottomNav';
+import { RecipeDetailDialog } from '@/components/RecipeDetailDialog';
 import { useApp } from '@/context/AppContext';
 import { useMealDB } from '@/hooks/useMealDB';
 import { useRecipeGeneration } from '@/hooks/useRecipeGeneration';
@@ -19,6 +20,7 @@ export const SmartCooking: React.FC = () => {
   const { lists, addItemToList, createList } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState<any>(null);
+  const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false);
   
   const { 
     searchRecipes, 
@@ -75,6 +77,12 @@ export const SmartCooking: React.FC = () => {
       cookingTime: '30 minutes',
       servings: 4
     });
+  };
+
+  const handleViewRecipe = (recipe: any) => {
+    console.log('Viewing recipe:', recipe.strMeal);
+    setSelectedRecipe(recipe);
+    setIsRecipeDialogOpen(true);
   };
 
   const handleAddToShoppingList = (ingredients: string[]) => {
@@ -230,7 +238,7 @@ export const SmartCooking: React.FC = () => {
                           <div className="flex items-center space-x-2 mt-2">
                             <Button
                               size="sm"
-                              onClick={() => setSelectedRecipe(recipe)}
+                              onClick={() => handleViewRecipe(recipe)}
                               className="btn-primary"
                             >
                               View Recipe
@@ -396,6 +404,16 @@ export const SmartCooking: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Recipe Detail Dialog */}
+      <RecipeDetailDialog
+        recipe={selectedRecipe}
+        isOpen={isRecipeDialogOpen}
+        onClose={() => setIsRecipeDialogOpen(false)}
+        onAddToShoppingList={handleAddToShoppingList}
+        onCalculateNutrition={calculateNutrition}
+        isCalculatingNutrition={isCalculating}
+      />
 
       <BottomNav />
     </div>
