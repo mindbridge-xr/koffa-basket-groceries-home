@@ -11,7 +11,7 @@ import { useTasks } from '@/context/TaskContext';
 const TaskDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { tasks, updateTaskStatus } = useTasks();
+  const { tasks, updateTask } = useTasks();
   
   const task = tasks.find(t => t.id === id);
 
@@ -103,7 +103,7 @@ const TaskDetail: React.FC = () => {
           <div className="flex space-x-3">
             {task.status !== 'completed' && (
               <Button 
-                onClick={() => updateTaskStatus(task.id, 'completed')}
+                onClick={() => updateTask(task.id, { status: 'completed' })}
                 className="btn-primary flex-1"
               >
                 Mark Complete
@@ -111,7 +111,7 @@ const TaskDetail: React.FC = () => {
             )}
             {task.status === 'pending' && (
               <Button 
-                onClick={() => updateTaskStatus(task.id, 'in-progress')}
+                onClick={() => updateTask(task.id, { status: 'in-progress' })}
                 variant="outline"
                 className="flex-1"
               >
