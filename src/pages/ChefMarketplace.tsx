@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChef } from '@/context/ChefContext';
@@ -66,17 +65,7 @@ export const ChefMarketplace: React.FC = () => {
         title="Chef Marketplace"
         subtitle="Find the perfect chef for your needs"
         showBack={true}
-      >
-        {!isChef && (
-          <Button 
-            className="bg-white text-primary hover:bg-white/90"
-            onClick={() => navigate('/chef-onboarding')}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Become a Chef
-          </Button>
-        )}
-      </PageHeader>
+      />
 
       <div className="mobile-spacing py-4 space-y-6">
         {/* Marketplace Stats */}
